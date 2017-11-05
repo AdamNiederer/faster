@@ -1,0 +1,44 @@
+* faster
+SIMD for humans.
+
+** Vision
+Easy, powerful, absurdly fast numerical calculations. Chaining, Type punning,
+static dispatch (w/ inlining) based on your platform and vector types,
+zero-allocation iteration, and support for uneven collections.
+
+#+BEGIN_SRC rust
+  let some_floats = (&[0u8; 128][..]).simd_iter()
+      .map(|v| ((v >> splat(4)).as_u16s() + splat(2000)))
+      .map(|v| mem::transmute<u16s, f32s>(v).sqrt().round_down())
+      .scalar_collect<Vec<f32>>();
+
+  let some_u8s = [0u8; 100];
+  let filled_u8s = (&[0u8; 100][..]).simd_iter()
+      .uneven_map(|vector| vector * splat(2),
+                  |scalar| scalar * 2)
+      .fill(&mut some_u8s);
+#+END_SRC
+** Current API
+It looks something like this:
+#+BEGIN_SRC rust
+  let lots_of_twos = (&[0u8; 128][..]).simd_iter()
+      .map(|v| u8x32::splat(9) * v + u8x32::splat(4) - u8x32::splat(2))
+      .scalar_collect::<Vec<u8>>();
+#+END_SRC
+
+Vector size from ~simd_iter~ and friends is determined based on the machine
+you're compiling on. I also plan to wrap stdsimd's vector types and intrinsics
+to provide true cross-platform SIMD, regardless of arch or feature level.
+
+Don't actually use this until I have some more time to work on it (pull requests
+very welcome; I have a lot of intrinsics to wade through!).
+** Performance
+Here are some extremely unscientific benchmarks which, at least, prove that this
+isn't any worse than scalar iterators.
+#+BEGIN_SRC shell
+  running 4 tests
+  test tests::bench_nop_scalar ... bench:          59 ns/iter (+/- 0)
+  test tests::bench_nop_simd   ... bench:          52 ns/iter (+/- 0)
+  test tests::bench_scalar     ... bench:          57 ns/iter (+/- 0)
+  test tests::bench_simd       ... bench:          52 ns/iter (+/- 0)
+#+END_SRC
