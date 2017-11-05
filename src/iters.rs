@@ -1,31 +1,36 @@
-use std::marker::PhantomData;
-use typenum::{Unsigned};
+use vecs::Packable;
 
 pub trait PackedIterator : Sized {
-    type Item;
-    fn width(&self) -> usize;
-}
-
-// T : Scalar type, S : SIMD Vector, N : SIMD Width
-pub struct PackedIter<'a, T : 'a, S, N> {
-    pub data: &'a [T],
-    pub position: usize,
-    pub __simd_data: PhantomData<(S, N)>,
-}
-
-impl<'a, T, S, N> PackedIterator for PackedIter<'a, T, S, N>
-    where N : Unsigned {
-    type Item = S;
+    type Vector;
+    const WIDTH: usize;
 
     #[inline(always)]
-    fn width(&self) -> usize {
-        N::to_usize()
+    fn width(&self) -> usize;
+
+    #[inline(always)]
+    fn scalar_len(&self) -> usize;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Vector>;
+}
+
+#[derive(Debug)]
+pub struct PackedIter<'a, T : 'a + Packable> {
+    pub position: usize,
+    pub data: &'a [T],
+}
+
+impl<'a, T> ExactSizeIterator for PackedIter<'a, T>
+    where T : Packable {
+
+    #[inline(always)]
+    fn len(&self) -> usize {
+        self.data.len() / T::SIZE
     }
 }
 
 impl<T: PackedIterator> IntoPackedIterator for T {
     type Iter = T;
-    type Item = T::Item;
 
     #[inline(always)]
     fn into_simd_iter(self) -> T {
@@ -34,22 +39,19 @@ impl<T: PackedIterator> IntoPackedIterator for T {
 }
 
 pub trait IntoPackedIterator {
-    type Iter: PackedIterator<Item = Self::Item>;
-    type Item;
+    type Iter: PackedIterator;
 
     fn into_simd_iter(self) -> Self::Iter;
 }
 
 pub trait IntoPackedRefIterator<'a> {
-    type Iter: PackedIterator<Item = Self::Item>;
-    type Item: 'a;
+    type Iter: PackedIterator;
 
     fn simd_iter(&'a self) -> Self::Iter;
 }
 
 pub trait IntoPackedRefMutIterator<'a> {
-    type Iter: PackedIterator<Item = Self::Item>;
-    type Item: 'a;
+    type Iter: PackedIterator;
 
     fn simd_iter_mut(&'a mut self) -> Self::Iter;
 }
@@ -58,7 +60,6 @@ pub trait IntoPackedRefMutIterator<'a> {
 impl<'a, I: 'a + ?Sized> IntoPackedRefIterator<'a> for I
     where &'a I: IntoPackedIterator {
     type Iter = <&'a I as IntoPackedIterator>::Iter;
-    type Item = <&'a I as IntoPackedIterator>::Item;
 
     fn simd_iter(&'a self) -> Self::Iter {
         self.into_simd_iter()
@@ -68,7 +69,6 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefIterator<'a> for I
 impl<'a, I: 'a + ?Sized> IntoPackedRefMutIterator<'a> for I
     where &'a mut I: IntoPackedIterator {
     type Iter = <&'a mut I as IntoPackedIterator>::Iter;
-    type Item = <&'a mut I as IntoPackedIterator>::Item;
 
     fn simd_iter_mut(&'a mut self) -> Self::Iter {
         self.into_simd_iter()
