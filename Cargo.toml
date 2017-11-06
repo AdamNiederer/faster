@@ -4,7 +4,7 @@ description = "Explicit SIMD for humans"
 authors = ["Adam Niederer <adam.niederer@gmail.com>"]
 repository = "https://github.com/AdamNiederer/faster"
 license = "AGPL-3.0"
-version = "0.1.0"
+version = "0.1.1"
 
 [dependencies]
 stdsimd = "0.0.3"
