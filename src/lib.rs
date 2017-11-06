@@ -5,65 +5,14 @@
 #[cfg(test)] extern crate test;
 
 extern crate stdsimd;
-extern crate typenum;
-use std::iter::FromIterator;
 
 mod vecs;
-use vecs::{Packed, Packable};
 mod iters;
+mod intrin;
+
 pub use iters::*;
-
-pub trait FromPackedIterator<T> : FromIterator<T> {
-    fn from_simd_iter<I, S>(iter: I) -> Self
-        where I : ExactSizeIterator<Item = S>, S : Packed<T>;
-}
-
-impl<T> FromPackedIterator<T> for Vec<T> {
-    #[inline(always)]
-    fn from_simd_iter<I, S>(iter: I) -> Vec<T>
-        where I : ExactSizeIterator<Item = S>, S : Packed<T> {
-        let mut offset = 0;
-        let mut ret = Vec::with_capacity(S::WIDTH * iter.len());
-
-        unsafe {
-            ret.set_len(S::WIDTH * iter.len());
-            for vec in iter {
-                let incr = vec.width();
-                vec.store(ret.as_mut_slice(), offset);
-                offset += incr;
-            }
-        }
-
-        ret
-    }
-}
-
-pub trait IntoScalar<T> {
-    fn scalar_collect<C : FromPackedIterator<T>>(self) -> C;
-}
-
-impl<T, I, S> IntoScalar<T> for I where I : ExactSizeIterator<Item = S>, S : Packed<T> {
-    fn scalar_collect<C : FromPackedIterator<T>>(self) -> C {
-        FromPackedIterator::from_simd_iter(self)
-    }
-
-}
-
-impl<'a, T> Iterator for PackedIter<'a, T> where T : Packable  {
-    type Item = <PackedIter<'a, T> as PackedIterator>::Vector;
-
-    #[inline(always)]
-    fn next(&mut self) -> Option<Self::Item> {
-        PackedIterator::next(self)
-    }
-
-    #[inline(always)]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.scalar_len() - self.position * self.width()) / self.width();
-        (remaining, Some(remaining))
-    }
-}
-
+pub use vecs::{u8s, i8s, u16s, i16s, u32s, i32s, f32s, u64s, i64s, f64s};
+pub use intrin::*;
 
 #[cfg(test)]
 mod tests {
