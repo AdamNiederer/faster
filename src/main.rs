@@ -4,7 +4,7 @@ use faster::*;
 
 fn main() {
     let lots_of_84s = (&[-10i8; 128][..]).simd_iter()
-        .map(|v| i8s::splat(9) * v.abs() - i8s::splat(4) - i8s::splat(2))
+        .map(|v| i8s::splat(9) * v.abs().as_i8s() - i8s::splat(4) - i8s::splat(2))
         .scalar_collect::<Vec<i8>>();
 
     let lots_of_3s = (&[-123.456f32; 128][..]).simd_iter()

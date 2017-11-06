@@ -1,12 +1,37 @@
 use stdsimd::vendor::*;
 use stdsimd::simd::*;
 use std::mem::transmute;
+use vecs::{u8s, i8s, u16s, i16s, u32s, i32s, f32s, u64s, i64s, f64s};
 
 pub trait PackedAbs {
     type Out;
     #[inline(always)]
     fn abs(&self) -> Self::Out;
 }
+
+pub trait PackedTransmute {
+    #[inline(always)]
+    fn as_i8s(&self) -> i8s;
+    #[inline(always)]
+    fn as_u8s(&self) -> u8s;
+    #[inline(always)]
+    fn as_i16s(&self) -> i16s;
+    #[inline(always)]
+    fn as_u16s(&self) -> u16s;
+    #[inline(always)]
+    fn as_i32s(&self) -> i32s;
+    #[inline(always)]
+    fn as_u32s(&self) -> u32s;
+    #[inline(always)]
+    fn as_f32s(&self) -> f32s;
+    #[inline(always)]
+    fn as_i64s(&self) -> i64s;
+    #[inline(always)]
+    fn as_u64s(&self) -> u64s;
+    #[inline(always)]
+    fn as_f64s(&self) -> f64s;
+}
+
 
 pub trait PackedSqrt {
     #[inline(always)]
@@ -123,26 +148,26 @@ impl PackedAbs for i32x4 {
 }
 
 impl PackedAbs for i8x32 {
-    type Out = i8x32; // u8x32; awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+    type Out = u8x32; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
     #[inline(always)]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm256_abs_epi8(*self) }
+        unsafe { _mm256_abs_epi8(*self).as_u8x32() }
     }
 }
 
 impl PackedAbs for i16x16 {
-    type Out = i16x16; // u16x16; awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+    type Out = u16x16; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
     #[inline(always)]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm256_abs_epi16(*self) }
+        unsafe { _mm256_abs_epi16(*self).as_u16x16() }
     }
 }
 
 impl PackedAbs for i32x8 {
-    type Out = i32x8; // u32x8; awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+    type Out = u32x8; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
     #[inline(always)]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm256_abs_epi32(*self) }
+        unsafe { _mm256_abs_epi32(*self).as_u32x8() }
     }
 }
 
@@ -475,3 +500,54 @@ impl PackedRound for f64x4 {
         unsafe { _mm256_round_pd(*self, _MM_FROUND_TRUNC) }
     }
 }
+
+macro_rules! impl_packed_transmute {
+    ($($t:ty),*) => (
+        $(
+            impl PackedTransmute for $t {
+                #[inline(always)]
+                fn as_i8s(&self) -> i8s {
+                    unsafe { transmute::<Self, i8s>(*self) }
+                }
+                #[inline(always)]
+                fn as_u8s(&self) -> u8s {
+                    unsafe { transmute::<Self, u8s>(*self) }
+                }
+                #[inline(always)]
+                fn as_i16s(&self) -> i16s {
+                    unsafe { transmute::<Self, i16s>(*self) }
+                }
+                #[inline(always)]
+                fn as_u16s(&self) -> u16s {
+                    unsafe { transmute::<Self, u16s>(*self) }
+                }
+                #[inline(always)]
+                fn as_i32s(&self) -> i32s {
+                    unsafe { transmute::<Self, i32s>(*self) }
+                }
+                #[inline(always)]
+                fn as_u32s(&self) -> u32s {
+                    unsafe { transmute::<Self, u32s>(*self) }
+                }
+                #[inline(always)]
+                fn as_f32s(&self) -> f32s {
+                    unsafe { transmute::<Self, f32s>(*self) }
+                }
+                #[inline(always)]
+                fn as_i64s(&self) -> i64s {
+                    unsafe { transmute::<Self, i64s>(*self) }
+                }
+                #[inline(always)]
+                fn as_u64s(&self) -> u64s {
+                    unsafe { transmute::<Self, u64s>(*self) }
+                }
+                #[inline(always)]
+                fn as_f64s(&self) -> f64s {
+                    unsafe { transmute::<Self, f64s>(*self) }
+                }
+            }
+        )*
+    );
+}
+
+impl_packed_transmute!(u8s, i8s, u16s, i16s, u32s, i32s, f32s, u64s, i64s, f64s);
