@@ -7,11 +7,14 @@ pub const SIMD_SIZE: usize = 512;
 #[cfg(all(target_feature = "avx2", not(target_feature="avx512")))]
 pub const SIMD_SIZE: usize = 256;
 
-#[cfg(all(target_feature = "sse4.2", not(target_feature="avx2")))]
+#[cfg(all(target_feature = "sse", not(target_feature="avx2")))]
 pub const SIMD_SIZE: usize = 128;
 
-#[cfg(not(target_feature = "sse4.2"))]
-pub const SIMD_SIZE: usize = 0;
+#[cfg(all(target_arch = "x86", not(target_feature = "sse")))]
+compile_error!("Your CPU is ancient! We don't support MMX, sorry!");
+
+#[cfg(all(not(target_arch = "x86"), not(target_arch = "x86_64")))]
+compile_error!("Support for non-x86 platforms is forthcoming - See the stdsimd issues tracker for more details.");
 
 // A SIMD vector containing T.
 pub trait Packed<T : Packable> {
@@ -47,6 +50,7 @@ pub trait Packable where Self : Sized + Copy {
 
 macro_rules! impl_packed {
     ($el:ty, $pvec:tt, $vec:tt, $sz:expr, $feat:expr, $nfeat:expr) => (
+        #[allow(non_camel_case_types)]
         #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
         pub type $pvec = $vec;
 
@@ -104,40 +108,40 @@ macro_rules! impl_packed {
 
 impl_packed!(u8, u8s, u8x64, 64, "avx512", "avx1024");
 impl_packed!(u8, u8s, u8x32, 32, "avx2", "avx512");
-impl_packed!(u8, u8s, u8x16, 16, "sse4.2", "avx2");
+impl_packed!(u8, u8s, u8x16, 16, "sse", "avx2");
 
 impl_packed!(i8, i8s, i8x64, 64, "avx512", "avx1024");
 impl_packed!(i8, i8s, i8x32, 32, "avx2", "avx512");
-impl_packed!(i8, i8s, i8x16, 16, "sse4.2", "avx2");
+impl_packed!(i8, i8s, i8x16, 16, "sse", "avx2");
 
 impl_packed!(u16, u16s, u16x32, 32, "avx512", "avx1024");
 impl_packed!(u16, u16s, u16x16, 16, "avx2", "avx512");
-impl_packed!(u16, u16s, u16x8, 8, "sse4.2", "avx2");
+impl_packed!(u16, u16s, u16x8, 8, "sse", "avx2");
 
 impl_packed!(i16, i16s, i16x32, 32, "avx512", "avx1024");
 impl_packed!(i16, i16s, i16x16, 16, "avx2", "avx512");
-impl_packed!(i16, i16s, i16x8, 8, "sse4.2", "avx2");
+impl_packed!(i16, i16s, i16x8, 8, "sse", "avx2");
 
 impl_packed!(u32, u32s, u32x16, 16, "avx512", "avx1024");
 impl_packed!(u32, u32s, u32x8, 8, "avx2", "avx512");
-impl_packed!(u32, u32s, u32x4, 4, "sse4.2", "avx2");
+impl_packed!(u32, u32s, u32x4, 4, "sse", "avx2");
 
 impl_packed!(i32, i32s, i32x16, 16, "avx512", "avx1024");
 impl_packed!(i32, i32s, i32x8, 8, "avx2", "avx512");
-impl_packed!(i32, i32s, i32x4, 4, "sse4.2", "avx2");
+impl_packed!(i32, i32s, i32x4, 4, "sse", "avx2");
 
 impl_packed!(f32, f32s, f32x16, 16, "avx512", "avx1024");
 impl_packed!(f32, f32s, f32x8, 8, "avx2", "avx512");
-impl_packed!(f32, f32s, f32x4, 4, "sse4.2", "avx2");
+impl_packed!(f32, f32s, f32x4, 4, "sse", "avx2");
 
 impl_packed!(u64, u64s, u64x8, 8, "avx512", "avx1024");
 impl_packed!(u64, u64s, u64x4, 4, "avx2", "avx512");
-impl_packed!(u64, u64s, u64x2, 2, "sse4.2", "avx2");
+impl_packed!(u64, u64s, u64x2, 2, "sse", "avx2");
 
 impl_packed!(i64, i64s, i64x8, 8, "avx512", "avx1024");
 impl_packed!(i64, i64s, i64x4, 4, "avx2", "avx512");
-impl_packed!(i64, i64s, i64x2, 2, "sse4.2", "avx2");
+impl_packed!(i64, i64s, i64x2, 2, "sse", "avx2");
 
 impl_packed!(f64, f64s, f64x8, 8, "avx512", "avx1024");
 impl_packed!(f64, f64s, f64x4, 4, "avx2", "avx512");
-impl_packed!(f64, f64s, f64x2, 2, "sse4.2", "avx2");
+impl_packed!(f64, f64s, f64x2, 2, "sse", "avx2");
