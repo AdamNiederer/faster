@@ -15,77 +15,53 @@ It looks something like this:
 
 The vector size is entirely determined by the machine you're compiling for - it
 attempts to use the largest vector size supported by your machine, and works on
-any platform.
+any platform or architecture (see below for details).
 
 Compare this to traditional explicit SIMD:
 #+BEGIN_SRC rust
   use std::mem::transmute;
-
-  #[repr(simd)]
-  #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
-  struct _m128(f32, f32, f32, f32);
-
-  #[repr(simd)]
-  #[cfg(all(not(target_feature = "avx512"), target_feature = "avx"))]
-  struct _m256(f32, f32, f32, f32, f32, f32, f32, f32);
+  use stdsimd::{f32x4, f32x8};
 
   let lots_of_3s = &mut [-123.456f32; 128][..];
-  let mut out_offset = 0;
 
   if cfg!(all(not(target_feature = "avx"), target_feature = "sse")) {
       for ch in init.chunks_mut(4) {
-          // Scalar load - slow!
-          let v = _m128 { ch[0], ch[1], ch[2], ch[3] };
-          let scalar_abs_mask = transmute::<u32, f32>(0x7fffffff);
-          let abs_mask = _m128 { scalar_abs_mask, scalar_abs_mask, scalar_abs_mask, scalar_abs_mask };
+          let v = f32x4::load(ch, 0);
+          let scalar_abs_mask = unsafe { transmute::<u32, f32>(0x7fffffff) };
+          let abs_mask = f32x4::splat(scalar_abs_mask);
           // There isn't actually an absolute value intrinsic for floats - you
           // have to look at the IEEE 754 spec and do some bit flipping
-          v = _mm_and_ps(v, abs_mask);
-          v = _mm_sqrt_ps(v);
-          v = _mm_rsqrt_ps(v);
-          v = _mm_ceil_ps(v);
-          v = _mm_sqrt_ps(v);
-          v = _mm_mul_ps(v, 9.0);
-          v = _mm_sub_ps(v, 4.0);
-          v = _mm_sub_ps(v, 2.0);
-          // Scalar store - slow!
-          ch[0] = v[0];
-          ch[1] = v[1];
-          ch[2] = v[2];
-          ch[3] = v[3];
+          v = unsafe { _mm_and_ps(v, abs_mask) };
+          v = unsafe { _mm_sqrt_ps(v) };
+          v = unsafe { _mm_rsqrt_ps(v) };
+          v = unsafe { _mm_ceil_ps(v) };
+          v = unsafe { _mm_sqrt_ps(v) };
+          v = unsafe { _mm_mul_ps(v, 9.0) };
+          v = unsafe { _mm_sub_ps(v, 4.0) };
+          v = unsafe { _mm_sub_ps(v, 2.0) };
+          f32x4::store(ch, 0);
       }
   } else if cfg!(all(not(target_feature = "avx512"), target_feature = "avx")) {
       for ch in init.chunks_mut(8) {
-          // Scalar load - slow!
-          let v = _m256 { ch[0], ch[1], ch[2], ch[3], ch[4], ch[5], ch[6], ch[7] };
-          let scalar_abs_mask = transmute::<u32, f32>(0x7fffffff);
-          let abs_mask = _m256 { scalar_abs_mask, scalar_abs_mask, scalar_abs_mask, scalar_abs_mask, scalar_abs_mask, scalar_abs_mask, scalar_abs_mask, scalar_abs_mask };
+          let v = f32x8::load(ch, 0);
+          let scalar_abs_mask = unsafe { transmute::<u32, f32>(0x7fffffff) };
+          let abs_mask = f32x8::splat(scalar_abs_mask);
           // There isn't actually an absolute value intrinsic for floats - you
           // have to look at the IEEE 754 spec and do some bit flipping
-          v = _mm256_and_ps(v, abs_mask);
-          v = _mm256_sqrt_ps(v);
-          v = _mm256_rsqrt_ps(v);
-          v = _mm256_ceil_ps(v);
-          v = _mm256_sqrt_ps(v);
-          v = _mm256_mul_ps(v, 9.0);
-          v = _mm256_sub_ps(v, 4.0);
-          v = _mm256_sub_ps(v, 2.0);
-          // Scalar store - slow!
-          ch[0] = v[0];
-          ch[1] = v[1];
-          ch[2] = v[2];
-          ch[3] = v[3];
-          ch[4] = v[4];
-          ch[5] = v[5];
-          ch[6] = v[6];
-          ch[7] = v[7];
+          v = unsafe { _mm256_and_ps(v, abs_mask) };
+          v = unsafe { _mm256_sqrt_ps(v) };
+          v = unsafe { _mm256_rsqrt_ps(v) };
+          v = unsafe { _mm256_ceil_ps(v) };
+          v = unsafe { _mm256_sqrt_ps(v) };
+          v = unsafe { _mm256_mul_ps(v, 9.0) };
+          v = unsafe { _mm256_sub_ps(v, 4.0) };
+          v = unsafe { _mm256_sub_ps(v, 2.0) };
+          f32x8::store(ch, 0);
       }
   }
 #+END_SRC
 Even with all of that boilerplate, this still only supports x86-64 machines with
-SSE or AVX, and it's still much slower than the above code because of the scalar
-loads and stores. ~stdsimd~ can alleviate the need to define one's own vectors
-and do scalar loads, but that's almost all it does.
+SSE or AVX.
 ** Upcoming Features
 Zero-overhead support for uneven collections which don't fit entirely into a
 vector is upcoming. Also, zero-allocation collects are coming, to be called
@@ -104,10 +80,12 @@ By 0.2.0, this code will compile:
 More intrinsic traits are also coming; feel free to open an issue or pull
 request if you have one you'd like to see.
 ** Compatibility
-Faster currently supports machines with SSE 4.2 and above, although AVX-512
-support isn't working in rustc yet. Support for machines with SSE and above is
-planned, as well as for non-x86 architectures. This support is primarily blocked
-by stdsimd.
+Faster currently supports x86 machines with SSE and above, although AVX-512
+support isn't working in rustc yet. Support for non-x86 architectures is
+currently blocked by stdsimd and rustc.
+
+Of course, once those issues are resolved, adding support ARM, MIPS, or any
+other intrinsics and vector lengths will be trivial.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
 isn't any worse than scalar iterators.
