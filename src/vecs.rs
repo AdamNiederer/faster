@@ -1,5 +1,5 @@
 use stdsimd::simd::*;
-use iters::{IntoPackedIterator, IntoPackedRefIterator, IntoPackedRefMutIterator, PackedIter};
+use iters::{IntoPackedRefIterator, IntoPackedRefMutIterator, PackedIter};
 
 #[cfg(all(target_feature = "avx512"))]
 pub const SIMD_SIZE: usize = 512;

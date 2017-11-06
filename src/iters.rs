@@ -1,5 +1,5 @@
 use std::iter::FromIterator;
-use vecs::{SIMD_SIZE, Packable, Packed};
+use vecs::{Packable, Packed};
 use std::marker::PhantomData;
 
 pub trait PackedIterator : Sized {
