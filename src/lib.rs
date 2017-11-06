@@ -21,27 +21,6 @@ mod tests {
     use stdsimd::simd::u8x32;
 
     #[bench]
-    fn bench_simd(b: &mut Bencher) {
-        b.iter(|| {
-            black_box(
-                (&[0u8; 128][..]).simd_iter()
-                    .map(|v| (u8x32::splat(9) * v + u8x32::splat(4) - u8x32::splat(2))
-                         * u8x32::splat(20) - u8x32::splat(4))
-                    .scalar_collect::<Vec<u8>>())
-        });
-    }
-
-    #[bench]
-    fn bench_scalar(b: &mut Bencher) {
-        b.iter(|| {
-            black_box(
-                (&[0u8; 128][..]).iter()
-                    .map(|e| (9 * e + 4 - 2) * 20 - 4)
-                    .collect::<Vec<u8>>())
-        });
-    }
-
-    #[bench]
     fn bench_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -57,4 +36,25 @@ mod tests {
         });
     }
 
+    #[bench]
+    fn bench_work_simd(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 128][..]).simd_iter()
+                    .map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
+                               f32s::splat(4.0) - f32s::splat(2.0) })
+                    .scalar_collect::<Vec<f32>>());
+        })
+    }
+
+    #[bench]
+    fn bench_work_scalar(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 128][..]).iter()
+                    .map(|v| { 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() -
+                               4.0 - 2.0 })
+                    .collect::<Vec<f32>>());
+        });
+    }
 }
