@@ -1,44 +1,89 @@
 * faster
-SIMD for humans.
-
-** Vision
+** SIMD for Humans
 Easy, powerful, absurdly fast numerical calculations. Chaining, Type punning,
 static dispatch (w/ inlining) based on your platform and vector types,
-zero-allocation iteration, and support for uneven collections.
+zero-allocation iteration, vectorized loading/storing, and support for uneven
+collections.
+
+It looks something like this:
+#+BEGIN_SRC rust
+  let lots_of_3s = (&[-123.456f32; 128][..]).simd_iter()
+      .map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
+                 f32s::splat(4.0) - f32s::splat(2.0) })
+      .scalar_collect::<Vec<f32>>();
+#+END_SRC
+
+The vector size is entirely determined by the machine you're compiling for - it
+attempts to use the largest vector size supported by your machine, and works on
+any platform.
+
+Compare this to standard explicit SIMD:
+#+BEGIN_SRC rust
+  #[repr(simd)]
+  #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
+  struct _m128(f32, f32, f32, f32);
+
+  #[repr(simd)]
+  #[cfg(all(not(target_feature = "avx512"), target_feature = "avx"))]
+  struct _m256(f32, f32, f32, f32, f32, f32, f32, f32);
+
+  let init = &[-123.456f32; 128][..];
+
+  if cfg!(all(not(target_feature = "avx"), target_feature = "sse")) {
+      for ch in init.chunks(4) {
+          // Scalar load - slow!
+          let v = _m128 { ch[0], ch[1], ch[2], ch[3] };
+          v = _mm_abs_ps(v);
+          v = _mm_sqrt_ps(v);
+          v = _mm_rsqrt_ps(v);
+          v = _mm_ceil_ps(v);
+          v = _mm_sqrt_ps(v);
+          v = _mm_mul_ps(v, 9.0);
+          // ...
+      }
+  } else if cfg!(all(not(target_feature = "avx512"), target_feature = "avx")) {
+      for ch in init.chunks(8) {
+          // Scalar load - slow!
+          let v = _m256 { ch[0], ch[1], ch[2], ch[3], ch[4], ch[5], ch[6], ch[7] };
+          v = _mm256_abs_ps(v);
+          v = _mm256_sqrt_ps(v);
+          v = _mm256_rsqrt_ps(v);
+          v = _mm256_ceil_ps(v);
+          v = _mm256_sqrt_ps(v);
+          v = _mm256_mul_ps(v, 9.0);
+          // ..
+      }
+  }
+#+END_SRC
+** Upcoming Features
+Zero-overhead support for uneven collections which don't fit entirely into a
+vector is upcoming. Also, zero-allocation collects are coming, to be called
+~fill~.
+
+By 0.2.0, this code will compile:
 
 #+BEGIN_SRC rust
-  let some_floats = (&[0u8; 128][..]).simd_iter()
-      .map(|v| ((v >> splat(4)).as_u16s() + splat(2000)))
-      .map(|v| mem::transmute<u16s, f32s>(v).sqrt().round_down())
-      .scalar_collect<Vec<f32>>();
-
   let some_u8s = [0u8; 100];
   let filled_u8s = (&[0u8; 100][..]).simd_iter()
       .uneven_map(|vector| vector * splat(2),
                   |scalar| scalar * 2)
-      .fill(&mut some_u8s);
-#+END_SRC
-** Current API
-It looks something like this:
-#+BEGIN_SRC rust
-  let lots_of_twos = (&[0u8; 128][..]).simd_iter()
-      .map(|v| u8x32::splat(9) * v + u8x32::splat(4) - u8x32::splat(2))
-      .scalar_collect::<Vec<u8>>();
+      .scalar_fill(&mut some_u8s);
 #+END_SRC
 
-Vector size from ~simd_iter~ and friends is determined based on the machine
-you're compiling on. I also plan to wrap stdsimd's vector types and intrinsics
-to provide true cross-platform SIMD, regardless of arch or feature level.
-
-Don't actually use this until I have some more time to work on it (pull requests
-very welcome; I have a lot of intrinsics to wade through!).
+More intrinsic traits are also coming; feel free to open an issue or pull
+request if you have one you'd like to see.
+** Compatibility
+Faster currently supports machines with SSE 4.2 and above, although AVX-512
+support isn't working in rustc yet. Support for machines with SSE and above is
+planned, as well as for non-x86 architectures. This support is primarily blocked
+by stdsimd.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
 isn't any worse than scalar iterators.
 #+BEGIN_SRC shell
   running 4 tests
-  test tests::bench_nop_scalar ... bench:          59 ns/iter (+/- 0)
-  test tests::bench_nop_simd   ... bench:          52 ns/iter (+/- 0)
-  test tests::bench_scalar     ... bench:          57 ns/iter (+/- 0)
-  test tests::bench_simd       ... bench:          52 ns/iter (+/- 0)
+  test tests::bench_nop_scalar  ... bench:          51 ns/iter (+/- 1)
+  test tests::bench_nop_simd    ... bench:          51 ns/iter (+/- 1)
+  test tests::bench_work_scalar ... bench:       1,276 ns/iter (+/- 39)
+  test tests::bench_work_simd   ... bench:         251 ns/iter (+/- 0)
 #+END_SRC
