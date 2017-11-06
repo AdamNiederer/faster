@@ -13,6 +13,14 @@ It looks something like this:
       .scalar_collect::<Vec<f32>>();
 #+END_SRC
 
+Which is analogous to this scalar code:
+#+BEGIN_SRC rust
+  let lots_of_3s = (&[-123.456f32; 128][..]).iter()
+      .map(|v| { 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() -
+                 4.0 - 2.0 })
+      .collect::<Vec<f32>>();
+#+END_SRC
+
 The vector size is entirely determined by the machine you're compiling for - it
 attempts to use the largest vector size supported by your machine, and works on
 any platform or architecture (see below for details).
