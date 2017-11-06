@@ -14,11 +14,24 @@ pub const SIMD_SIZE: usize = 128;
 pub const SIMD_SIZE: usize = 0;
 
 // A SIMD vector containing T.
-pub trait Packed<T> {
+pub trait Packed<T : Packable> {
     const WIDTH: usize;
+    const ELEMENT_SIZE: usize = <T as Packable>::SIZE;
+    const WIDTH_BYTES: usize = Self::WIDTH * Self::ELEMENT_SIZE / 8;
 
+    #[inline(always)]
     fn width(&self) -> usize {
         Self::WIDTH
+    }
+
+    #[inline(always)]
+    fn width_bytes(&self) -> usize {
+        Self::WIDTH_BYTES
+    }
+
+    #[inline(always)]
+    fn element_size(&self) -> usize {
+        Self::ELEMENT_SIZE
     }
 
     fn load(data: &[T], offset: usize) -> Self;
@@ -27,7 +40,7 @@ pub trait Packed<T> {
 }
 
 // A type which may be packed into a SIMD vector
-pub trait Packable where Self : Sized {
+pub trait Packable where Self : Sized + Copy {
     const SIZE: usize;
     type Vector : Packed<Self>;
 }
@@ -39,7 +52,7 @@ macro_rules! impl_packed {
 
         #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
         impl Packable for $el {
-            const SIZE: usize = $sz;
+            const SIZE: usize = SIMD_SIZE / $sz;
             type Vector = $vec;
         }
 
