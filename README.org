@@ -17,7 +17,7 @@ The vector size is entirely determined by the machine you're compiling for - it
 attempts to use the largest vector size supported by your machine, and works on
 any platform.
 
-Compare this to standard explicit SIMD:
+Compare this to traditional explicit SIMD:
 #+BEGIN_SRC rust
   #[repr(simd)]
   #[cfg(all(not(target_feature = "avx"), target_feature = "sse"))]
@@ -27,10 +27,11 @@ Compare this to standard explicit SIMD:
   #[cfg(all(not(target_feature = "avx512"), target_feature = "avx"))]
   struct _m256(f32, f32, f32, f32, f32, f32, f32, f32);
 
-  let init = &[-123.456f32; 128][..];
+  let lots_of_3s = &mut [-123.456f32; 128][..];
+  let mut out_offset = 0;
 
   if cfg!(all(not(target_feature = "avx"), target_feature = "sse")) {
-      for ch in init.chunks(4) {
+      for ch in init.chunks_mut(4) {
           // Scalar load - slow!
           let v = _m128 { ch[0], ch[1], ch[2], ch[3] };
           v = _mm_abs_ps(v);
@@ -39,10 +40,16 @@ Compare this to standard explicit SIMD:
           v = _mm_ceil_ps(v);
           v = _mm_sqrt_ps(v);
           v = _mm_mul_ps(v, 9.0);
-          // ...
+          v = _mm_sub_ps(v, 4.0);
+          v = _mm_sub_ps(v, 2.0);
+          // Scalar store - slow!
+          ch[0] = v[0];
+          ch[1] = v[1];
+          ch[2] = v[2];
+          ch[3] = v[3];
       }
   } else if cfg!(all(not(target_feature = "avx512"), target_feature = "avx")) {
-      for ch in init.chunks(8) {
+      for ch in init.chunks_mut(8) {
           // Scalar load - slow!
           let v = _m256 { ch[0], ch[1], ch[2], ch[3], ch[4], ch[5], ch[6], ch[7] };
           v = _mm256_abs_ps(v);
@@ -51,7 +58,17 @@ Compare this to standard explicit SIMD:
           v = _mm256_ceil_ps(v);
           v = _mm256_sqrt_ps(v);
           v = _mm256_mul_ps(v, 9.0);
-          // ..
+          v = _mm256_sub_ps(v, 4.0);
+          v = _mm256_sub_ps(v, 2.0);
+          // Scalar store - slow!
+          ch[0] = v[0];
+          ch[1] = v[1];
+          ch[2] = v[2];
+          ch[3] = v[3];
+          ch[4] = v[4];
+          ch[5] = v[5];
+          ch[6] = v[6];
+          ch[7] = v[7];
       }
   }
 #+END_SRC
