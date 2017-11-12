@@ -80,38 +80,35 @@ Compare this to traditional explicit SIMD:
   }
 #+END_SRC
 Even with all of that boilerplate, this still only supports x86-64 machines with
-SSE or AVX.
+SSE or AVX - and you have to look up each intrinsic to ensure it's usable for
+your compilation target.
 ** Upcoming Features
-Zero-overhead support for uneven collections which don't fit entirely into a
-vector is upcoming. Also, zero-allocation collects are coming, to be called
-~fill~.
-
-By 0.2.0, this code will compile:
-
-#+BEGIN_SRC rust
-  let some_u8s = [0u8; 100];
-  let filled_u8s = (&[0u8; 100][..]).simd_iter()
-      .uneven_map(|vector| vector * splat(2),
-                  |scalar| scalar * 2)
-      .scalar_fill(&mut some_u8s);
-#+END_SRC
-
-More intrinsic traits are also coming; feel free to open an issue or pull
+More intrinsic traits are coming; feel free to open an issue or pull
 request if you have one you'd like to see.
+
+Swizzling, automated testing, and documentation are also in the pipeline.
 ** Compatibility
-Faster currently supports x86 machines with SSE and above, although AVX-512
-support isn't working in rustc yet. Support for non-x86 architectures is
-currently blocked by stdsimd and rustc.
+Faster currently supports 32- and 64-bit x86 machines with SSE and above,
+although AVX-512 support isn't working in rustc yet. Support for non-x86
+architectures is currently blocked by stdsimd and rustc.
 
 Of course, once those issues are resolved, adding support ARM, MIPS, or any
 other intrinsics and vector lengths will be trivial.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
-isn't any worse than scalar iterators.
+isn't any worse than scalar iterators. Even on ancient CPUs, a lot of
+performance can be extracted out of SIMD.
+
 #+BEGIN_SRC shell
-  running 4 tests
-  test tests::bench_nop_scalar  ... bench:          51 ns/iter (+/- 1)
-  test tests::bench_nop_simd    ... bench:          51 ns/iter (+/- 1)
-  test tests::bench_work_scalar ... bench:       1,276 ns/iter (+/- 39)
-  test tests::bench_work_simd   ... bench:         251 ns/iter (+/- 0)
+  $ RUSTFLAGS="-C target-cpu=ivybridge" cargo bench # host is ivybridge
+  test tests::bench_nop_scalar  ... bench:          29 ns/iter (+/- 2)
+  test tests::bench_nop_simd    ... bench:          28 ns/iter (+/- 1)
+  test tests::bench_work_scalar ... bench:       1,042 ns/iter (+/- 93)
+  test tests::bench_work_simd   ... bench:         133 ns/iter (+/- 1)
+
+  $ RUSTFLAGS="-C target-cpu=pentium3" cargo bench # host is ivybridge
+  test tests::bench_nop_scalar  ... bench:          18 ns/iter (+/- 0)
+  test tests::bench_nop_simd    ... bench:          21 ns/iter (+/- 1)
+  test tests::bench_work_scalar ... bench:       1,013 ns/iter (+/- 72)
+  test tests::bench_work_simd   ... bench:         281 ns/iter (+/- 18)
 #+END_SRC
