@@ -1,2 +1,9 @@
 /target/
 **/*.rs.bk
+#*
+*#
+*~
+~*
+*.bak
+*.sav
+kek.*
