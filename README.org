@@ -1,4 +1,15 @@
 * faster
+  #+BEGIN_HTML
+    <div>
+      <a href="https://crates.io/crates/faster">
+        <img src="https://img.shields.io/crates/v/faster.svg" alt="crates.io" />
+      </a>
+      <a href="https://travis-ci.org/AdamNiederer/faster">
+        <img src="https://travis-ci.org/AdamNiederer/faster.svg?branch=master" alt="Build Status"/>
+      </a>
+    </div>
+  #+END_HTML
+
 ** SIMD for Humans
 Easy, powerful, absurdly fast numerical calculations. Chaining, Type punning,
 static dispatch (w/ inlining) based on your platform and vector types,
