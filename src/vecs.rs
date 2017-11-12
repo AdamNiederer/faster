@@ -11,7 +11,7 @@ pub const SIMD_SIZE: usize = 256;
 #[cfg(all(target_feature = "sse", not(target_feature="avx2")))]
 pub const SIMD_SIZE: usize = 128;
 
-#[cfg(all(target_arch = "x86", not(target_feature = "sse")))]
+#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), not(target_feature = "sse")))]
 compile_error!("Your CPU is ancient! We don't support MMX, sorry!");
 
 #[cfg(all(not(target_arch = "x86"), not(target_arch = "x86_64")))]
