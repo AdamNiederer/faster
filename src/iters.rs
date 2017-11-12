@@ -158,14 +158,12 @@ impl<'a, T> UnevenPackedIterator for PackedIter<'a, T> where T : Packable {
 
 
 impl<T, A, B, F, G> Iterator for UnevenMap<T, F, G>
-    where Self : UnevenPackedIterator, T : PackedIterator, F : Fn(<T as PackedIterator>::Vector) -> A, G : Fn(<T as PackedIterator>::Scalar) -> B, A : Packed<B>, B : Packable {
+    where T : UnevenPackedIterator, F : Fn(T::Vector) -> A, G : Fn(T::Scalar) -> B, A : Packed<B>, B : Packable {
     type Item = Either<<Self as PackedIterator>::Vector, <Self as PackedIterator>::Scalar>;
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        // TODO: WTF types?
-        // UnevenPackedIterator::next(self)
-        None
+        UnevenPackedIterator::next(self)
     }
 
     #[inline(always)]
@@ -211,11 +209,7 @@ impl<'a, A, B, T, F, G> PackedIterator for UnevenMap<T, F, G>
 }
 
 impl<'a, A, B, T, F, G> UnevenPackedIterator for UnevenMap<T, F, G>
-    where T : UnevenPackedIterator,
-F : Fn(T::Vector) -> A,
-G : Fn(T::Scalar) -> B,
-A : Packed<B>,
-B : Packable  {
+    where T : UnevenPackedIterator, F : Fn(T::Vector) -> A, G : Fn(T::Scalar) -> B, A : Packed<B>, B : Packable {
 
     #[inline(always)]
     fn next_scalar(&mut self) -> Option<Self::Scalar> {
