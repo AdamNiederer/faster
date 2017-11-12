@@ -77,12 +77,23 @@ pub trait PackedSaturatingAdd {
     fn saturating_add(&self, other: Self) -> Self;
 }
 
-#[cfg(target_feature = "sse")]
+
 impl PackedAbs for f32x4 {
     type Out = f32x4;
+
     #[inline(always)]
+    #[cfg(target_feature = "sse")]
     fn abs(&self) -> Self::Out {
         unsafe { _mm_and_ps(*self, Self::splat(transmute::<u32, f32>(0x7FFFFFFF))) }
+    }
+
+    #[inline(always)]
+    #[cfg(not(target_feature = "sse"))]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(self.extract(0).abs(),
+                       self.extract(1).abs(),
+                       self.extract(2).abs(),
+                       self.extract(3).abs())
     }
 }
 
@@ -98,26 +109,50 @@ impl PackedAbs for f64x2 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm_and_ps(*self, f32x4::splat(transmute::<u32, f32>(0x7FFFFFFF),
-                                                transmute::<u32, f32>(0xFFFFFFFF),
-                                                transmute::<u32, f32>(0x7FFFFFFF),
-                                                transmute::<u32, f32>(0xFFFFFFFF))) }
+        Self::Out::new(self.extract(0).abs(),
+                       self.extract(1).abs())
     }
 }
 
 impl PackedAbs for f32x8 {
     type Out = f32x8;
+
     #[inline(always)]
+    #[cfg(target_feature = "avx")]
     fn abs(&self) -> Self::Out {
         unsafe { _mm256_and_ps(*self, Self::splat(transmute::<u32, f32>(0x7FFFFFFF))) }
+    }
+
+    #[inline(always)]
+    #[cfg(not(target_feature = "avx"))]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(self.extract(0).abs(),
+                       self.extract(1).abs(),
+                       self.extract(2).abs(),
+                       self.extract(3).abs(),
+                       self.extract(4).abs(),
+                       self.extract(5).abs(),
+                       self.extract(6).abs(),
+                       self.extract(7).abs())
     }
 }
 
 impl PackedAbs for f64x4 {
     type Out = f64x4;
+
     #[inline(always)]
+    #[cfg(target_feature = "avx")]
     fn abs(&self) -> Self::Out {
         unsafe { _mm256_and_pd(*self, Self::splat(transmute::<u64, f64>(0x7FFFFFFFFFFFFFFF))) }
+    }
+
+    #[inline(always)]
+    #[cfg(not(target_feature = "avx"))]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(self.extract(0).abs(),
+                       self.extract(1).abs(),
+                       self.extract(2).abs(),
+                       self.extract(3).abs())
     }
 }
 
