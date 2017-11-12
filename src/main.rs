@@ -17,5 +17,11 @@ fn main() {
                    4.0 - 2.0 })
         .collect::<Vec<f32>>();
 
-    println!("{:?}\n{:?}\n{:?}", lots_of_84s, lots_of_3s, lots_of_3s_sc);
+    let mut some_u8s = [0u8; 100];
+    let filled_u8s = (&[5u8; 100][..]).uneven_simd_iter()
+        .uneven_map(|vector| vector * u8s::splat(2),
+                    |scalar| scalar * 2)
+        .scalar_fill(&mut some_u8s);
+
+    println!("{:?}\n{:?}\n{:?}\n{:?}", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s);
 }

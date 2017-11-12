@@ -1,5 +1,6 @@
 use stdsimd::simd::*;
-use iters::{IntoPackedRefIterator, IntoPackedRefMutIterator, PackedIter};
+use iters::{IntoPackedRefIterator, IntoPackedRefMutIterator, PackedIter,
+            IntoUnevenPackedRefIterator, IntoUnevenPackedRefMutIterator, UnevenPackedIter};
 
 #[cfg(all(target_feature = "avx512"))]
 pub const SIMD_SIZE: usize = 512;
@@ -103,6 +104,33 @@ macro_rules! impl_packed {
                 }
             }
         }
+
+        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        impl<'a> IntoUnevenPackedRefIterator<'a> for &'a [$el] {
+            type Iter = UnevenPackedIter<'a, $el>;
+
+            #[inline(always)]
+            fn uneven_simd_iter(&'a self) -> Self::Iter {
+                UnevenPackedIter {
+                    data: self,
+                    position: 0,
+                }
+            }
+        }
+
+        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        impl<'a> IntoUnevenPackedRefMutIterator<'a> for &'a mut [$el] {
+            type Iter = UnevenPackedIter<'a, $el>;
+
+            #[inline(always)]
+            fn uneven_simd_iter_mut(&'a mut self) -> Self::Iter {
+                UnevenPackedIter {
+                    data: self,
+                    position: 0,
+                }
+            }
+        }
+
     );
 }
 

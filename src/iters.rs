@@ -118,6 +118,52 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefMutIterator<'a> for I
     }
 }
 
+pub trait IntoUnevenPackedIterator {
+    type Iter: PackedIterator;
+
+    fn into_uneven_simd_iter(self) -> Self::Iter;
+}
+
+pub trait IntoUnevenPackedRefIterator<'a> {
+    type Iter: PackedIterator;
+
+    fn uneven_simd_iter(&'a self) -> Self::Iter;
+}
+
+pub trait IntoUnevenPackedRefMutIterator<'a> {
+    type Iter: PackedIterator;
+
+    fn uneven_simd_iter_mut(&'a mut self) -> Self::Iter;
+}
+
+impl<T: UnevenPackedIterator> IntoUnevenPackedIterator for T {
+    type Iter = T;
+
+    #[inline(always)]
+    fn into_uneven_simd_iter(self) -> T {
+        self
+    }
+}
+
+// Impl ref & ref mut iterators for moved iterator
+impl<'a, I: 'a + ?Sized> IntoUnevenPackedRefIterator<'a> for I
+    where &'a I: IntoUnevenPackedIterator {
+    type Iter = <&'a I as IntoUnevenPackedIterator>::Iter;
+
+    fn uneven_simd_iter(&'a self) -> Self::Iter {
+        self.into_uneven_simd_iter()
+    }
+}
+
+impl<'a, I: 'a + ?Sized> IntoUnevenPackedRefMutIterator<'a> for I
+    where &'a mut I: IntoUnevenPackedIterator {
+    type Iter = <&'a mut I as IntoUnevenPackedIterator>::Iter;
+
+    fn uneven_simd_iter_mut(&'a mut self) -> Self::Iter {
+        self.into_uneven_simd_iter()
+    }
+}
+
 impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     type Vector = <T as Packable>::Vector;
     type Scalar = T;
