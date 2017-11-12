@@ -5,6 +5,7 @@
 #[cfg(test)] extern crate test;
 
 extern crate stdsimd;
+extern crate either;
 
 mod vecs;
 mod iters;
