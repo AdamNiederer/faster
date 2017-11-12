@@ -212,7 +212,6 @@ impl<T> FromPackedIterator<T> for Vec<T> where T : Packable {
                 offset += incr;
             }
         }
-
         ret
     }
 }
