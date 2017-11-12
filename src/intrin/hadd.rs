@@ -15,8 +15,8 @@ impl PackedHadd for f32x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
     fn hadd(&self, other: Self) -> Self {
-        Self::new(this.extract(0) + this.extract(1),
-                  this.extract(2) + this.extract(3),
+        Self::new(self.extract(0) + self.extract(1),
+                  self.extract(2) + self.extract(3),
                   other.extract(0) + other.extract(1),
                   other.extract(2) + other.extract(3))
     }
@@ -122,18 +122,18 @@ impl PackedHadd for i16x16 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn hadd(&self, other: Self) -> Self {
-        Self::new(this.extract(0) + this.extract(1),
-                  this.extract(2) + this.extract(3),
-                  this.extract(4) + this.extract(5),
-                  this.extract(6) + this.extract(7),
+        Self::new(self.extract(0) + self.extract(1),
+                  self.extract(2) + self.extract(3),
+                  self.extract(4) + self.extract(5),
+                  self.extract(6) + self.extract(7),
                   other.extract(0) + other.extract(1),
                   other.extract(2) + other.extract(3),
                   other.extract(4) + other.extract(5),
                   other.extract(6) + other.extract(7),
-                  this.extract(8) + this.extract(9),
-                  this.extract(10) + this.extract(11),
-                  this.extract(12) + this.extract(13),
-                  this.extract(14) + this.extract(15),
+                  self.extract(8) + self.extract(9),
+                  self.extract(10) + self.extract(11),
+                  self.extract(12) + self.extract(13),
+                  self.extract(14) + self.extract(15),
                   other.extract(8) + other.extract(9),
                   other.extract(10) + other.extract(11),
                   other.extract(12) + other.extract(13),
