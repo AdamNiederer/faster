@@ -26,7 +26,7 @@ mod tests {
     fn bench_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[0u8; 128][..]).simd_iter().map(|e| e).scalar_collect::<Vec<u8>>())
+                (&[0u8; 128][..]).simd_iter().map(|e| e).scalar_collect())
         });
     }
 
@@ -45,7 +45,7 @@ mod tests {
                 (&[-123.456f32; 128][..]).simd_iter()
                     .map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
                                f32s::splat(4.0) - f32s::splat(2.0) })
-                    .scalar_collect::<Vec<f32>>());
+                    .scalar_collect());
         })
     }
 

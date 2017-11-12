@@ -219,7 +219,6 @@ impl<A, B, I, F, G> Iterator for UnevenMap<I, F, G>
     }
 }
 
-
 impl<'a, I, F, G> ExactSizeIterator for UnevenMap<I, F, G>
     where Self : UnevenPackedIterator, I : PackedIterator {
     #[inline(always)]
