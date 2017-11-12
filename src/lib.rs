@@ -1,4 +1,5 @@
 #![feature(cfg_target_feature)]
+#![feature(specialization)]
 #![cfg_attr(test, feature(test))]
 #![cfg_attr(test, feature(inclusive_range))]
 

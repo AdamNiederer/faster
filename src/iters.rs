@@ -1,3 +1,4 @@
+use std::iter::{Map};
 use vecs::{Packable, Packed};
 use either::{Either, Left, Right};
 
@@ -41,13 +42,28 @@ pub struct PackedIter<'a, T : 'a + Packable> {
 }
 
 #[derive(Debug)]
-pub struct UnevenMap<T, F, G> {
-    pub iter: T,
+pub struct UnevenPackedIter<'a, T : 'a + Packable> {
+    pub position: usize,
+    pub data: &'a [T],
+}
+
+#[derive(Debug)]
+pub struct UnevenMap<I, F, G> {
+    pub iter: I,
     pub vectorfn: F,
     pub scalarfn: G,
 }
 
 impl<'a, T> ExactSizeIterator for PackedIter<'a, T>
+    where T : Packable {
+
+    #[inline(always)]
+    fn len(&self) -> usize {
+        self.data.len() / T::Vector::WIDTH
+    }
+}
+
+impl<'a, T> ExactSizeIterator for UnevenPackedIter<'a, T>
     where T : Packable {
 
     #[inline(always)]
@@ -133,7 +149,38 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     }
 }
 
-impl<'a, T> UnevenPackedIterator for PackedIter<'a, T> where T : Packable {
+impl<'a, T> PackedIterator for UnevenPackedIter<'a, T> where T : Packable {
+    type Vector = <T as Packable>::Vector;
+    type Scalar = T;
+
+    #[inline(always)]
+    fn width(&self) -> usize {
+        T::Vector::WIDTH
+    }
+
+    #[inline(always)]
+    fn scalar_len(&self) -> usize {
+        self.data.len()
+    }
+
+    #[inline(always)]
+    fn scalar_position(&self) -> usize {
+        self.position
+    }
+
+    #[inline(always)]
+    fn next_vector(&mut self) -> Option<Self::Vector> {
+        if self.position + self.width() <= self.scalar_len() {
+            let ret: Option<Self::Vector> = Some(Self::Vector::load(self.data, self.position));
+            self.position += Self::Vector::WIDTH;
+            ret
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> UnevenPackedIterator for UnevenPackedIter<'a, T> where T : Packable {
     #[inline(always)]
     fn next_scalar(&mut self) -> Option<Self::Scalar> {
         if self.position < self.scalar_len() {
@@ -156,9 +203,8 @@ impl<'a, T> UnevenPackedIterator for PackedIter<'a, T> where T : Packable {
     }
 }
 
-
-impl<T, A, B, F, G> Iterator for UnevenMap<T, F, G>
-    where T : UnevenPackedIterator, F : Fn(T::Vector) -> A, G : Fn(T::Scalar) -> B, A : Packed<B>, B : Packable {
+impl<A, B, I, F, G> Iterator for UnevenMap<I, F, G>
+    where I : UnevenPackedIterator, F : Fn(I::Vector) -> A, G : Fn(I::Scalar) -> B, A : Packed<B>, B : Packable {
     type Item = Either<<Self as PackedIterator>::Vector, <Self as PackedIterator>::Scalar>;
 
     #[inline(always)]
@@ -174,16 +220,16 @@ impl<T, A, B, F, G> Iterator for UnevenMap<T, F, G>
 }
 
 
-impl<'a, T, F, G> ExactSizeIterator for UnevenMap<T, F, G>
-    where Self : UnevenPackedIterator, T : PackedIterator {
+impl<'a, I, F, G> ExactSizeIterator for UnevenMap<I, F, G>
+    where Self : UnevenPackedIterator, I : PackedIterator {
     #[inline(always)]
     fn len(&self) -> usize {
         self.iter.len()
     }
 }
 
-impl<'a, A, B, T, F, G> PackedIterator for UnevenMap<T, F, G>
-    where T : UnevenPackedIterator, F : Fn(T::Vector) -> A, G : Fn(T::Scalar) -> B, A : Packed<B>, B : Packable {
+impl<'a, A, B, I, F, G> PackedIterator for UnevenMap<I, F, G>
+    where I : UnevenPackedIterator, F : Fn(I::Vector) -> A, G : Fn(I::Scalar) -> B, A : Packed<B>, B : Packable {
     type Vector = A;
     type Scalar = B;
 
@@ -208,8 +254,8 @@ impl<'a, A, B, T, F, G> PackedIterator for UnevenMap<T, F, G>
     }
 }
 
-impl<'a, A, B, T, F, G> UnevenPackedIterator for UnevenMap<T, F, G>
-    where T : UnevenPackedIterator, F : Fn(T::Vector) -> A, G : Fn(T::Scalar) -> B, A : Packed<B>, B : Packable {
+impl<'a, A, B, I, F, G> UnevenPackedIterator for UnevenMap<I, F, G>
+    where I : UnevenPackedIterator, F : Fn(I::Vector) -> A, G : Fn(I::Scalar) -> B, A : Packed<B>, B : Packable {
 
     #[inline(always)]
     fn next_scalar(&mut self) -> Option<Self::Scalar> {
@@ -242,22 +288,41 @@ impl<'a, T> Iterator for PackedIter<'a, T> where T : Packable {
     }
 }
 
-pub trait IntoScalar<T, S>
-    where T : Packable, Self : ExactSizeIterator<Item = S>, S : Packed<T> {
-    fn scalar_collect(self) -> Vec<T>;
-    fn scalar_fill<'a>(self, fill: &'a mut [T]) -> &'a mut [T];
-}
-
-impl<T, S, I> IntoScalar<T, S> for I
-    where I : ExactSizeIterator<Item = S>, T : Packable, S : Packed<T> {
+impl<'a, T> Iterator for UnevenPackedIter<'a, T> where T : Packable {
+    type Item = Either<<PackedIter<'a, T> as PackedIterator>::Vector,
+                       <PackedIter<'a, T> as PackedIterator>::Scalar>;
 
     #[inline(always)]
-    fn scalar_collect(self) -> Vec<T> {
+    fn next(&mut self) -> Option<Self::Item> {
+        UnevenPackedIterator::next(self)
+    }
+
+    #[inline(always)]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = (self.scalar_len() - self.position * self.width()) / self.width();
+        (remaining, Some(remaining))
+    }
+}
+
+pub trait IntoScalar<T> where T : Packable {
+    type Scalar : Packable;
+    type Vector : Packed<Self::Scalar>;
+    fn scalar_collect(&mut self) -> Vec<T>;
+    fn scalar_fill<'a>(&mut self, fill: &'a mut [T]) -> &'a mut [T];
+}
+
+impl<'a, T, S, I, F, B> IntoScalar<T> for Map<I, F>
+    where I : ExactSizeIterator<Item = S>, F: FnMut(<I as Iterator>::Item) -> B, B : Packed<T>, T : Packable {
+    type Scalar = T;
+    type Vector = T::Vector;
+
+    #[inline(always)]
+    fn scalar_collect(&mut self) -> Vec<Self::Scalar> {
         let mut offset = 0;
-        let mut ret = Vec::with_capacity(self.len() * S::WIDTH);
+        let mut ret = Vec::with_capacity(self.len() * Self::Vector::WIDTH);
 
         unsafe {
-            ret.set_len(self.len() * S::WIDTH);
+            ret.set_len(self.len() * Self::Vector::WIDTH);
             for vec in self {
                 let incr = vec.width();
                 vec.store(ret.as_mut_slice(), offset);
@@ -268,7 +333,7 @@ impl<T, S, I> IntoScalar<T, S> for I
     }
 
     #[inline(always)]
-    fn scalar_fill<'a>(self, fill: &'a mut [T]) -> &'a mut [T] {
+    fn scalar_fill<'b>(&mut self, fill: &'b mut [Self::Scalar]) -> &'b mut [Self::Scalar] {
         let mut offset = 0;
 
         for vec in self {
@@ -278,5 +343,122 @@ impl<T, S, I> IntoScalar<T, S> for I
         }
         fill
     }
+}
 
+impl<'a, T> IntoScalar<T> for PackedIter<'a, T> where T : Packable {
+    type Scalar = <Self as PackedIterator>::Scalar;
+    type Vector = <Self as PackedIterator>::Vector;
+
+    #[inline(always)]
+    fn scalar_collect(&mut self) -> Vec<Self::Scalar> {
+        let mut offset = 0;
+        let mut ret = Vec::with_capacity(self.len() * Self::Vector::WIDTH);
+
+        unsafe {
+            ret.set_len(self.len() * Self::Vector::WIDTH);
+            for vec in self {
+                let incr = vec.width();
+                vec.store(ret.as_mut_slice(), offset);
+                offset += incr;
+            }
+        }
+        ret
+    }
+
+    #[inline(always)]
+    fn scalar_fill<'b>(&mut self, fill: &'b mut [Self::Scalar]) -> &'b mut [Self::Scalar] {
+        let mut offset = 0;
+
+        for vec in self {
+            let incr = vec.width();
+            vec.store(fill, offset);
+            offset += incr;
+        }
+        fill
+    }
+}
+
+impl<'a, T> IntoScalar<T> for UnevenPackedIter<'a, T> where T : Packable {
+    type Scalar = <Self as PackedIterator>::Scalar;
+    type Vector = <Self as PackedIterator>::Vector;
+
+    #[inline(always)]
+    default fn scalar_collect(&mut self) -> Vec<Self::Scalar> {
+        let mut offset = 0;
+        let mut ret = Vec::with_capacity(self.len() * Self::Vector::WIDTH);
+
+        unsafe {
+            ret.set_len(self.len() * Self::Vector::WIDTH);
+            while let Some(vec) = self.next_vector() {
+                let incr = vec.width();
+                vec.store(ret.as_mut_slice(), offset);
+                offset += incr;
+            }
+            while let Some(scl) = self.next_scalar() {
+                ret[offset] = scl;
+                offset += 1;
+            }
+        }
+        ret
+    }
+
+    #[inline(always)]
+    fn scalar_fill<'b>(&mut self, fill: &'b mut [Self::Scalar]) -> &'b mut [Self::Scalar] {
+        let mut offset = 0;
+
+        while let Some(vec) = self.next_vector() {
+            let incr = vec.width();
+            vec.store(fill, offset);
+            offset += incr;
+        }
+        while let Some(scl) = self.next_scalar() {
+            fill[offset] = scl;
+            offset += 1;
+        }
+
+        fill
+    }
+}
+
+impl<A, B, I, F, G> IntoScalar<B> for UnevenMap<I, F, G>
+    where I : UnevenPackedIterator, F : Fn(I::Vector) -> A, G : Fn(I::Scalar) -> B, A : Packed<B>, B : Packable {
+    type Vector = A;
+    type Scalar = B;
+
+    #[inline(always)]
+    fn scalar_collect(&mut self) -> Vec<Self::Scalar> {
+        let mut offset = 0;
+        let mut ret = Vec::with_capacity(self.iter.len() * Self::Vector::WIDTH);
+
+        unsafe {
+            ret.set_len(self.iter.len() * Self::Vector::WIDTH);
+            while let Some(vec) = self.next_vector() {
+                let incr = vec.width();
+                vec.store(ret.as_mut_slice(), offset);
+                offset += incr;
+            }
+            while let Some(scl) = self.next_scalar() {
+                ret[offset] = scl;
+                offset += 1;
+            }
+        }
+        ret
+    }
+
+    #[inline(always)]
+    fn scalar_fill<'a>(&mut self, fill: &'a mut [Self::Scalar]) -> &'a mut [Self::Scalar] {
+        let mut offset = 0;
+
+        while let Some(vec) = self.next_vector() {
+            let incr = vec.width();
+            vec.store(fill, offset);
+            offset += incr;
+        }
+        while let Some(scl) = self.next_scalar() {
+            fill[offset] = scl;
+            offset += 1;
+        }
+
+        fill
+    }
 }

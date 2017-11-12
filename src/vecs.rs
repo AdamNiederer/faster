@@ -17,7 +17,7 @@ compile_error!("Your CPU is ancient! We don't support MMX, sorry!");
 compile_error!("Support for non-x86 platforms is forthcoming - See the stdsimd issues tracker for more details.");
 
 // A SIMD vector containing T.
-pub trait Packed<T : Packable> {
+pub trait Packed<T : Packable> : Sized {
     const WIDTH: usize;
     const ELEMENT_SIZE: usize = <T as Packable>::SIZE;
     const WIDTH_BYTES: usize = Self::WIDTH * Self::ELEMENT_SIZE / 8;
