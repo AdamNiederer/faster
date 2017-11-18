@@ -84,7 +84,9 @@ impl Upcast<f64x4> for f32x8 {
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (f64x4, f64x4) {
         // Shuffle the vector as i32s for better perf
-        unsafe { (_mm256_cvtps_pd(self), _mm256_cvtps_pd(_mm256_shuffle_epi32(self.be_i32s(), 0x0E).be_f32s_unchecked())) }
+        unsafe {
+            (_mm256_cvtps_pd(_mm256_castsi256_si128(self.be_i8s()).be_f32s_unchecked()),
+             _mm256_cvtps_pd(_mm256_castsi256_si128(_mm256_shuffle_epi32(self.be_i32s(), 0x0E).be_i8s()).be_f32s_unchecked())) }
     }
 
     #[inline(always)]
@@ -105,7 +107,10 @@ impl Upcast<f64x4> for i32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (f64x4, f64x4) {
-        unsafe { (_mm256_cvtepi32_pd(self), _mm256_cvtepi32_pd(_mm256_shuffle_epi32(self, 0x0E))) }
+        unsafe {
+            (_mm256_cvtepi32_pd(_mm256_castsi256_si128(self.be_i8s()).be_i32s()),
+             _mm256_cvtepi32_pd(_mm256_castsi256_si128(_mm256_shuffle_epi32(self, 0x0E).be_i8s()).be_i32s()))
+        }
     }
 
     #[inline(always)]
