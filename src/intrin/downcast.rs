@@ -36,7 +36,7 @@ impl Downcast<i8x16> for i16x8 {
 
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
-    fn saturating_downcast(self, other: Self) -> i16x8 {
+    fn saturating_downcast(self, other: Self) -> i8x16 {
         i8x16::new(self.extract(0).min(0x007F).max(-0x0080) as i8,
                    self.extract(1).min(0x007F).max(-0x0080) as i8,
                    self.extract(2).min(0x007F).max(-0x0080) as i8,
@@ -87,23 +87,23 @@ impl Downcast<u8x16> for u16x8 {
 
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
-    fn saturating_downcast(self, other: Self) -> u16x8 {
-        u8x16::new(self.extract(0).min(0x007F).max(-0x0080) as u8,
-                   self.extract(1).min(0x007F).max(-0x0080) as u8,
-                   self.extract(2).min(0x007F).max(-0x0080) as u8,
-                   self.extract(3).min(0x007F).max(-0x0080) as u8,
-                   self.extract(4).min(0x007F).max(-0x0080) as u8,
-                   self.extract(5).min(0x007F).max(-0x0080) as u8,
-                   self.extract(6).min(0x007F).max(-0x0080) as u8,
-                   self.extract(7).min(0x007F).max(-0x0080) as u8,
-                   other.extract(0).min(0x007F).max(-0x0080) as u8,
-                   other.extract(1).min(0x007F).max(-0x0080) as u8,
-                   other.extract(2).min(0x007F).max(-0x0080) as u8,
-                   other.extract(3).min(0x007F).max(-0x0080) as u8,
-                   other.extract(4).min(0x007F).max(-0x0080) as u8,
-                   other.extract(5).min(0x007F).max(-0x0080) as u8,
-                   other.extract(6).min(0x007F).max(-0x0080) as u8,
-                   other.extract(7).min(0x007F).max(-0x0080) as u8)
+    fn saturating_downcast(self, other: Self) -> u8x16 {
+        u8x16::new(self.extract(0).min(0x00FF) as u8,
+                   self.extract(1).min(0x00FF) as u8,
+                   self.extract(2).min(0x00FF) as u8,
+                   self.extract(3).min(0x00FF) as u8,
+                   self.extract(4).min(0x00FF) as u8,
+                   self.extract(5).min(0x00FF) as u8,
+                   self.extract(6).min(0x00FF) as u8,
+                   self.extract(7).min(0x00FF) as u8,
+                   other.extract(0).min(0x00FF) as u8,
+                   other.extract(1).min(0x00FF) as u8,
+                   other.extract(2).min(0x00FF) as u8,
+                   other.extract(3).min(0x00FF) as u8,
+                   other.extract(4).min(0x00FF) as u8,
+                   other.extract(5).min(0x00FF) as u8,
+                   other.extract(6).min(0x00FF) as u8,
+                   other.extract(7).min(0x00FF) as u8)
     }
 }
 
@@ -145,39 +145,39 @@ impl Downcast<i8x32> for i16x16 {
 
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
-    fn saturating_downcast(self, other: Self) -> i16x16 {
-        i8x32::new(self.extract(0).min(0x007F).max(-0x0080) as u8,
-                   self.extract(1).min(0x007F).max(-0x0080) as u8,
-                   self.extract(2).min(0x007F).max(-0x0080) as u8,
-                   self.extract(3).min(0x007F).max(-0x0080) as u8,
-                   self.extract(4).min(0x007F).max(-0x0080) as u8,
-                   self.extract(5).min(0x007F).max(-0x0080) as u8,
-                   self.extract(6).min(0x007F).max(-0x0080) as u8,
-                   self.extract(7).min(0x007F).max(-0x0080) as u8,
-                   self.extract(8).min(0x007F).max(-0x0080) as u8,
-                   self.extract(9).min(0x007F).max(-0x0080) as u8,
-                   self.extract(10).min(0x007F).max(-0x0080) as u8,
-                   self.extract(11).min(0x007F).max(-0x0080) as u8,
-                   self.extract(12).min(0x007F).max(-0x0080) as u8,
-                   self.extract(13).min(0x007F).max(-0x0080) as u8,
-                   self.extract(14).min(0x007F).max(-0x0080) as u8,
-                   self.extract(15).min(0x007F).max(-0x0080) as u8,
-                   other.extract(0).min(0x007F).max(-0x0080) as u8,
-                   other.extract(1).min(0x007F).max(-0x0080) as u8,
-                   other.extract(2).min(0x007F).max(-0x0080) as u8,
-                   other.extract(3).min(0x007F).max(-0x0080) as u8,
-                   other.extract(4).min(0x007F).max(-0x0080) as u8,
-                   other.extract(5).min(0x007F).max(-0x0080) as u8,
-                   other.extract(6).min(0x007F).max(-0x0080) as u8,
-                   other.extract(7).min(0x007F).max(-0x0080) as u8,
-                   other.extract(8).min(0x007F).max(-0x0080) as u8,
-                   other.extract(9).min(0x007F).max(-0x0080) as u8,
-                   other.extract(10).min(0x007F).max(-0x0080) as u8,
-                   other.extract(11).min(0x007F).max(-0x0080) as u8,
-                   other.extract(12).min(0x007F).max(-0x0080) as u8,
-                   other.extract(13).min(0x007F).max(-0x0080) as u8,
-                   other.extract(14).min(0x007F).max(-0x0080) as u8,
-                   other.extract(15).min(0x007F).max(-0x0080) as u8)
+    fn saturating_downcast(self, other: Self) -> i8x32 {
+        i8x32::new(self.extract(0).min(0x007F).max(-0x0080) as i8,
+                   self.extract(1).min(0x007F).max(-0x0080) as i8,
+                   self.extract(2).min(0x007F).max(-0x0080) as i8,
+                   self.extract(3).min(0x007F).max(-0x0080) as i8,
+                   self.extract(4).min(0x007F).max(-0x0080) as i8,
+                   self.extract(5).min(0x007F).max(-0x0080) as i8,
+                   self.extract(6).min(0x007F).max(-0x0080) as i8,
+                   self.extract(7).min(0x007F).max(-0x0080) as i8,
+                   self.extract(8).min(0x007F).max(-0x0080) as i8,
+                   self.extract(9).min(0x007F).max(-0x0080) as i8,
+                   self.extract(10).min(0x007F).max(-0x0080) as i8,
+                   self.extract(11).min(0x007F).max(-0x0080) as i8,
+                   self.extract(12).min(0x007F).max(-0x0080) as i8,
+                   self.extract(13).min(0x007F).max(-0x0080) as i8,
+                   self.extract(14).min(0x007F).max(-0x0080) as i8,
+                   self.extract(15).min(0x007F).max(-0x0080) as i8,
+                   other.extract(0).min(0x007F).max(-0x0080) as i8,
+                   other.extract(1).min(0x007F).max(-0x0080) as i8,
+                   other.extract(2).min(0x007F).max(-0x0080) as i8,
+                   other.extract(3).min(0x007F).max(-0x0080) as i8,
+                   other.extract(4).min(0x007F).max(-0x0080) as i8,
+                   other.extract(5).min(0x007F).max(-0x0080) as i8,
+                   other.extract(6).min(0x007F).max(-0x0080) as i8,
+                   other.extract(7).min(0x007F).max(-0x0080) as i8,
+                   other.extract(8).min(0x007F).max(-0x0080) as i8,
+                   other.extract(9).min(0x007F).max(-0x0080) as i8,
+                   other.extract(10).min(0x007F).max(-0x0080) as i8,
+                   other.extract(11).min(0x007F).max(-0x0080) as i8,
+                   other.extract(12).min(0x007F).max(-0x0080) as i8,
+                   other.extract(13).min(0x007F).max(-0x0080) as i8,
+                   other.extract(14).min(0x007F).max(-0x0080) as i8,
+                   other.extract(15).min(0x007F).max(-0x0080) as i8)
     }
 }
 
@@ -220,7 +220,7 @@ impl Downcast<u8x32> for u16x16 {
 
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
-    fn saturating_downcast(self, other: Self) -> u16x16 {
+    fn saturating_downcast(self, other: Self) -> u8x32 {
         u8x32::new(self.extract(0).min(0x00FF) as u8,
                    self.extract(1).min(0x00FF) as u8,
                    self.extract(2).min(0x00FF) as u8,
