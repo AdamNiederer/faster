@@ -396,7 +396,7 @@ impl Upcast<i64x4> for i32x8 {
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (i64x4, i64x4) {
         unsafe { (_mm256_cvtepi32_epi64(_mm256_castsi256_si128(self.be_i8s()).be_i32s()),
-                  _mm256_cvtepi32_epi64(_mm256_castsi256_si128(_mm256_shuffle_epi32(0x0E).be_i8s()).be_i32s())) }
+                  _mm256_cvtepi32_epi64(_mm256_castsi256_si128(_mm256_shuffle_epi32(self, 0x0E).be_i8s()).be_i32s())) }
     }
 
     #[inline(always)]
