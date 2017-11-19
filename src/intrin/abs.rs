@@ -193,3 +193,97 @@ impl PackedAbs for i32x8 {
         unsafe { _mm256_abs_epi32(*self).as_u32x8() }
     }
 }
+
+impl PackedAbs for i64x2 {
+    type Out = u64x2;
+
+    #[inline(always)]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) })
+    }
+}
+
+impl PackedAbs for i64x4 {
+    type Out = u64x4;
+
+    #[inline(always)]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(3).overflowing_abs().0) })
+    }
+}
+
+impl PackedAbs for i64x8 {
+    type Out = u64x8;
+
+    #[inline(always)]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(3).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(4).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(5).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(6).overflowing_abs().0) },
+                       unsafe { transmute::<i64, u64>(self.extract(7).overflowing_abs().0) })
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use vecs::*;
+    use intrin::*;
+    use std::f32::INFINITY;
+
+    #[test]
+    fn abs_i8s() {
+        for i in -128..127 {
+            assert_eq!(i8s::splat(i).abs().extract(0), (i as i64).abs() as u8);
+        }
+    }
+
+    #[test]
+    fn abs_i16s() {
+        for i in -32768..32767 {
+            assert_eq!(i16s::splat(i).abs().extract(0), (i as i64).abs() as u16);
+        }
+    }
+
+    #[test]
+    fn abs_i32s() {
+        for i in -65536..65536 {
+            assert_eq!(i32s::splat(i).abs().extract(0), (i as i64).abs() as u32);
+        }
+    }
+
+    #[test]
+    fn abs_i64s() {
+        for i in -65536..65536 {
+            assert_eq!(i64s::splat(i).abs().extract(0), (i as i64).abs() as u64);
+        }
+    }
+
+    #[test]
+    fn abs_f32s() {
+        let mut i = -1024.0;
+        while i < 1024.0 {
+            // This test has some pretty significant float error if done on x86
+            assert_eq!(f32s::splat(i).abs().extract(0), i.abs());
+            i += 1.0
+        }
+    }
+
+    #[test]
+    fn abs_f64s() {
+        let mut i = -1024.0;
+        while i < 1024.0 {
+            // This test has some pretty significant float error if done on x86
+            assert_eq!(f64s::splat(i).abs().extract(0), i.abs());
+            i += 1.0
+        }
+    }
+}
