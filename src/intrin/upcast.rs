@@ -303,7 +303,6 @@ impl Upcast<f64x2> for i32x4 {
     }
 }
 
-
 impl Upcast<i64x2> for i32x4 {
     // Blocked by stdsimd
     // #[inline(always)]
@@ -321,7 +320,6 @@ impl Upcast<i64x2> for i32x4 {
                     self.extract(3) as i64))
     }
 }
-
 
 impl Upcast<u64x2> for u32x4 {
     // Blocked by stdsimd
@@ -389,7 +387,6 @@ impl Upcast<f64x4> for i32x8 {
     }
 }
 
-
 impl Upcast<i64x4> for i32x8 {
     // Blocked by stdsimd
     // #[inline(always)]
@@ -411,7 +408,6 @@ impl Upcast<i64x4> for i32x8 {
                     self.extract(7) as i64))
     }
 }
-
 
 impl Upcast<u64x4> for u32x8 {
     // Blocked by stdsimd
@@ -479,7 +475,6 @@ impl Upcast<f64x8> for i32x16 {
     }
 }
 
-
 impl Upcast<i64x8> for i32x16 {
     #[inline(always)]
     fn upcast(self) -> (i64x8, i64x8) {
@@ -502,7 +497,6 @@ impl Upcast<i64x8> for i32x16 {
     }
 }
 
-
 impl Upcast<u64x8> for u32x16 {
     #[inline(always)]
     fn upcast(self) -> (u64x8, u64x8) {
@@ -522,5 +516,61 @@ impl Upcast<u64x8> for u32x16 {
                     self.extract(13) as u64,
                     self.extract(14) as u64,
                     self.extract(15) as u64))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use vecs::*;
+    use intrin::*;
+
+    #[test]
+    fn upcast_i8s() {
+        assert_eq!(i8s::interleave(1, 2).upcast().0, i16s::interleave(1, 2));
+        assert_eq!(i8s::interleave(1, 2).upcast().1, i16s::interleave(1, 2));
+    }
+
+    #[test]
+    fn upcast_u8s() {
+        assert_eq!(u8s::interleave(1, 2).upcast().0, u16s::interleave(1, 2));
+        assert_eq!(u8s::interleave(1, 2).upcast().1, u16s::interleave(1, 2));
+    }
+
+    #[test]
+    fn upcast_i16s() {
+        assert_eq!(i16s::interleave(1, 2).upcast().0, i32s::interleave(1, 2));
+        assert_eq!(i16s::interleave(1, 2).upcast().1, i32s::interleave(1, 2));
+    }
+
+    #[test]
+    fn upcast_u16s() {
+        assert_eq!(u16s::interleave(1, 2).upcast().0, u32s::interleave(1, 2));
+        assert_eq!(u16s::interleave(1, 2).upcast().1, u32s::interleave(1, 2));
+    }
+
+    #[test]
+    fn upcast_i32s_i64s() {
+        // TODO: Fix ugliness
+        assert_eq!(Upcast::<i64s>::upcast(i32s::interleave(1, 2)).0, i64s::interleave(1, 2));
+        assert_eq!(Upcast::<i64s>::upcast(i32s::interleave(1, 2)).1, i64s::interleave(1, 2));
+    }
+
+    #[test]
+    fn upcast_i32s_f64s() {
+        // TODO: Fix ugliness
+        assert_eq!(Upcast::<f64s>::upcast(i32s::interleave(1, 2)).0, f64s::interleave(1.0, 2.0));
+        assert_eq!(Upcast::<f64s>::upcast(i32s::interleave(1, 2)).1, f64s::interleave(1.0, 2.0));
+    }
+
+    #[test]
+    fn upcast_u32s() {
+        assert_eq!(u32s::interleave(1, 2).upcast().0, u64s::interleave(1, 2));
+        assert_eq!(u32s::interleave(1, 2).upcast().1, u64s::interleave(1, 2));
+    }
+
+    #[test]
+    fn upcast_f32s() {
+        assert_eq!(f32s::interleave(1.0, 2.0).upcast().0, f64s::interleave(1.0, 2.0));
+        assert_eq!(f32s::interleave(1.0, 2.0).upcast().1, f64s::interleave(1.0, 2.0));
     }
 }
