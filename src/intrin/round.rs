@@ -50,3 +50,193 @@ rust_fallback_impl! {
         trunc => _mm256_round_pd(_MM_FROUND_TRUNC), [0, 1, 2, 3];
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use vecs::*;
+    use intrin::*;
+
+    #[test]
+    fn round_f32s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).round());
+            assert_eq!(f32s::splat(i), f32s::splat(i + 0.4).round());
+            assert_eq!(f32s::splat(i + 1.0), f32s::splat(i + 0.8).round());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).round());
+            assert_eq!(f32s::splat(i), f32s::splat(i - 0.4).round());
+            assert_eq!(f32s::splat(i - 1.0), f32s::splat(i - 0.8).round());
+            i -= 1.0;
+        }
+
+        assert_eq!(f32s::splat(9.8).round(), f32s::splat(10.0));
+        assert_eq!(f32s::splat(9.1).round(), f32s::splat(9.0));
+        assert_eq!(f32s::splat(9.0).round(), f32s::splat(9.0));
+    }
+
+    #[test]
+    fn trunc_f32s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).trunc());
+            assert_eq!(f32s::splat(i), f32s::splat(i + 0.4).trunc());
+            assert_eq!(f32s::splat(i), f32s::splat(i + 0.8).trunc());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).trunc());
+            assert_eq!(f32s::splat(i), f32s::splat(i - 0.4).trunc());
+            assert_eq!(f32s::splat(i), f32s::splat(i - 0.8).trunc());
+            i -= 1.0;
+        }
+
+        assert_eq!(f32s::splat(9.8).trunc(), f32s::splat(9.0));
+        assert_eq!(f32s::splat(9.1).trunc(), f32s::splat(9.0));
+        assert_eq!(f32s::splat(9.0).trunc(), f32s::splat(9.0));
+    }
+
+    #[test]
+    fn ceil_f32s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).ceil());
+            assert_eq!(f32s::splat(i + 1.0), f32s::splat(i + 0.4).ceil());
+            assert_eq!(f32s::splat(i + 1.0), f32s::splat(i + 0.8).ceil());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).ceil());
+            assert_eq!(f32s::splat(i), f32s::splat(i - 0.4).ceil());
+            assert_eq!(f32s::splat(i), f32s::splat(i - 0.8).ceil());
+            i -= 1.0;
+        }
+
+        assert_eq!(f32s::splat(9.8).ceil(), f32s::splat(10.0));
+        assert_eq!(f32s::splat(9.1).ceil(), f32s::splat(10.0));
+        assert_eq!(f32s::splat(9.0).ceil(), f32s::splat(9.0));
+    }
+
+    #[test]
+    fn floor_f32s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).floor());
+            assert_eq!(f32s::splat(i), f32s::splat(i + 0.4).floor());
+            assert_eq!(f32s::splat(i), f32s::splat(i + 0.8).floor());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f32s::splat(i), f32s::splat(i).floor());
+            assert_eq!(f32s::splat(i - 1.0), f32s::splat(i - 0.4).floor());
+            assert_eq!(f32s::splat(i - 1.0), f32s::splat(i - 0.8).floor());
+            i -= 1.0;
+        }
+
+        assert_eq!(f32s::splat(9.8).floor(), f32s::splat(9.0));
+        assert_eq!(f32s::splat(9.1).floor(), f32s::splat(9.0));
+        assert_eq!(f32s::splat(9.0).floor(), f32s::splat(9.0));
+    }
+
+    #[test]
+    fn round_f64s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).round());
+            assert_eq!(f64s::splat(i), f64s::splat(i + 0.4).round());
+            assert_eq!(f64s::splat(i + 1.0), f64s::splat(i + 0.8).round());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).round());
+            assert_eq!(f64s::splat(i), f64s::splat(i - 0.4).round());
+            assert_eq!(f64s::splat(i - 1.0), f64s::splat(i - 0.8).round());
+            i -= 1.0;
+        }
+
+        assert_eq!(f64s::splat(9.8).round(), f64s::splat(10.0));
+        assert_eq!(f64s::splat(9.1).round(), f64s::splat(9.0));
+        assert_eq!(f64s::splat(9.0).round(), f64s::splat(9.0));
+    }
+
+    #[test]
+    fn trunc_f64s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).trunc());
+            assert_eq!(f64s::splat(i), f64s::splat(i + 0.4).trunc());
+            assert_eq!(f64s::splat(i), f64s::splat(i + 0.8).trunc());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).trunc());
+            assert_eq!(f64s::splat(i), f64s::splat(i - 0.4).trunc());
+            assert_eq!(f64s::splat(i), f64s::splat(i - 0.8).trunc());
+            i -= 1.0;
+        }
+
+        assert_eq!(f64s::splat(9.8).trunc(), f64s::splat(9.0));
+        assert_eq!(f64s::splat(9.1).trunc(), f64s::splat(9.0));
+        assert_eq!(f64s::splat(9.0).trunc(), f64s::splat(9.0));
+    }
+
+    #[test]
+    fn ceil_f64s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).ceil());
+            assert_eq!(f64s::splat(i + 1.0), f64s::splat(i + 0.4).ceil());
+            assert_eq!(f64s::splat(i + 1.0), f64s::splat(i + 0.8).ceil());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).ceil());
+            assert_eq!(f64s::splat(i), f64s::splat(i - 0.4).ceil());
+            assert_eq!(f64s::splat(i), f64s::splat(i - 0.8).ceil());
+            i -= 1.0;
+        }
+
+        assert_eq!(f64s::splat(9.8).ceil(), f64s::splat(10.0));
+        assert_eq!(f64s::splat(9.1).ceil(), f64s::splat(10.0));
+        assert_eq!(f64s::splat(9.0).ceil(), f64s::splat(9.0));
+    }
+
+    #[test]
+    fn floor_f64s() {
+        let mut i = 0.0;
+        while i < 32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).floor());
+            assert_eq!(f64s::splat(i), f64s::splat(i + 0.4).floor());
+            assert_eq!(f64s::splat(i), f64s::splat(i + 0.8).floor());
+            i += 1.0;
+        }
+
+        let mut i = 0.0;
+        while i > -32.0 {
+            assert_eq!(f64s::splat(i), f64s::splat(i).floor());
+            assert_eq!(f64s::splat(i - 1.0), f64s::splat(i - 0.4).floor());
+            assert_eq!(f64s::splat(i - 1.0), f64s::splat(i - 0.8).floor());
+            i -= 1.0;
+        }
+
+        assert_eq!(f64s::splat(9.8).floor(), f64s::splat(9.0));
+        assert_eq!(f64s::splat(9.1).floor(), f64s::splat(9.0));
+        assert_eq!(f64s::splat(9.0).floor(), f64s::splat(9.0));
+    }
+}
