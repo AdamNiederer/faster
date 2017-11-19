@@ -34,3 +34,23 @@ rust_fallback_impl! {
         sqrt => _mm_sqrt_pd(), [0, 1];
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use vecs::*;
+    use intrin::*;
+
+    #[test]
+    fn sqrt_f64s() {
+        assert_eq!(f64s::splat(1.0).sqrt(), f64s::splat(1.0));
+        assert!(f64s::splat(9.0).sqrt().max(f64s::splat(2.999)) == f64s::splat(9.0).sqrt());
+        assert!(f64s::splat(9.0).sqrt().min(f64s::splat(3.001)) == f64s::splat(9.0).sqrt());
+    }
+
+    #[test]
+    fn sqrt_f32s() {
+        assert_eq!(f32s::splat(1.0).sqrt(), f32s::splat(1.0));
+        assert!(f32s::splat(9.0).sqrt().max(f32s::splat(2.999)) == f32s::splat(9.0).sqrt());
+        assert!(f32s::splat(9.0).sqrt().min(f32s::splat(3.001)) == f32s::splat(9.0).sqrt());
+    }
+}
