@@ -28,6 +28,8 @@ mod recip;
 pub use self::recip::*;
 mod hadd;
 pub use self::hadd::*;
+mod hsub;
+pub use self::hsub::*;
 mod rsqrt;
 pub use self::rsqrt::*;
 mod cmp;
