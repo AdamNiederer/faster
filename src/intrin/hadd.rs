@@ -15,14 +15,14 @@ pub trait PackedHadd {
 
 impl PackedHadd for f32x4 {
     #[inline(always)]
-    #[cfg(target_feature = "sse2")]
+    #[cfg(target_feature = "sse3")]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm_hadd_ps(_mm_shuffle_ps(*self, other, 0b01000100),
                              _mm_shuffle_ps(*self, other, 0b11101110)) }
     }
 
     #[inline(always)]
-    #[cfg(not(target_feature = "sse2"))]
+    #[cfg(not(target_feature = "sse3"))]
     fn hadd(&self, other: Self) -> Self {
         Self::new(self.extract(0) + self.extract(1),
                   other.extract(0) + other.extract(1),
@@ -33,13 +33,13 @@ impl PackedHadd for f32x4 {
 
 impl PackedHadd for f64x2 {
     #[inline(always)]
-    #[cfg(target_feature = "sse2")]
+    #[cfg(target_feature = "sse3")]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm_hadd_pd(*self, other) }
     }
 
     #[inline(always)]
-    #[cfg(not(target_feature = "sse2"))]
+    #[cfg(not(target_feature = "sse3"))]
     fn hadd(&self, other: Self) -> Self {
         Self::new(self.extract(0) + self.extract(1),
                   other.extract(0) + other.extract(1))
