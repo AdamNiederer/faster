@@ -11,12 +11,14 @@ use faster::*;
 
 fn main() {
     let lots_of_84s = (&[-10i8; 128][..]).simd_iter()
-        .map(|v| i8s::splat(9) * v.abs().be_i8s() - i8s::splat(4) - i8s::splat(2))
+        .simd_map(|v| i8s::splat(9) * v.abs().be_i8s() - i8s::splat(4) - i8s::splat(2),
+                  |s| 9 * s.abs() - 4 - 2)
         .scalar_collect();
 
     let lots_of_3s = (&[-123.456f32; 128][..]).simd_iter()
-        .map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
-                   f32s::splat(4.0) - f32s::splat(2.0) })
+        .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
+                        f32s::splat(4.0) - f32s::splat(2.0) },
+                  |s| { 9.0 * s.abs().sqrt().sqrt().recip().ceil().sqrt() - 4.0 - 2.0 })
         .scalar_collect();
 
     let lots_of_3s_sc = (&[-123.456f32; 128][..]).iter()
@@ -25,9 +27,9 @@ fn main() {
         .collect::<Vec<f32>>();
 
     let mut some_u8s = [0u8; 100];
-    let filled_u8s = (&[5u8; 100][..]).uneven_simd_iter()
-        .uneven_map(|vector| vector * u8s::splat(2),
-                    |scalar| scalar * 2)
+    let filled_u8s = (&[5u8; 100][..]).simd_iter()
+        .simd_map(|vector| vector * u8s::splat(2),
+                  |scalar| scalar * 2)
         .scalar_fill(&mut some_u8s);
 
     println!("{:?}\n{:?}\n{:?}\n{:?}", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s);

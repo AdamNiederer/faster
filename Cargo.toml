@@ -8,7 +8,6 @@ version = "0.2.1"
 
 [dependencies]
 stdsimd = "0.0.3"
-either = "1.3.0"
 
 [profile.release]
 opt-level = 3
