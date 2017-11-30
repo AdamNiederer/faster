@@ -92,7 +92,7 @@ Faster currently supports 32- and 64-bit x86 machines with SSE and above,
 although AVX-512 support isn't working in rustc yet. Support for non-x86
 architectures is currently blocked by stdsimd and rustc.
 
-Of course, once those issues are resolved, adding support ARM, MIPS, or any
+Of course, once those issues are resolved, adding support for ARM, MIPS, or any
 other intrinsics and vector lengths will be trivial.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
