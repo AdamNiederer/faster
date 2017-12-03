@@ -9,15 +9,15 @@ use vecs::{Packable, Packed};
 
 pub trait PackedIterator : Sized + ExactSizeIterator {
     type Scalar : Packable;
-    type Vector : Packed<Self::Scalar>;
+    type Vector : Packed<Scalar = Self::Scalar>;
 
     fn width(&self) -> usize;
     fn scalar_len(&self) -> usize;
     fn scalar_position(&self) -> usize;
 
     fn next_vector(&mut self) -> Option<Self::Vector>;
-    fn simd_map<A, B, F, G>(self, vectorfn: F, scalarfn: G) -> PackedMap<Self, F, G>
-        where F : Fn(Self::Vector) -> A, G : Fn(Self::Scalar) -> B, A : Packed<B>, B : Packable;
+    fn simd_map<A, B, F>(self, func: F) -> PackedMap<Self, F>
+        where F : Fn(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable;
 }
 
 #[derive(Debug)]
@@ -27,10 +27,9 @@ pub struct PackedIter<'a, T : 'a + Packable> {
 }
 
 #[derive(Debug)]
-pub struct PackedMap<I, F, G> {
+pub struct PackedMap<I, F> {
     pub iter: I,
-    pub vectorfn: F,
-    pub scalarfn: G,
+    pub func: F,
 }
 
 impl<'a, T> Iterator for PackedIter<'a, T> where T : Packable {
@@ -88,12 +87,11 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     }
 
     #[inline(always)]
-    fn simd_map<A, B, F, G>(self, vectorfn: F, scalarfn: G) -> PackedMap<Self, F, G>
-        where F : Fn(Self::Vector) -> A, G : Fn(Self::Scalar) -> B, A : Packed<B>, B : Packable {
+    fn simd_map<A, B, F>(self, func: F) -> PackedMap<Self, F>
+        where F : Fn(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
         PackedMap {
             iter: self,
-            vectorfn: vectorfn,
-            scalarfn: scalarfn,
+            func: func
         }
     }
 }
@@ -144,14 +142,13 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefMutIterator<'a> for I
     }
 }
 
-impl<A, B, I, F, G> Iterator for PackedMap<I, F, G>
-    where I : PackedIterator, F : Fn(I::Vector) -> A, G : Fn(<I as Iterator>::Item) -> B, A : Packed<B>, B : Packable{
+impl<A, B, I, F> Iterator for PackedMap<I, F>
+    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : Fn(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
     type Item = B;
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        // TODO: Apply vectorfn instead and cache results
-        self.iter.next().map(&self.scalarfn)
+        Some((&self.func)(I::Vector::splat(self.iter.next()?)).coalesce())
     }
 
     #[inline(always)]
@@ -161,7 +158,7 @@ impl<A, B, I, F, G> Iterator for PackedMap<I, F, G>
     }
 }
 
-impl<'a, I, F, G> ExactSizeIterator for PackedMap<I, F, G>
+impl<'a, I, F> ExactSizeIterator for PackedMap<I, F>
     where Self : PackedIterator, I : PackedIterator {
     #[inline(always)]
     fn len(&self) -> usize {
@@ -169,8 +166,8 @@ impl<'a, I, F, G> ExactSizeIterator for PackedMap<I, F, G>
     }
 }
 
-impl<'a, A, B, I, F, G> PackedIterator for PackedMap<I, F, G>
-    where I : PackedIterator, F : Fn(I::Vector) -> A, G : Fn(<I as Iterator>::Item) -> B, A : Packed<B>, B : Packable {
+impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
+    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : Fn(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
     type Vector = A;
     type Scalar = B;
 
@@ -191,29 +188,28 @@ impl<'a, A, B, I, F, G> PackedIterator for PackedMap<I, F, G>
 
     #[inline(always)]
     fn next_vector(&mut self) -> Option<Self::Vector> {
-        self.iter.next_vector().map(&self.vectorfn)
+        self.iter.next_vector().map(&self.func)
     }
 
     #[inline(always)]
-    fn simd_map<AA, BB, AF, BG>(self, vectorfn: AF, scalarfn: BG) -> PackedMap<Self, AF, BG>
-        where AF : Fn(Self::Vector) -> AA, BG : Fn(Self::Scalar) -> BB, AA : Packed<BB>, BB : Packable {
+    fn simd_map<AA, BB, AF>(self, func: AF) -> PackedMap<Self, AF>
+        where AF : Fn(Self::Vector) -> AA, AA : Packed<Scalar = BB>, BB : Packable {
         PackedMap {
             iter: self,
-            vectorfn: vectorfn,
-            scalarfn: scalarfn,
+            func: func
         }
     }
 }
 
 pub trait IntoScalar<T> where T : Packable {
     type Scalar : Packable;
-    type Vector : Packed<Self::Scalar>;
+    type Vector : Packed<Scalar = Self::Scalar>;
     fn scalar_collect(&mut self) -> Vec<T>;
     fn scalar_fill<'a>(&mut self, fill: &'a mut [T]) -> &'a mut [T];
 }
 
 impl<'a, T, I> IntoScalar<T> for I
-    where I : PackedIterator<Scalar = T, Item = T>, I::Vector : Packed<T>, T : Packable {
+    where I : PackedIterator<Scalar = T, Item = T>, I::Vector : Packed<Scalar = T>, T : Packable {
     type Scalar = I::Scalar;
     type Vector = I::Vector;
 

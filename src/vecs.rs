@@ -17,16 +17,12 @@ pub const SIMD_SIZE: usize = 256;
 #[cfg(all(target_feature = "sse", not(target_feature="avx2")))]
 pub const SIMD_SIZE: usize = 128;
 
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), not(target_feature = "sse")))]
-compile_error!("Your CPU is ancient! We don't support MMX, sorry!");
-
-#[cfg(all(not(target_arch = "x86"), not(target_arch = "x86_64")))]
-compile_error!("Support for non-x86 platforms is forthcoming - See the stdsimd issues tracker for more details.");
-
 // A SIMD vector containing T.
-pub trait Packed<T : Packable> : Sized {
+pub trait Packed : Sized {
+    type Scalar : Packable;
+
     const WIDTH: usize;
-    const ELEMENT_SIZE: usize = <T as Packable>::SIZE;
+    const ELEMENT_SIZE: usize = Self::Scalar::SIZE;
     const WIDTH_BYTES: usize = Self::WIDTH * Self::ELEMENT_SIZE / 8;
 
     #[inline(always)]
@@ -44,17 +40,18 @@ pub trait Packed<T : Packable> : Sized {
         Self::ELEMENT_SIZE
     }
 
-    fn load(data: &[T], offset: usize) -> Self;
-    fn store(self, data: &mut [T], offset: usize);
-    fn splat(data: T) -> Self;
-    fn halfs(hi: T, lo: T) -> Self;
-    fn interleave(hi: T, lo: T) -> Self;
+    fn load(data: &[Self::Scalar], offset: usize) -> Self;
+    fn store(self, data: &mut [Self::Scalar], offset: usize);
+    fn coalesce(self) -> Self::Scalar;
+    fn splat(data: Self::Scalar) -> Self;
+    fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
+    fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self;
 }
 
 // A type which may be packed into a SIMD vector
 pub trait Packable where Self : Sized + Copy {
     const SIZE: usize;
-    type Vector : Packed<Self>;
+    type Vector : Packed<Scalar = Self>;
 }
 
 macro_rules! impl_packed {
@@ -71,7 +68,8 @@ macro_rules! impl_packed {
             type Vector = $vec;
         }
 
-        impl Packed<$el> for $vec {
+        impl Packed for $vec {
+            type Scalar = $el;
             const WIDTH: usize = $sz;
 
             #[inline(always)]
@@ -82,16 +80,24 @@ macro_rules! impl_packed {
             fn store(self, data: &mut [$el], offset: usize) {
                 $vec::store(self, data, offset);
             }
+            fn coalesce(self) -> Self::Scalar {
+                for i in 1..(Self::WIDTH as u32) {
+                    debug_assert!(self.extract(i - 1) == self.extract(i));
+                }
+                self.extract(0)
+            }
             #[inline(always)]
             fn splat(data: $el) -> Self {
                 $vec::splat(data)
             }
             #[inline(always)]
             fn halfs(hi: $el, lo: $el) -> Self {
+                eprintln!("Halfs is going away in 0.3.0! Stay away!");
                 $halfs(hi, lo)
             }
             #[inline(always)]
             fn interleave(hi: $el, lo: $el) -> Self {
+                eprintln!("Interleave is going away in 0.3.0! Stay away!");
                 $interleave(hi, lo)
             }
         }
@@ -310,3 +316,87 @@ impl_packed! {
     halfs => |hi, lo| { f64x2::new(hi, lo) },
     interleave => |hi, lo| { f64x2::new(hi, lo) }
 }
+
+// Impl for scalar traits
+
+macro_rules! impl_packed_shim {
+    ($el:ty, $pvec:tt, $vec:tt, $sz:expr, $feat:expr, $nfeat:expr) => (
+        #[allow(non_camel_case_types)]
+        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        pub type $pvec = $vec;
+
+        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        impl Packable for $el {
+            const SIZE: usize = SIMD_SIZE / $sz;
+            type Vector = $vec;
+        }
+
+        impl Packed for $vec {
+            type Scalar = $el;
+            const WIDTH: usize = $sz;
+
+            #[inline(always)]
+            fn load(data: &[$el], offset: usize) -> $vec {
+                data[offset]
+            }
+            #[inline(always)]
+            fn store(self, data: &mut [$el], offset: usize) {
+                data[offset] = self;
+            }
+            fn coalesce(self) -> Self::Scalar {
+                self
+            }
+            #[inline(always)]
+            fn splat(data: $el) -> Self {
+                data
+            }
+            #[inline(always)]
+            fn halfs(hi: $el, lo: $el) -> Self {
+                eprintln!("Halfs is going away in 0.3.0! Stay away!");
+                hi
+            }
+            #[inline(always)]
+            fn interleave(hi: $el, lo: $el) -> Self {
+                eprintln!("Interleave is going away in 0.3.0! Stay away!");
+                hi
+            }
+        }
+
+        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        impl<'a> IntoPackedRefIterator<'a> for &'a [$el] {
+            type Iter = PackedIter<'a, $el>;
+
+            #[inline(always)]
+            fn simd_iter(&'a self) -> Self::Iter {
+                PackedIter {
+                    data: self,
+                    position: 0,
+                }
+            }
+        }
+
+        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        impl<'a> IntoPackedRefMutIterator<'a> for &'a mut [$el] {
+            type Iter = PackedIter<'a, $el>;
+
+            #[inline(always)]
+            fn simd_iter_mut(&'a mut self) -> Self::Iter {
+                PackedIter {
+                    data: self,
+                    position: 0,
+                }
+            }
+        }
+    );
+}
+
+impl_packed_shim!(u8, u8s, u8, 1, "", "sse");
+impl_packed_shim!(i8, i8s, i8, 1, "", "sse");
+impl_packed_shim!(u16, u16s, u16, 1, "", "sse");
+impl_packed_shim!(i16, i16s, i16, 1, "", "sse");
+impl_packed_shim!(u32, u32s, u32, 1, "", "sse");
+impl_packed_shim!(i32, i32s, i32, 1, "", "sse");
+impl_packed_shim!(f32, f32s, f32, 1, "", "sse");
+impl_packed_shim!(u64, u64s, u64, 1, "", "sse");
+impl_packed_shim!(i64, i64s, i64, 1, "", "sse");
+impl_packed_shim!(f64, f64s, f64, 1, "", "sse");
