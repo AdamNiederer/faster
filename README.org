@@ -101,14 +101,22 @@ performance can be extracted out of SIMD.
 
 #+BEGIN_SRC shell
   $ RUSTFLAGS="-C target-cpu=ivybridge" cargo bench # host is ivybridge
-  test tests::bench_nop_scalar  ... bench:          29 ns/iter (+/- 2)
-  test tests::bench_nop_simd    ... bench:          28 ns/iter (+/- 1)
-  test tests::bench_work_scalar ... bench:       1,042 ns/iter (+/- 93)
-  test tests::bench_work_simd   ... bench:         133 ns/iter (+/- 1)
+  test tests::bench_map_scalar         ... bench:         890 ns/iter (+/- 5)
+  test tests::bench_map_simd           ... bench:         124 ns/iter (+/- 0)
+  test tests::bench_map_uneven_simd    ... bench:         122 ns/iter (+/- 0)
+  test tests::bench_nop_scalar         ... bench:          24 ns/iter (+/- 0)
+  test tests::bench_nop_simd           ... bench:          24 ns/iter (+/- 0)
+  test tests::bench_reduce_scalar      ... bench:         860 ns/iter (+/- 2)
+  test tests::bench_reduce_simd        ... bench:         102 ns/iter (+/- 0)
+  test tests::bench_reduce_uneven_simd ... bench:          99 ns/iter (+/- 0)
 
   $ RUSTFLAGS="-C target-cpu=pentium3" cargo bench # host is ivybridge
-  test tests::bench_nop_scalar  ... bench:          18 ns/iter (+/- 0)
-  test tests::bench_nop_simd    ... bench:          21 ns/iter (+/- 1)
-  test tests::bench_work_scalar ... bench:       1,013 ns/iter (+/- 72)
-  test tests::bench_work_simd   ... bench:         281 ns/iter (+/- 18)
+  test tests::bench_map_scalar         ... bench:         896 ns/iter (+/- 2)
+  test tests::bench_map_simd           ... bench:         247 ns/iter (+/- 1)
+  test tests::bench_map_uneven_simd    ... bench:         240 ns/iter (+/- 0)
+  test tests::bench_nop_scalar         ... bench:          16 ns/iter (+/- 0)
+  test tests::bench_nop_simd           ... bench:          18 ns/iter (+/- 0)
+  test tests::bench_reduce_scalar      ... bench:         868 ns/iter (+/- 2)
+  test tests::bench_reduce_simd        ... bench:         235 ns/iter (+/- 0)
+  test tests::bench_reduce_uneven_simd ... bench:         222 ns/iter (+/- 0)
 #+END_SRC
