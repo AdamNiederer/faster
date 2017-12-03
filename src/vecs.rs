@@ -22,35 +22,26 @@ pub trait Packed : Sized {
     type Scalar : Packable;
 
     const WIDTH: usize;
-    const ELEMENT_SIZE: usize = Self::Scalar::SIZE;
-    const WIDTH_BYTES: usize = Self::WIDTH * Self::ELEMENT_SIZE / 8;
 
     #[inline(always)]
     fn width(&self) -> usize {
         Self::WIDTH
     }
 
-    #[inline(always)]
-    fn width_bytes(&self) -> usize {
-        Self::WIDTH_BYTES
-    }
-
-    #[inline(always)]
-    fn element_size(&self) -> usize {
-        Self::ELEMENT_SIZE
-    }
-
     fn load(data: &[Self::Scalar], offset: usize) -> Self;
     fn store(self, data: &mut [Self::Scalar], offset: usize);
     fn coalesce(self) -> Self::Scalar;
     fn splat(data: Self::Scalar) -> Self;
+    #[deprecated(since="0.2.0", note="This method leads to unportable code")]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
+    #[deprecated(since="0.2.0", note="This method leads to unportable code")]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self;
+    fn sum(&self) -> Self::Scalar;
+    fn product(&self) -> Self::Scalar;
 }
 
 // A type which may be packed into a SIMD vector
 pub trait Packable where Self : Sized + Copy {
-    const SIZE: usize;
     type Vector : Packed<Scalar = Self>;
 }
 
@@ -64,10 +55,10 @@ macro_rules! impl_packed {
 
         #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
         impl Packable for $el {
-            const SIZE: usize = SIMD_SIZE / $sz;
             type Vector = $vec;
         }
 
+        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
         impl Packed for $vec {
             type Scalar = $el;
             const WIDTH: usize = $sz;
@@ -100,6 +91,22 @@ macro_rules! impl_packed {
                 eprintln!("Interleave is going away in 0.3.0! Stay away!");
                 $interleave(hi, lo)
             }
+            #[inline(always)]
+            fn product(&self) -> Self::Scalar {
+                let mut acc = 1 as $el;
+                for i in 0..(Self::WIDTH as u32) {
+                    acc *= self.extract(i)
+                }
+                acc
+            }
+            #[inline(always)]
+            fn sum(&self) -> Self::Scalar {
+                let mut acc = 0 as $el;
+                for i in 0..(Self::WIDTH as u32) {
+                    acc += self.extract(i)
+                }
+                acc
+            }
         }
 
         #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
@@ -127,33 +134,6 @@ macro_rules! impl_packed {
                 }
             }
         }
-
-        // #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
-        // impl<'a> IntoUnevenPackedRefIterator<'a> for &'a [$el] {
-        //     type Iter = UnevenPackedIter<'a, $el>;
-
-        //     #[inline(always)]
-        //     fn uneven_simd_iter(&'a self) -> Self::Iter {
-        //         UnevenPackedIter {
-        //             data: self,
-        //             position: 0,
-        //         }
-        //     }
-        // }
-
-        // #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
-        // impl<'a> IntoUnevenPackedRefMutIterator<'a> for &'a mut [$el] {
-        //     type Iter = UnevenPackedIter<'a, $el>;
-
-        //     #[inline(always)]
-        //     fn uneven_simd_iter_mut(&'a mut self) -> Self::Iter {
-        //         UnevenPackedIter {
-        //             data: self,
-        //             position: 0,
-        //         }
-        //     }
-        // }
-
     );
 }
 
@@ -322,15 +302,15 @@ impl_packed! {
 macro_rules! impl_packed_shim {
     ($el:ty, $pvec:tt, $vec:tt, $sz:expr, $feat:expr, $nfeat:expr) => (
         #[allow(non_camel_case_types)]
-        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        #[cfg(all(not(target_feature = $nfeat)))]
         pub type $pvec = $vec;
 
-        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        #[cfg(all(not(target_feature = $nfeat)))]
         impl Packable for $el {
-            const SIZE: usize = SIMD_SIZE / $sz;
             type Vector = $vec;
         }
 
+        #[cfg(all(not(target_feature = $nfeat)))]
         impl Packed for $vec {
             type Scalar = $el;
             const WIDTH: usize = $sz;
@@ -351,18 +331,28 @@ macro_rules! impl_packed_shim {
                 data
             }
             #[inline(always)]
+            #[allow(unused_variables)]
             fn halfs(hi: $el, lo: $el) -> Self {
                 eprintln!("Halfs is going away in 0.3.0! Stay away!");
                 hi
             }
             #[inline(always)]
+            #[allow(unused_variables)]
             fn interleave(hi: $el, lo: $el) -> Self {
                 eprintln!("Interleave is going away in 0.3.0! Stay away!");
                 hi
             }
+            #[inline(always)]
+            fn product(&self) -> Self::Scalar {
+                *self
+            }
+            #[inline(always)]
+            fn sum(&self) -> Self::Scalar {
+                *self
+            }
         }
 
-        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        #[cfg(all(not(target_feature = $nfeat)))]
         impl<'a> IntoPackedRefIterator<'a> for &'a [$el] {
             type Iter = PackedIter<'a, $el>;
 
@@ -375,7 +365,7 @@ macro_rules! impl_packed_shim {
             }
         }
 
-        #[cfg(all(target_feature = $feat, not(target_feature = $nfeat)))]
+        #[cfg(all(not(target_feature = $nfeat)))]
         impl<'a> IntoPackedRefMutIterator<'a> for &'a mut [$el] {
             type Iter = PackedIter<'a, $el>;
 

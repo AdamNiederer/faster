@@ -27,3 +27,17 @@ impl PackedRsqrt for f32x8 {
         unsafe { _mm256_rsqrt_ps(*self) }
     }
 }
+
+impl PackedRsqrt for f32 {
+    #[inline(always)]
+    fn rsqrt(&self) -> Self {
+        self.sqrt().recip()
+    }
+}
+
+impl PackedRsqrt for f64 {
+    #[inline(always)]
+    fn rsqrt(&self) -> Self {
+        self.sqrt().recip()
+    }
+}
