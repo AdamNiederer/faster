@@ -29,5 +29,8 @@ fn main() {
         .simd_map(|vector| vector * u8s::splat(2))
         .scalar_fill(&mut some_u8s);
 
-    println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len());
+    let reduced = (&[-1.0f32; 128][..]).simd_iter()
+        .simd_reduce(f32s::splat(0.0), |a, v| *a + v.abs().sqrt().sqrt().floor()).sum();
+
+    println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced);
 }

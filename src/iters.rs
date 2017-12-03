@@ -16,8 +16,31 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     fn scalar_position(&self) -> usize;
 
     fn next_vector(&mut self) -> Option<Self::Vector>;
+
+    #[inline(always)]
     fn simd_map<A, B, F>(self, func: F) -> PackedMap<Self, F>
-        where F : Fn(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable;
+        where F : Fn(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+        PackedMap {
+            iter: self,
+            func: func
+        }
+    }
+
+    #[inline(always)]
+    fn simd_reduce<A, F>(&mut self, start: A, func: F) -> A
+        where F : Fn(&A, &Self::Vector) -> A {
+        let mut acc: A;
+        if let Some(v) = self.next_vector() {
+            acc = func(&start, &v);
+            while let Some(v) = self.next_vector() {
+                acc = func(&acc, &v);
+            }
+            acc
+        } else {
+            start
+        }
+
+    }
 }
 
 #[derive(Debug)]
@@ -83,15 +106,6 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
             ret
         } else {
             None
-        }
-    }
-
-    #[inline(always)]
-    fn simd_map<A, B, F>(self, func: F) -> PackedMap<Self, F>
-        where F : Fn(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
-        PackedMap {
-            iter: self,
-            func: func
         }
     }
 }
@@ -189,15 +203,6 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     #[inline(always)]
     fn next_vector(&mut self) -> Option<Self::Vector> {
         self.iter.next_vector().map(&self.func)
-    }
-
-    #[inline(always)]
-    fn simd_map<AA, BB, AF>(self, func: AF) -> PackedMap<Self, AF>
-        where AF : Fn(Self::Vector) -> AA, AA : Packed<Scalar = BB>, BB : Packable {
-        PackedMap {
-            iter: self,
-            func: func
-        }
     }
 }
 
