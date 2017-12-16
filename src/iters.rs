@@ -11,7 +11,11 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     type Scalar : Packable;
     type Vector : Packed<Scalar = Self::Scalar>;
 
-    fn width(&self) -> usize;
+    #[inline(always)]
+    fn width(&self) -> usize {
+        Self::Vector::WIDTH
+    }
+
     fn scalar_len(&self) -> usize;
     fn scalar_position(&self) -> usize;
 
@@ -82,11 +86,6 @@ impl<'a, T> ExactSizeIterator for PackedIter<'a, T>
 impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     type Vector = <T as Packable>::Vector;
     type Scalar = T;
-
-    #[inline(always)]
-    fn width(&self) -> usize {
-        T::Vector::WIDTH
-    }
 
     #[inline(always)]
     fn scalar_len(&self) -> usize {
@@ -185,10 +184,6 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     type Vector = A;
     type Scalar = B;
 
-    #[inline(always)]
-    fn width(&self) -> usize {
-        Self::Vector::WIDTH
-    }
 
     #[inline(always)]
     fn scalar_len(&self) -> usize {
