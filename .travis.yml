@@ -3,6 +3,7 @@ sudo: false
 rust:
   - nightly
 env:
+  - RUSTFLAGS="-C target-feature=-sse -C target-feature=+x87"
   - RUSTFLAGS="-C target-feature=+sse"
   - RUSTFLAGS="-C target-feature=+sse2"
   - RUSTFLAGS="-C target-feature=+sse3"
