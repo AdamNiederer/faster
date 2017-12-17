@@ -6,7 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use stdsimd::vendor::*;
-use stdsimd::simd::*;
+use stdsimd::simd::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2};
 use std::mem::transmute;
 
 // TODO: AVX2 scalar impls
@@ -167,30 +167,103 @@ impl PackedAbs for i32x4 {
     }
 }
 
-#[cfg(target_feature = "avx2")]
 impl PackedAbs for i8x32 {
     type Out = u8x32; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+
     #[inline(always)]
+    #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
         unsafe { _mm256_abs_epi8(*self).as_u8x32() }
     }
-}
 
-#[cfg(target_feature = "avx2")]
-impl PackedAbs for i16x16 {
-    type Out = u16x16; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
     #[inline(always)]
+    #[cfg(not(target_feature = "avx2"))]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm256_abs_epi16(*self).as_u16x16() }
+        Self::Out::new(unsafe { transmute::<i8, u8>(self.extract(0).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(1).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(2).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(3).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(4).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(5).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(6).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(7).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(8).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(9).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(10).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(11).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(12).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(13).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(14).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(15).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(16).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(17).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(18).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(19).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(20).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(21).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(22).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(23).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(24).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(25).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(26).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(27).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(28).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(29).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(30).overflowing_abs().0) },
+                       unsafe { transmute::<i8, u8>(self.extract(31).overflowing_abs().0) })
     }
 }
 
-#[cfg(target_feature = "avx2")]
+
+impl PackedAbs for i16x16 {
+    type Out = u16x16; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+    #[inline(always)]
+    #[cfg(target_feature = "avx2")]
+    fn abs(&self) -> Self::Out {
+        unsafe { _mm256_abs_epi16(*self).as_u16x16() }
+    }
+
+    #[inline(always)]
+    #[cfg(not(target_feature = "avx2"))]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(unsafe { transmute::<i16, u16>(self.extract(0).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(1).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(2).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(3).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(4).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(5).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(6).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(7).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(8).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(9).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(10).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(11).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(12).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(13).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(14).overflowing_abs().0) },
+                       unsafe { transmute::<i16, u16>(self.extract(15).overflowing_abs().0) })
+    }
+}
+
 impl PackedAbs for i32x8 {
     type Out = u32x8; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
     #[inline(always)]
+    #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
         unsafe { _mm256_abs_epi32(*self).as_u32x8() }
+    }
+
+    #[inline(always)]
+    #[cfg(not(target_feature = "avx2"))]
+    fn abs(&self) -> Self::Out {
+        Self::Out::new(unsafe { transmute::<i32, u32>(self.extract(0).overflowing_abs().0) },
+                       unsafe { transmute::<i32, u32>(self.extract(1).overflowing_abs().0) },
+                       unsafe { transmute::<i32, u32>(self.extract(2).overflowing_abs().0) },
+                       unsafe { transmute::<i32, u32>(self.extract(3).overflowing_abs().0) },
+                       unsafe { transmute::<i32, u32>(self.extract(4).overflowing_abs().0) },
+                       unsafe { transmute::<i32, u32>(self.extract(5).overflowing_abs().0) },
+                       unsafe { transmute::<i32, u32>(self.extract(6).overflowing_abs().0) },
+                       unsafe { transmute::<i32, u32>(self.extract(7).overflowing_abs().0) })
     }
 }
 
