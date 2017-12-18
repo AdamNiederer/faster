@@ -31,7 +31,7 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     }
 
     #[inline(always)]
-    fn simd_reduce<A, F>(&mut self, start: A, func: F) -> A
+    fn simd_reduce<A, F>(&mut self, start: A, default: Self::Vector, func: F) -> A
         where F : Fn(&A, &Self::Vector) -> A {
         let mut acc: A;
         if let Some(v) = self.next_vector() {
@@ -39,11 +39,22 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
             while let Some(v) = self.next_vector() {
                 acc = func(&acc, &v);
             }
+            if let Some(v) = self.next_partial(default) {
+                // eprintln!("hi! {:?}", v);
+                acc = func(&acc, &v);
+            }
+            debug_assert!(self.next_partial(default).is_none());
+            acc
+        } else if let Some(v) = self.next_partial(default) {
+            acc = func(&start, &v);
+            while let Some(v) = self.next_partial(default) {
+                acc = func(&acc, &v);
+            }
+            debug_assert!(self.next_partial(default).is_none());
             acc
         } else {
             start
         }
-
     }
 }
 
@@ -100,9 +111,40 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     #[inline(always)]
     fn next_vector(&mut self) -> Option<Self::Vector> {
         if self.position + self.width() <= self.scalar_len() {
-            let ret: Option<Self::Vector> = Some(Self::Vector::load(self.data, self.position));
+            let ret = Some(Self::Vector::load(self.data, self.position));
             self.position += Self::Vector::WIDTH;
             ret
+        } else {
+            None
+        }
+    }
+
+    fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> where T : Packable {
+        if self.position < self.scalar_len() {
+
+            // Workaround broken replace for now.
+            let mut store = Vec::with_capacity(default.width());
+            for i in 0..default.width() {
+                store.push(default.extract(i));
+            }
+            let mut i = 0;
+            while let Some(scl) = self.next() {
+                debug_assert!(i < default.width());
+                store[i] = scl;
+                i += 1;
+            }
+
+            let ret = Self::Vector::load(store.as_slice(), 0);
+
+            // // is stdsimd's replace broken?
+            // for i in 0..self.scalar_len() - self.position {
+            //     eprintln!("hi! {:?} {:?}", self.position + i, self.data[self.position + i]);
+            //     ret = ret.replace(i, self.data[self.position + i]);
+            //     eprintln!("hi! {:?}", ret.extract(i));
+            // }
+
+            self.position = self.scalar_len();
+            Some(ret)
         } else {
             None
         }
@@ -199,6 +241,22 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     fn next_vector(&mut self) -> Option<Self::Vector> {
         self.iter.next_vector().map(&self.func)
     }
+
+    fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
+        let mut i = 1;
+        if let Some(scl) = self.next() {
+            let mut ret = default.clone();
+            ret.replace(0, scl);
+            while let Some(scl) = self.next() {
+                debug_assert!(i < ret.width());
+                ret.replace(i, scl);
+                i += 1;
+            }
+            Some(ret)
+        } else {
+            None
+        }
+    }
 }
 
 pub trait IntoScalar<T> where T : Packable {
@@ -223,6 +281,10 @@ impl<'a, T, I> IntoScalar<T> for I
             while let Some(vec) = self.next_vector() {
                 vec.store(ret.as_mut_slice(), offset);
                 offset += Self::Vector::WIDTH;
+            }
+            while let Some(scl) = self.next() {
+                ret[offset] = scl;
+                offset += 1;
             }
         }
         ret
