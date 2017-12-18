@@ -167,7 +167,7 @@ mod tests {
     fn bench_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[0u8; 128][..]).simd_iter().simd_map(|v| v).scalar_collect())
+                (&[0u8; 1024][..]).simd_iter().simd_map(|v| v).scalar_collect())
         });
     }
 
@@ -175,7 +175,7 @@ mod tests {
     fn bench_nop_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[0u8; 128][..]).iter().map(|e| *e).collect::<Vec<u8>>())
+                (&[0u8; 1024][..]).iter().map(|e| *e).collect::<Vec<u8>>())
         });
     }
 
@@ -183,7 +183,7 @@ mod tests {
     fn bench_map_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 128][..]).simd_iter()
+                (&[-123.456f32; 1024][..]).simd_iter()
                     .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
                                     f32s::splat(4.0) - f32s::splat(2.0) })
                     .scalar_collect())
@@ -194,7 +194,7 @@ mod tests {
     fn bench_map_uneven_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 127][..]).simd_iter()
+                (&[-123.456f32; 1025][..]).simd_iter()
                     .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
                                     f32s::splat(4.0) - f32s::splat(2.0) })
                     .scalar_collect())
@@ -205,7 +205,7 @@ mod tests {
     fn bench_map_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 128][..]).iter()
+                (&[-123.456f32; 1024][..]).iter()
                     .map(|v| { 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() -
                                4.0 - 2.0 })
                     .collect::<Vec<f32>>())
@@ -216,7 +216,7 @@ mod tests {
     fn bench_reduce_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 128][..]).simd_iter()
+                (&[-123.456f32; 1024][..]).simd_iter()
                     .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
@@ -225,7 +225,7 @@ mod tests {
     fn bench_reduce_uneven_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 127][..]).simd_iter()
+                (&[-123.456f32; 1025][..]).simd_iter()
                     .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
@@ -234,7 +234,7 @@ mod tests {
     fn bench_reduce_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 128][..]).iter()
+                (&[-123.456f32; 1024][..]).iter()
                     .fold(0.0, |a, v| a + 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt()))
         })
     }

@@ -91,26 +91,37 @@ I'm not sure whether the tests pass.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
 isn't any worse than scalar iterators. Even on ancient CPUs, a lot of
-performance can be extracted out of SIMD.
+performance can be extracted out of SIMD. Surprisingly, using SIMD iterators
+performs better than scalar iterators even on the SSE-less Pentium.
 
 #+BEGIN_SRC shell
-  $ RUSTFLAGS="-C target-cpu=ivybridge" cargo bench # host is ivybridge
-  test tests::bench_map_scalar         ... bench:         890 ns/iter (+/- 5)
-  test tests::bench_map_simd           ... bench:         124 ns/iter (+/- 0)
-  test tests::bench_map_uneven_simd    ... bench:         122 ns/iter (+/- 0)
-  test tests::bench_nop_scalar         ... bench:          24 ns/iter (+/- 0)
-  test tests::bench_nop_simd           ... bench:          24 ns/iter (+/- 0)
-  test tests::bench_reduce_scalar      ... bench:         860 ns/iter (+/- 2)
-  test tests::bench_reduce_simd        ... bench:         102 ns/iter (+/- 0)
-  test tests::bench_reduce_uneven_simd ... bench:          99 ns/iter (+/- 0)
+  $ RUSTFLAGS="-C target-cpu=ivybridge" cargo bench # host is ivybridge; target has AVX
+  test tests::bench_map_scalar         ... bench:       6,969 ns/iter (+/- 170)
+  test tests::bench_map_simd           ... bench:         900 ns/iter (+/- 17)
+  test tests::bench_map_uneven_simd    ... bench:         905 ns/iter (+/- 23)
+  test tests::bench_nop_scalar         ... bench:          37 ns/iter (+/- 0)
+  test tests::bench_nop_simd           ... bench:          35 ns/iter (+/- 1)
+  test tests::bench_reduce_scalar      ... bench:       6,908 ns/iter (+/- 62)
+  test tests::bench_reduce_simd        ... bench:         875 ns/iter (+/- 17)
+  test tests::bench_reduce_uneven_simd ... bench:         905 ns/iter (+/- 14)
 
-  $ RUSTFLAGS="-C target-cpu=pentium3" cargo bench # host is ivybridge
-  test tests::bench_map_scalar         ... bench:         896 ns/iter (+/- 2)
-  test tests::bench_map_simd           ... bench:         247 ns/iter (+/- 1)
-  test tests::bench_map_uneven_simd    ... bench:         240 ns/iter (+/- 0)
-  test tests::bench_nop_scalar         ... bench:          16 ns/iter (+/- 0)
-  test tests::bench_nop_simd           ... bench:          18 ns/iter (+/- 0)
-  test tests::bench_reduce_scalar      ... bench:         868 ns/iter (+/- 2)
-  test tests::bench_reduce_simd        ... bench:         235 ns/iter (+/- 0)
-  test tests::bench_reduce_uneven_simd ... bench:         222 ns/iter (+/- 0)
+  RUSTFLAGS="-C target-cpu=x86-64" cargo bench # host is ivybridge; target has SSE2
+  test tests::bench_map_scalar         ... bench:       7,229 ns/iter (+/- 100)
+  test tests::bench_map_simd           ... bench:       1,880 ns/iter (+/- 38)
+  test tests::bench_map_uneven_simd    ... bench:       1,887 ns/iter (+/- 42)
+  test tests::bench_nop_scalar         ... bench:          43 ns/iter (+/- 1)
+  test tests::bench_nop_simd           ... bench:          35 ns/iter (+/- 0)
+  test tests::bench_reduce_scalar      ... bench:       7,021 ns/iter (+/- 127)
+  test tests::bench_reduce_simd        ... bench:       1,874 ns/iter (+/- 37)
+  test tests::bench_reduce_uneven_simd ... bench:       1,946 ns/iter (+/- 28)
+
+  $ RUSTFLAGS="-C target-cpu=pentium" cargo bench # host is ivybridge; this only runs the polyfills!
+  test tests::bench_map_scalar         ... bench:       7,193 ns/iter (+/- 48)
+  test tests::bench_map_simd           ... bench:       6,277 ns/iter (+/- 40)
+  test tests::bench_map_uneven_simd    ... bench:       6,287 ns/iter (+/- 20)
+  test tests::bench_nop_scalar         ... bench:          46 ns/iter (+/- 0)
+  test tests::bench_nop_simd           ... bench:          70 ns/iter (+/- 0)
+  test tests::bench_reduce_scalar      ... bench:       7,005 ns/iter (+/- 30)
+  test tests::bench_reduce_simd        ... bench:       6,076 ns/iter (+/- 19)
+  test tests::bench_reduce_uneven_simd ... bench:       6,110 ns/iter (+/- 16)
 #+END_SRC
