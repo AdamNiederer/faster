@@ -10,6 +10,21 @@ use stdsimd::vendor::*;
 use intrin::transmute::*;
 
 pub trait Upcast<T> {
+    /// Return two vectors containing elements of the same value, but different
+    /// type. The first vector contains the first half of `self`, and the second
+    /// vector contains the second half. Both returned vectors are equal in size
+    /// to `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(i8s::halfs(2, 3).upcast(), (i16s::splat(2), i16s::splat(3)))
+    /// # }
+    /// ```
     fn upcast(self) -> (T, T);
 }
 

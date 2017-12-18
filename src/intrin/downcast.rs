@@ -10,6 +10,24 @@ use stdsimd::vendor::*;
 use intrin::transmute::*;
 
 pub trait Downcast<T> {
+    /// Return a vector containing elements of the same value as `self` and
+    /// `other`, but different type. The first half of the returned vector
+    /// contains the downcast values of `self`, whereas the second half of the
+    /// returned vector contains the downcast values of `other`. The returned
+    /// vector is equal in size to `self` and `other`. If an element exceeds
+    /// the maximum or minimum value of the downcast type, it is saturated.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(i32s::splat(2).saturating_downcast(i32s::splat(3)), i16s::halfs(2, 3));
+    /// assert_eq!(i16s::splat(128).saturating_downcast(i16s::splat(-129)), i8s::halfs(127, -128));
+    /// # }
+    /// ```
     fn saturating_downcast(self, other: Self) -> T;
 }
 
@@ -115,14 +133,15 @@ impl Downcast<u8x16> for u16x8 {
 }
 
 impl Downcast<i16x16> for i32x8 {
-    #[inline(always)]
-    #[cfg(target_feature = "sse2")]
-    fn saturating_downcast(self, other: Self) -> i16x16 {
-        unsafe { _mm256_packs_epi32(self, other) }
-    }
+    // Blocked by LLVM
+    // #[inline(always)]
+    // #[cfg(target_feature = "sse2")]
+    // fn saturating_downcast(self, other: Self) -> i16x16 {
+    //     unsafe { _mm256_packs_epi32(self, other) }
+    // }
 
     #[inline(always)]
-    #[cfg(not(target_feature = "sse2"))]
+    // #[cfg(not(target_feature = "sse2"))]
     fn saturating_downcast(self, other: Self) -> i16x16 {
         i16x16::new(self.extract(0).min(0x00007FFF).max(-0x00008000) as i16,
                     self.extract(1).min(0x00007FFF).max(-0x00008000) as i16,
@@ -144,14 +163,15 @@ impl Downcast<i16x16> for i32x8 {
 }
 
 impl Downcast<i8x32> for i16x16 {
-    #[inline(always)]
-    #[cfg(target_feature = "sse2")]
-    fn saturating_downcast(self, other: Self) -> i8x32 {
-        unsafe { _mm256_packs_epi16(self, other) }
-    }
+    // Blocked by LLVM
+    // #[inline(always)]
+    // #[cfg(target_feature = "sse2")]
+    // fn saturating_downcast(self, other: Self) -> i8x32 {
+    //     unsafe { _mm256_packs_epi16(self, other) }
+    // }
 
     #[inline(always)]
-    #[cfg(not(target_feature = "sse2"))]
+    // #[cfg(not(target_feature = "sse2"))]
     fn saturating_downcast(self, other: Self) -> i8x32 {
         i8x32::new(self.extract(0).min(0x007F).max(-0x0080) as i8,
                    self.extract(1).min(0x007F).max(-0x0080) as i8,
