@@ -52,9 +52,8 @@ pub trait Packed : Sized + Copy + Debug {
     /// Replace the `idx`th element of this vector with `data`.
     fn replace(&mut self, idx: usize, data: Self::Scalar) -> Self;
 
-    #[deprecated(since="0.2.0", note="This method leads to unportable code")]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
-    #[deprecated(since="0.2.0", note="This method leads to unportable code")]
+
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self;
 
     /// Return a scalar equivalent to the sum of all elements of this
@@ -134,13 +133,11 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             fn halfs(hi: $el, lo: $el) -> Self {
-                eprintln!("Halfs is going away in 0.3.0! Stay away!");
                 $halfs(hi, lo)
             }
 
             #[inline(always)]
             fn interleave(hi: $el, lo: $el) -> Self {
-                eprintln!("Interleave is going away in 0.3.0! Stay away!");
                 $interleave(hi, lo)
             }
 
