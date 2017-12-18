@@ -11,24 +11,23 @@
   #+END_HTML
 
 ** SIMD for Humans
-Easy, powerful, absurdly fast numerical calculations. Chaining, Type punning,
-static dispatch (w/ inlining) based on your platform and vector types,
-zero-allocation iteration, vectorized loading/storing, and support for uneven
-collections.
+Easy, powerful, portable, absurdly fast numerical calculations. Includes static
+dispatch with inlining based on your platform and vector types, zero-allocation
+iteration, vectorized loading/storing, and support for uneven collections.
 
 It looks something like this:
 #+BEGIN_SRC rust
   let lots_of_3s = (&[-123.456f32; 128][..]).simd_iter()
-      .map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
-                 f32s::splat(4.0) - f32s::splat(2.0) })
-      .scalar_collect::<Vec<f32>>();
+      .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
+                      f32s::splat(4.0) - f32s::splat(2.0) })
+      .scalar_collect();
 #+END_SRC
 
 Which is analogous to this scalar code:
 #+BEGIN_SRC rust
   let lots_of_3s = (&[-123.456f32; 128][..]).iter()
-      .map(|v| { 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() -
-                 4.0 - 2.0 })
+      .simd_map(|v| { 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() -
+                      4.0 - 2.0 })
       .collect::<Vec<f32>>();
 #+END_SRC
 
@@ -83,17 +82,12 @@ Even with all of that boilerplate, this still only supports x86-64 machines with
 SSE or AVX - and you have to look up each intrinsic to ensure it's usable for
 your compilation target.
 ** Upcoming Features
-More intrinsic traits are coming; feel free to open an issue or pull
-request if you have one you'd like to see.
-
-Swizzling, automated testing, and documentation are also in the pipeline.
+Gathers and scatters are next in the pipeline. This should let you one-line
+matrix determinants, cross products, and many vector calculus primitives.
 ** Compatibility
-Faster currently supports 32- and 64-bit x86 machines with SSE and above,
-although AVX-512 support isn't working in rustc yet. Support for non-x86
-architectures is currently blocked by stdsimd and rustc.
-
-Of course, once those issues are resolved, adding support for ARM, MIPS, or any
-other intrinsics and vector lengths will be trivial.
+Faster currently supports x86 back to the first Pentium, although AVX-512
+support isn't working in rustc yet. It builds on many architectures, although
+I'm not sure whether the tests pass.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
 isn't any worse than scalar iterators. Even on ancient CPUs, a lot of
