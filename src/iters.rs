@@ -7,6 +7,8 @@
 
 use vecs::{Packable, Packed};
 
+/// An iterator which automatically packs the values it iterates over into SIMD
+/// vectors.
 pub trait PackedIterator : Sized + ExactSizeIterator {
     type Scalar : Packable;
     type Vector : Packed<Scalar = Self::Scalar>;
@@ -17,11 +19,22 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     }
 
     fn scalar_len(&self) -> usize;
+
+    /// Return the current position of this iterator, measured in scalar
+    /// elements.
     fn scalar_position(&self) -> usize;
 
+    /// Pack and return a vector containing the next `self.width()` elements
+    /// of the iterator, or return None if there aren't enough elements left
     fn next_vector(&mut self) -> Option<Self::Vector>;
 
+    /// Pack and return a partially full vector containing upto the next
+    /// `self.width()` of the iterator, or None if no elements are left.
+    /// Elements which are not filled are instead initialized to default.
+    fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector>;
+
     #[inline(always)]
+    /// Returns an iterator which calls `func` on vectors of elements.
     fn simd_map<A, B, F>(self, func: F) -> PackedMap<Self, F>
         where F : Fn(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
         PackedMap {
@@ -163,18 +176,27 @@ impl<T: PackedIterator> IntoPackedIterator for T {
 pub trait IntoPackedIterator {
     type Iter: PackedIterator;
 
+    /// Return an iterator over this data which will automatically pack
+    /// values into SIMD vectors. See `PackedIterator::simd_map` and
+    /// `PackedIterator::simd_reduce` for more information.
     fn into_simd_iter(self) -> Self::Iter;
 }
 
 pub trait IntoPackedRefIterator<'a> {
     type Iter: PackedIterator;
 
+    /// Return an iterator over this data which will automatically pack
+    /// values into SIMD vectors. See `PackedIterator::simd_map` and
+    /// `PackedIterator::simd_reduce` for more information.
     fn simd_iter(&'a self) -> Self::Iter;
 }
 
 pub trait IntoPackedRefMutIterator<'a> {
     type Iter: PackedIterator;
 
+    /// Return an iterator over this data which will automatically pack
+    /// values into SIMD vectors. See `PackedIterator::simd_map` and
+    /// `PackedIterator::simd_reduce` for more information.
     fn simd_iter_mut(&'a mut self) -> Self::Iter;
 }
 
