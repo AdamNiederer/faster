@@ -11,6 +11,19 @@ use std::mem::transmute;
 
 pub trait PackedAbs {
     type Out;
+    /// Return a vector the absolute value of the elements of `self`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(i32s::splat(-2).abs(), u32s::splat(2));
+    /// assert_eq!(i8s::splat(-256).abs(), u8s::splat(256));
+    /// # }
+    /// ```
     fn abs(&self) -> Self::Out;
 }
 
