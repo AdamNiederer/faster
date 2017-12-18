@@ -7,8 +7,8 @@
 
 #![allow(dead_code)]
 
-/// Vector types which aren't interpereted as SIMD vectors, for systems which
-/// don't have SIMD support.
+//! Vector types which aren't interpereted as SIMD vectors, for systems which
+//! don't have SIMD support.
 
 use std::mem::{transmute, size_of};
 use std::ptr::{copy_nonoverlapping};
