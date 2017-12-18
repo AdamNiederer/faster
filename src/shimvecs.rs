@@ -13,6 +13,7 @@
 use std::mem::{transmute, size_of};
 use std::ptr::{copy_nonoverlapping};
 use std::ops::{Mul, Div, Add, Sub, Shl, Shr, Rem};
+use std::fmt::{Error, Debug, Formatter};
 
 macro_rules! impl_packed {
     ($el:ident, $pvec:ident, $vec:ident, $sz:expr, [$($elname:ident),+]) => {
@@ -20,6 +21,21 @@ macro_rules! impl_packed {
         #[derive(Clone, Copy, /*Debug, PartialEq*/)]
         #[allow(non_camel_case_types)]
         pub struct $vec { data: [$el; $sz] }
+
+        // PartialEq shim until const generics arrive
+        impl PartialEq<Self> for $vec {
+            fn eq(&self, other: &Self) -> bool {
+                self.data.iter().zip(other.data.iter()).fold(true, |acc, (a, b)| acc && a == b)
+            }
+        }
+
+        // Debug shim until const generics arrive
+        impl Debug for $vec {
+            fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+                write!(f, "$vec({:?})", self.data.iter().map(|n| n.to_string()).collect::<Vec<String>>().join(", "))?;
+                Ok(())
+            }
+        }
 
         impl $vec {
             #[inline(always)]

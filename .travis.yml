@@ -14,6 +14,7 @@ env:
   - RUSTFLAGS="-C target-feature=+avx"
   - RUSTFLAGS="-C target-feature=+avx2"
   - RUSTFLAGS="-C target-feature=+avx512"
+  - RUSTFLAGS="-C target-cpu=pentium" RUN="true"
   - RUSTFLAGS="-C target-cpu=pentium3" RUN="true"
   - RUSTFLAGS="-C target-cpu=pentium4" RUN="true"
   - RUSTFLAGS="-C target-cpu=core2" RUN="true"
