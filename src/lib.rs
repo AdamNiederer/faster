@@ -147,19 +147,19 @@
 
 extern crate stdsimd;
 
-mod vecs;
-mod iters;
-mod intrin;
+pub mod vecs;
+pub mod iters;
+pub mod intrin;
+pub mod prelude;
 
+mod shimvecs;
 
-pub use iters::*;
-pub use vecs::{u8s, i8s, u16s, i16s, u32s, i32s, f32s, u64s, i64s, f64s, Packed};
-pub use intrin::*;
+pub use prelude::*;
+
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use super::vecs::*;
+    use super::prelude::*;
     use test::{Bencher, black_box};
 
     #[bench]
@@ -216,7 +216,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 128][..]).simd_iter()
-                    .simd_reduce(f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
+                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
@@ -225,7 +225,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 127][..]).simd_iter()
-                    .simd_reduce(f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
+                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
