@@ -185,25 +185,10 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     #[inline(always)]
     fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> where T : Packable {
         if self.position < self.scalar_len() {
-
-            // Workaround broken replace for now.
-            let mut store = Vec::with_capacity(default.width());
-            for i in 0..default.width() {
-                store.push(default.extract(i));
+            let mut ret = Self::Vector::splat(default.extract(0));
+            for i in 0..self.scalar_len() - self.position {
+                ret = ret.replace(i, self.data[self.position + i].clone());
             }
-            let mut i = 0;
-            while let Some(scl) = self.next() {
-                debug_assert!(i < default.width());
-                store[i] = scl;
-                i += 1;
-            }
-
-            let ret = Self::Vector::load(store.as_slice(), 0);
-
-            // // is stdsimd's replace broken?
-            // for i in 0..self.scalar_len() - self.position {
-            //     ret = ret.replace(i, self.data[self.position + i]);
-            // }
 
             self.position = self.scalar_len();
             Some(ret)

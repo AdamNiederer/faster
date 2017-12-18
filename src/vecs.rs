@@ -119,8 +119,7 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             fn replace(&mut self, idx: usize, data: Self::Scalar) -> Self {
-                $vec::replace(*self, idx as u32, data);
-                *self
+                $vec::replace(*self, idx as u32, data)
             }
 
             #[inline(always)]
