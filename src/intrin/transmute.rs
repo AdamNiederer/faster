@@ -112,38 +112,6 @@ impl_packed_transmute!(u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, f32x4,
                        f32x4, u64x2, i64x2, f64x2,
                        "sse", "avx");
 
-macro_rules! impl_packed_transmute_shim {
-    ($name:ident, $t:ty, [$($to:tt),*], [$($tofn:ident),*]) => (
-        pub trait $name : Sized {
-            $(
-                type $to : Sized;
-                fn $tofn(&self) -> Self::$to;
-            )*
-        }
-
-        impl $name for $t {
-            $(
-                type $to = $to;
-                #[inline(always)]
-                fn $tofn(&self) -> Self::$to {
-                    unsafe { transmute::<Self, Self::$to>(*self) }
-                }
-            )*
-        }
-
-    );
-}
-impl_packed_transmute_shim!(ScalarTransmuteu8, u8, [u8, i8], [be_u8s, be_i8s]);
-impl_packed_transmute_shim!(ScalarTransmutei8, i8, [u8, i8], [be_u8s, be_i8s]);
-impl_packed_transmute_shim!(ScalarTransmuteu16, u16, [u16, i16], [be_u16s, be_i16s]);
-impl_packed_transmute_shim!(ScalarTransmutei16, i16, [u16, i16], [be_u16s, be_i16s]);
-impl_packed_transmute_shim!(ScalarTransmuteu32, u32, [u32, i32], [be_u32s, be_i32s]);
-impl_packed_transmute_shim!(ScalarTransmutei32, i32, [u32, i32], [be_u32s, be_i32s]);
-impl_packed_transmute_shim!(ScalarTransmutef32, f32, [u32, i32, f32], [be_u32s, be_i32s, be_f32s]);
-impl_packed_transmute_shim!(ScalarTransmuteu64, u64, [u64, i64], [be_u64s, be_i64s]);
-impl_packed_transmute_shim!(ScalarTransmutei64, i64, [u64, i64], [be_u64s, be_i64s]);
-impl_packed_transmute_shim!(ScalarTransmutef64, f64, [u64, i64, f64], [be_u64s, be_i64s, be_f64s]);
-
 #[cfg(test)]
 mod tests {
     use vecs::*;
