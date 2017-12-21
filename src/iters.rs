@@ -37,7 +37,7 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     #[inline(always)]
     /// Return an iterator which calls `func` on vectors of elements.
     fn simd_map<A, B, F>(self, func: F) -> PackedMap<Self, F>
-        where F : Fn(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+        where F : FnMut(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
         PackedMap {
             iter: self,
             func: func
@@ -95,8 +95,8 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     ///
     /// [`Packed::sum`]: vecs/trait.Packed.html#tymethod.sum
     /// [`Packed::product`]: vecs/trait.Packed.html#tymethod.product
-    fn simd_reduce<A, F>(&mut self, start: A, default: Self::Vector, func: F) -> A
-        where F : Fn(&A, &Self::Vector) -> A {
+    fn simd_reduce<A, F>(&mut self, start: A, default: Self::Vector, mut func: F) -> A
+        where F : FnMut(&A, &Self::Vector) -> A {
         let mut acc: A;
         if let Some(v) = self.next_vector() {
             acc = func(&start, &v);
@@ -254,12 +254,12 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefMutIterator<'a> for I
 }
 
 impl<A, B, I, F> Iterator for PackedMap<I, F>
-    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : Fn(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
     type Item = B;
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        Some((&self.func)(I::Vector::splat(self.iter.next()?)).coalesce())
+        Some((&mut self.func)(I::Vector::splat(self.iter.next()?)).coalesce())
     }
 
     #[inline(always)]
@@ -278,7 +278,7 @@ impl<'a, I, F> ExactSizeIterator for PackedMap<I, F>
 }
 
 impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
-    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : Fn(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
     type Vector = A;
     type Scalar = B;
 
@@ -295,7 +295,7 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
 
     #[inline(always)]
     fn next_vector(&mut self) -> Option<Self::Vector> {
-        self.iter.next_vector().map(&self.func)
+        self.iter.next_vector().map(&mut self.func)
     }
 
     #[inline(always)]
