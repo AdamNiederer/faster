@@ -10,10 +10,10 @@
 //! Vector types which aren't interpereted as SIMD vectors, for systems which
 //! don't have SIMD support.
 
-use std::mem::{transmute, size_of};
-use std::ptr::{copy_nonoverlapping};
-use std::ops::{Mul, Div, Add, Sub, Shl, Shr, Rem};
-use std::fmt::{Error, Debug, Formatter};
+use core_or_std::mem::{transmute, size_of};
+use core_or_std::ptr::{copy_nonoverlapping};
+use core_or_std::ops::{Mul, Div, Add, Sub, Shl, Shr, Rem};
+use core_or_std::fmt::{Error, Debug, Formatter};
 
 macro_rules! impl_packed {
     ($el:ident, $pvec:ident, $vec:ident, $sz:expr, [$($elname:ident),+]) => {
@@ -32,7 +32,11 @@ macro_rules! impl_packed {
         // Debug shim until const generics arrive
         impl Debug for $vec {
             fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-                write!(f, "$vec({:?})", self.data.iter().map(|n| n.to_string()).collect::<Vec<String>>().join(", "))?;
+                write!(f, "$vec(")?;
+                for n in self.data.iter() {
+                    write!(f, "{:?}", n)?;
+                }
+                write!(f, ")")?;
                 Ok(())
             }
         }

@@ -9,6 +9,9 @@ version = "0.3.0"
 [dependencies]
 stdsimd = "0.0.3"
 
+[features]
+no-std = []
+
 [dev-dependencies]
 rand = "0.3.0"
 

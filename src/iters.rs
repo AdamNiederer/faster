@@ -322,6 +322,7 @@ pub trait IntoScalar<T> where T : Packable {
 
     /// Take an iterator of SIMD vectors, store them in-order in a Vec, and
     /// return the vec.
+    #[cfg(not(feature = "no-std"))]
     fn scalar_collect(&mut self) -> Vec<T>;
 
     /// Take an iterator of SIMD vectors and store them in-order in `fill`.
@@ -334,6 +335,7 @@ impl<'a, T, I> IntoScalar<T> for I
     type Vector = I::Vector;
 
     #[inline(always)]
+    #[cfg(not(feature = "no-std"))]
     fn scalar_collect(&mut self) -> Vec<Self::Scalar> {
         let mut offset = 0;
         let mut ret = Vec::with_capacity(self.len());

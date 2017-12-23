@@ -28,7 +28,7 @@ rust_fallback_impl! {
 mod tests {
     use vecs::*;
     use intrin::*;
-    use std::f32::INFINITY;
+    use core_or_std::f32::INFINITY;
 
     #[test]
     fn recip_f32s() {

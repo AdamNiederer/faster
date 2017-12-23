@@ -25,8 +25,10 @@ matrix:
   fast_finish: true
 install:
   - cargo build
+  - cargo build --features "no-std"
 script:
   - cat /proc/cpuinfo
+  - bash -c "[ $RUN == \"true\" ] && cargo test --verbose --all --features \"no-std\" || true"
   - bash -c "[ $RUN == \"true\" ] && cargo test --verbose --all || true"
   - bash -c "[ $RUN == \"true\" ] && cargo bench --verbose --all || true"
 notifications:

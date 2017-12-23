@@ -138,11 +138,17 @@
 //! that these problems will crop up even if you only support x86; the width
 //! difference between AVX and SSE is the primary source of these issues!
 
+#![cfg_attr(feature = "no-std", no_std)]
 #![feature(cfg_target_feature)]
 #![feature(specialization)]
 #![feature(const_fn)]
 #![cfg_attr(test, feature(test))]
 #![cfg_attr(test, feature(inclusive_range))]
+
+mod core_or_std {
+    #[cfg(not(feature = "no-std"))] pub use ::std::*;
+    #[cfg(feature = "no-std")] pub use ::core::*;
+}
 
 #[cfg(test)] extern crate test;
 
