@@ -300,19 +300,8 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
 
     #[inline(always)]
     fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
-        let mut i = 1;
-        if let Some(scl) = self.next() {
-            let mut ret = default.clone();
-            ret.replace(0, scl);
-            while let Some(scl) = self.next() {
-                debug_assert!(i < ret.width());
-                ret.replace(i, scl);
-                i += 1;
-            }
-            Some(ret)
-        } else {
-            None
-        }
+        // TODO: Take a user-defined default and return number of elements actually mapped
+        self.iter.next_partial(A::default()).map(&mut self.func)
     }
 }
 
