@@ -96,22 +96,22 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     /// [`Packed::sum`]: vecs/trait.Packed.html#tymethod.sum
     /// [`Packed::product`]: vecs/trait.Packed.html#tymethod.product
     fn simd_reduce<A, F>(&mut self, start: A, default: Self::Vector, mut func: F) -> A
-        where F : FnMut(&A, &Self::Vector) -> A {
+        where F : FnMut(A, Self::Vector) -> A {
         let mut acc: A;
         if let Some(v) = self.next_vector() {
-            acc = func(&start, &v);
+            acc = func(start, v);
             while let Some(v) = self.next_vector() {
-                acc = func(&acc, &v);
+                acc = func(acc, v);
             }
             if let Some(v) = self.next_partial(default) {
-                acc = func(&acc, &v);
+                acc = func(acc, v);
             }
             debug_assert!(self.next_partial(default).is_none());
             acc
         } else if let Some(v) = self.next_partial(default) {
-            acc = func(&start, &v);
+            acc = func(start, v);
             while let Some(v) = self.next_partial(default) {
-                acc = func(&acc, &v);
+                acc = func(acc, v);
             }
             debug_assert!(self.next_partial(default).is_none());
             acc
