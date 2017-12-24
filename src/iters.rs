@@ -330,7 +330,7 @@ pub trait IntoScalar<T> where T : Packable {
 }
 
 impl<'a, T, I> IntoScalar<T> for I
-    where I : PackedIterator<Scalar = T, Item = T>, I::Vector : Packed<Scalar = T>, T : Packable {
+    where I : PackedIterator<Scalar = T>, I::Vector : Packed<Scalar = T>, T : Packable {
     type Scalar = I::Scalar;
     type Vector = I::Vector;
 
