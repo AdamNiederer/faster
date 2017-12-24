@@ -282,7 +282,6 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     type Vector = A;
     type Scalar = B;
 
-
     #[inline(always)]
     fn scalar_len(&self) -> usize {
         self.iter.scalar_len()
@@ -301,7 +300,7 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     #[inline(always)]
     fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
         // TODO: Take a user-defined default and return number of elements actually mapped
-        self.iter.next_partial(A::default()).map(&mut self.func)
+        self.iter.next_partial(I::Vector::default()).map(&mut self.func)
     }
 }
 
@@ -319,7 +318,7 @@ pub trait IntoScalar<T> where T : Packable {
 }
 
 impl<'a, T, I> IntoScalar<T> for I
-    where I : PackedIterator<Scalar = T>, I::Vector : Packed<Scalar = T>, T : Packable {
+    where I : PackedIterator<Scalar = T, Item = T>, I::Vector : Packed<Scalar = T>, T : Packable {
     type Scalar = I::Scalar;
     type Vector = I::Vector;
 
