@@ -163,6 +163,8 @@ mod shimvecs;
 
 pub use prelude::*;
 
+pub mod zip;
+pub mod swizzle;
 
 #[cfg(test)]
 mod tests {

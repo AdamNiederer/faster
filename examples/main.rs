@@ -30,7 +30,12 @@ fn main() {
         .scalar_fill(&mut some_u8s);
 
     let reduced = (&[-1.0f32; 128][..]).simd_iter()
-        .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| *a + v.abs().sqrt().sqrt().floor()).sum();
+        .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| a + v.abs().sqrt().sqrt().floor()).sum();
 
-    println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced);
+    let striped = (0..300u32).collect::<Vec<u32>>().as_slice()
+        .simd_iter().stripe_two().zip()
+        .simd_map(|(a, b)| { a + b })
+        .scalar_collect();
+
+    println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced, striped);
 }
