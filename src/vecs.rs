@@ -63,6 +63,10 @@ pub trait Packed : Sized + Copy + Debug {
     /// Return a scalar equivalent to the product of all elements of
     /// this vector.
     fn product(&self) -> Self::Scalar;
+
+    /// Return the result of a scalar reduction over this vector
+    fn scalar_reduce<T, F>(&self, acc: T, func: F) -> T
+        where F: FnMut(T, Self::Scalar) -> T;
 }
 
 /// A type that may be packed into a SIMD vector.
@@ -155,6 +159,15 @@ macro_rules! impl_packed {
                 let mut acc = 0 as $el;
                 for i in 0..Self::WIDTH {
                     acc += self.extract(i)
+                }
+                acc
+            }
+
+            #[inline(always)]
+            fn scalar_reduce<T, F>(&self, mut acc: T, mut func: F) -> T
+                where F: FnMut(T, Self::Scalar) -> T {
+                for i in 0..Self::WIDTH {
+                    acc = func(acc, self.extract(i))
                 }
                 acc
             }
