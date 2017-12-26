@@ -12,7 +12,7 @@
 
 use core_or_std::mem::{transmute, size_of};
 use core_or_std::ptr::{copy_nonoverlapping};
-use core_or_std::ops::{Mul, Div, Add, Sub, Shl, Shr, Rem};
+use core_or_std::ops::{Mul, MulAssign, Div, DivAssign, Add, AddAssign, Sub, SubAssign, Shl, ShlAssign, Shr, ShrAssign, Rem, RemAssign};
 use core_or_std::fmt::{Error, Debug, Formatter};
 
 macro_rules! impl_packed {
@@ -144,6 +144,20 @@ macro_rules! impl_ops {
     }
 }
 
+macro_rules! impl_assignops {
+    ($el:ty, $vec:ty, $([$trait:tt, $fn:tt, $op:tt]),*) => {
+        $(
+            impl $trait <Self> for $vec {
+                fn $fn(&mut self, rhs: Self) {
+                    for (i, y) in rhs.data.iter().enumerate() {
+                        self.data[i] $op y;
+                    }
+                }
+            }
+        )*
+    }
+}
+
 macro_rules! impl_cast {
     ($vec:ty, $tovec:tt, $el:ty, $name:ident) => {
         impl $vec {
@@ -199,6 +213,24 @@ impl_from!(i16x8, u64x2, i64x2, u32x4, i32x4, u16x8, u8x16, i8x16);
 impl_from!(u8x16, u64x2, i64x2, u32x4, i32x4, u16x8, i16x8, i8x16);
 impl_from!(i8x16, u64x2, i64x2, u32x4, i32x4, u16x8, i16x8, u8x16);
 
+impl_from!(u64x4, i64x4, u32x8, i32x8, u16x16, i16x16, u8x32, i8x32);
+impl_from!(i64x4, u64x4, u32x8, i32x8, u16x16, i16x16, u8x32, i8x32);
+impl_from!(u32x8, u64x4, i64x4, i32x8, u16x16, i16x16, u8x32, i8x32);
+impl_from!(i32x8, u64x4, i64x4, u32x8, u16x16, i16x16, u8x32, i8x32);
+impl_from!(u16x16, u64x4, i64x4, u32x8, i32x8, i16x16, u8x32, i8x32);
+impl_from!(i16x16, u64x4, i64x4, u32x8, i32x8, u16x16, u8x32, i8x32);
+impl_from!(u8x32, u64x4, i64x4, u32x8, i32x8, u16x16, i16x16, i8x32);
+impl_from!(i8x32, u64x4, i64x4, u32x8, i32x8, u16x16, i16x16, u8x32);
+
+impl_from!(u64x8, i64x8, u32x16, i32x16, u16x32, i16x32, u8x64, i8x64);
+impl_from!(i64x8, u64x8, u32x16, i32x16, u16x32, i16x32, u8x64, i8x64);
+impl_from!(u32x16, u64x8, i64x8, i32x16, u16x32, i16x32, u8x64, i8x64);
+impl_from!(i32x16, u64x8, i64x8, u32x16, u16x32, i16x32, u8x64, i8x64);
+impl_from!(u16x32, u64x8, i64x8, u32x16, i32x16, i16x32, u8x64, i8x64);
+impl_from!(i16x32, u64x8, i64x8, u32x16, i32x16, u16x32, u8x64, i8x64);
+impl_from!(u8x64, u64x8, i64x8, u32x16, i32x16, u16x32, i16x32, i8x64);
+impl_from!(i8x64, u64x8, i64x8, u32x16, i32x16, u16x32, i16x32, u8x64);
+
 impl_ops!(i8, i8x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
           [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
 impl_ops!(u8, u8x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
@@ -217,6 +249,101 @@ impl_ops!(i64, i64x2, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]
 impl_ops!(u64, u64x2, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
           [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
 impl_ops!(f64, f64x2, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
+
+impl_ops!(i8, i8x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u8, u8x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(i16, i16x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u16, u16x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(i32, i32x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u32, u32x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(f32, f32x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
+impl_ops!(i64, i64x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u64, u64x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(f64, f64x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
+
+impl_ops!(i8, i8x64, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u8, u8x64, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(i16, i16x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u16, u16x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(i32, i32x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u32, u32x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(f32, f32x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
+impl_ops!(i64, i64x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(u64, u64x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+impl_ops!(f64, f64x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
+
+impl_assignops!(i8, i8x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u8, u8x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(i16, i16x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u16, u16x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(i32, i32x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u32, u32x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(f32, f32x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
+impl_assignops!(i64, i64x2, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u64, u64x2, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(f64, f64x2, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
+
+impl_assignops!(i8, i8x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u8, u8x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(i16, i16x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u16, u16x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(i32, i32x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u32, u32x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(f32, f32x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
+impl_assignops!(i64, i64x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u64, u64x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(f64, f64x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
+
+impl_assignops!(i8, i8x64, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u8, u8x64, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(i16, i16x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u16, u16x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(i32, i32x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u32, u32x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(f32, f32x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
+impl_assignops!(i64, i64x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(u64, u64x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+impl_assignops!(f64, f64x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
 
 impl_cast!(i8x16, u8x16, u8, as_u8x16);
 impl_cast!(u8x16, i8x16, i8, as_i8x16);
