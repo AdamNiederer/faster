@@ -13,7 +13,6 @@ stdsimd = { git = "https://github.com/rust-lang-nursery/stdsimd", branch = "mast
 no-std = []
 
 [dev-dependencies]
-rand = "0.3.0"
 
 [profile.release]
 opt-level = 3

@@ -108,12 +108,12 @@
 //!
 //! ```
 //! extern crate faster;
-//! extern crate rand;
 //! use faster::*;
-//! use rand::{thread_rng, Rng};
+//!
 //! # fn main() {
+//! let mut flip = true;
 //! let impure = (&[1i8; 3000][..]).simd_iter()
-//!    .simd_map(|v| { if thread_rng().gen() { v + i8s::splat(1) } else { v } })
+//!    .simd_map(|v| { flip = !flip; if flip { v + i8s::splat(1) } else { v } })
 //!    .scalar_collect();
 //! // Depending on the width of your target's SIMD vectors, `impure` could be
 //! // [1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, ...] or
