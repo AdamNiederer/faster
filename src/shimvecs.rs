@@ -34,7 +34,7 @@ macro_rules! impl_packed {
             fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
                 write!(f, "$vec(")?;
                 for n in self.data.iter() {
-                    write!(f, "{:?}", n)?;
+                    write!(f, "{:?}, ", n)?;
                 }
                 write!(f, ")")?;
                 Ok(())
