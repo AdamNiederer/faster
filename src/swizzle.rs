@@ -9,9 +9,9 @@ use vecs::*;
 use stdsimd::vendor::*;
 use iters::{PackedIter, PackedIterator};
 use core_or_std::iter::{Iterator, ExactSizeIterator};
-// use stdsimd::simd::*;
-// use core_or_std::mem::uninitialized;
-// use core_or_std::ptr::write;
+use core_or_std::mem::transmute;
+use stdsimd::simd::{__m256i, __m128i};
+use intrin::PackedTransmute;
 
 pub struct PackedStripe<'a, T> where T : 'a + Packable {
     iter: &'a PackedIter<'a, T>,
@@ -21,7 +21,7 @@ pub struct PackedStripe<'a, T> where T : 'a + Packable {
 impl<'a, T> PackedStripe<'a, T> where T : 'a + Packable {
 
     #[inline(always)]
-    fn position(&self) -> usize {
+    fn pos(&self) -> usize {
         self.offsets.extract(0) as usize
     }
 
@@ -36,13 +36,13 @@ impl<'a, T> Iterator for PackedStripe<'a, T> where T : 'a + Packable {
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        // TODO: Why does self.position() not work here?
-        self.iter.data.get(self.offsets.extract(0) as usize).map(|v| { self.offsets += i32x8::splat(self.stride() as i32); *v })
+        // TODO: Why does self.pos() not work here?
+        self.iter.data.get(self.pos() as usize).map(|v| { self.offsets += i32x8::splat(self.stride() as i32); *v })
     }
 
     #[inline(always)]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let remaining = (self.iter.len() - self.position()) / self.stride();
+        let remaining = (self.iter.len() - self.pos()) / self.stride();
         (remaining, Some(remaining))
     }
 }
@@ -186,19 +186,8 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     }
 }
 
-// impl<'a, T> Iterator for PackedStripe<'a, T> where T : Packable {
-//     type Item = T;
-
-//     #[inline(always)]
-//     fn next(&mut self) -> Option<Self::Item> {
-//         let mut ret = self.iter.data[self.position];
-//         self.position as i32 += self.stride;
-//         ret
-//     }
-// }
-
 macro_rules! impl_stripe {
-    ($el:ty, $gather:tt, $offlim:expr) => (
+    ($el:ty, $ptr:ty, $gather:tt, $offlim:expr, $cvt:expr, $cvt2:expr) => (
         impl<'a> PackedIterator for PackedStripe<'a, $el> {
             type Scalar = $el;
             type Vector = <$el as Packable>::Vector;
@@ -219,15 +208,14 @@ macro_rules! impl_stripe {
             }
 
             #[inline(always)]
-            // #[cfg(not(target_feature = "avx2"))]
+            #[cfg(not(target_feature = "avx2"))]
             fn next_vector(&mut self) -> Option<Self::Vector> {
                 if self.offsets.extract($offlim) < self.iter.len() as i32 {
                     let mut ret = Self::Vector::default();
-                    for i in 0..($offlim + 1) {
+                    for i in 0..(($offlim + 1).min(Self::Vector::WIDTH) as u32) {
                         ret = ret.replace(i as u32, self.iter.data[self.offsets.extract(i) as usize]);
                     }
-                    self.offsets += i32x8::splat(self.offsets.extract($offlim) - self.offsets.extract(0) + self.stride() as i32 + 1i32);
-                    // println!("{:?}, {:?}", self.offsets, ret);
+                    self.offsets += i32x8::splat((self.offsets.extract($offlim) as usize - self.pos() + self.stride() + 1) as i32);
                     Some(ret)
                 } else {
                     None
@@ -237,9 +225,9 @@ macro_rules! impl_stripe {
             #[inline(always)]
             // #[cfg(not(target_feature = "avx2"))]
             fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
-                if self.offsets.extract(0) < self.iter.len() as i32 {
+                if self.pos() < self.iter.len() {
                     let mut ret = default.clone();
-                    for i in 0..((self.iter.len() - self.offsets.extract(0) as usize) / (self.offsets.extract(1) - self.offsets.extract(0)) as usize) {
+                    for i in 0..((self.iter.len() - self.pos()) / self.stride()) {
                         ret = ret.replace(i as u32, self.iter.data[self.offsets.extract(i as u32) as usize]);
                     }
                     Some(ret)
@@ -248,26 +236,28 @@ macro_rules! impl_stripe {
                 }
             }
 
-            // #[inline(always)]
-            // #[cfg(target_feature = "avx2")]
-            // fn next_vector(&mut self) -> Option<Self::Vector> {
-            //     // let n = (self.iter.len() - self.position) / self.stride()
-            //     //     $gather(&self.iter.data[self.position..] as *const Self::Scalar, Self::Scalar::SIZE as i8)
-            // }
-
-            // #[inline(always)]
-            // #[cfg(target_feature = "avx2")]
-            // fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
-            //     None//$gather(&self.iter.data[self.position..], , Self::Scalar::SIZE)
-            // }
+            #[inline(always)]
+            #[cfg(target_feature = "avx2")]
+            fn next_vector(&mut self) -> Option<Self::Vector> {
+                if self.offsets.extract($offlim) < self.iter.len() as i32 {
+                    unsafe {
+                        let ret = Some($cvt2($gather(self.iter.data[self.pos()..].as_ptr() as *const $ptr,
+                                                     $cvt(self.offsets), Self::Scalar::SIZE as i8)));
+                        self.offsets += i32x8::splat((self.offsets.extract($offlim) as usize - self.pos() + self.stride() + 1) as i32);
+                        ret
+                    }
+                } else {
+                    None
+                }
+            }
         }
     )
 }
 
-impl_stripe!(u32, _mm256_i32gather_epi32, 7);
-impl_stripe!(i32, _mm256_i32gather_epi32, 7);
-impl_stripe!(f32, _mm256_i32gather_ps, 7);
-impl_stripe!(u64, _mm256_i32gather_epi64, 3);
-impl_stripe!(i64, _mm256_i32gather_epi64, 3);
-impl_stripe!(f64, _mm256_i32gather_pd, 3);
+impl_stripe!(u32, i32, _mm256_i32gather_epi32, 7, |v| v, |v: i32x8| v.be_u32s());
+impl_stripe!(i32, i32, _mm256_i32gather_epi32, 7, |v| v, |v| v);
+impl_stripe!(f32, f32, _mm256_i32gather_ps, 7, |v| v, |v| v);
+impl_stripe!(u64, i64, _mm256_i32gather_epi64, 3, |v| transmute::<__m128i, i32x4>(_mm256_castsi256_si128(transmute::<i32x8, __m256i>(v))),  |v: i64x4| v.be_u64s());
+impl_stripe!(i64, i64, _mm256_i32gather_epi64, 3, |v| transmute::<__m128i, i32x4>(_mm256_castsi256_si128(transmute::<i32x8, __m256i>(v))), |v| v);
+impl_stripe!(f64, f64, _mm256_i32gather_pd, 3, |v| transmute::<__m128i, i32x4>(_mm256_castsi256_si128(transmute::<i32x8, __m256i>(v))), |v| v);
 // TODO: 16- and 8-bit vector polyfills
