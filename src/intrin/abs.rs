@@ -179,12 +179,12 @@ impl PackedAbs for i32x4 {
 }
 
 impl PackedAbs for i8x32 {
-    type Out = u8x32; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+    type Out = u8x32;
 
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm256_abs_epi8(*self).as_u8x32() }
+        unsafe { _mm256_abs_epi8(*self) }
     }
 
     #[inline(always)]
@@ -227,11 +227,11 @@ impl PackedAbs for i8x32 {
 
 
 impl PackedAbs for i16x16 {
-    type Out = u16x16; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+    type Out = u16x16;
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm256_abs_epi16(*self).as_u16x16() }
+        unsafe { _mm256_abs_epi16(*self) }
     }
 
     #[inline(always)]
@@ -257,11 +257,11 @@ impl PackedAbs for i16x16 {
 }
 
 impl PackedAbs for i32x8 {
-    type Out = u32x8; // awaiting https://github.com/rust-lang-nursery/stdsimd/pull/173
+    type Out = u32x8;
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
-        unsafe { _mm256_abs_epi32(*self).as_u32x8() }
+        unsafe { _mm256_abs_epi32(*self) }
     }
 
     #[inline(always)]

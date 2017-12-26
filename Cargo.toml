@@ -7,7 +7,7 @@ license = "MPL-2.0"
 version = "0.3.0"
 
 [dependencies]
-stdsimd = "0.0.3"
+stdsimd = { git = "https://github.com/rust-lang-nursery/stdsimd", branch = "master" }
 
 [features]
 no-std = []
