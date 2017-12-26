@@ -91,7 +91,6 @@ macro_rules! impl_packed {
             const SIZE: usize = $sz;
         }
 
-        #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
         impl Packed for $vec {
             type Scalar = $el;
 
