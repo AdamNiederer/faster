@@ -9,7 +9,7 @@ use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x
 use intrin::transmute::*;
 use stdsimd::vendor::*;
 use stdsimd::simd::{__m256i, __m128i};
-use std::mem::transmute;
+use core_or_std::mem::transmute;
 
 pub trait Upcast<T> {
     /// Return two vectors containing elements of the same value, but different
