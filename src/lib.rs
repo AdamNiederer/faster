@@ -301,7 +301,7 @@ mod tests {
                     .simd_map(|(a, b)| {
                         let (aa, ab): (i64s, i64s) = a.upcast();
                         let (ba, bb): (i64s, i64s) = b.upcast();
-                        (aa.abs() + ba.abs()).saturating_downcast(ab.abs() + ba.abs())
+                        (aa.abs() + ba.abs()).saturating_downcast(ab.abs() + bb.abs())
                     })
                     .scalar_collect())
         })
