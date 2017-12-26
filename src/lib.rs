@@ -79,7 +79,7 @@
 //!
 //! # fn main() {
 //! let two_hundred = (&[2.0f32; 100][..]).simd_iter()
-//!    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |acc, v| *acc + *v)
+//!    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |acc, v| acc + v)
 //!    .sum();
 //! assert_eq!(two_hundred, 200.0f32);
 //! # }
@@ -127,7 +127,7 @@
 //!
 //! # fn main() {
 //! let length_dependent = (&[0i8; 10][..]).simd_iter()
-//!    .simd_reduce(i8s::splat(0), i8s::splat(0), |acc, v| *acc + *v + i8s::splat(1)).sum();
+//!    .simd_reduce(i8s::splat(0), i8s::splat(0), |acc, v| acc + v + i8s::splat(1)).sum();
 //! // `length_dependent` could be a different number on a different target!
 //! # }
 //! ```
