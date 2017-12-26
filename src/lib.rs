@@ -248,8 +248,8 @@ mod tests {
     }
 
     #[bench]
-    fn bench_determinant_simd(b: &mut Bencher) {
-        // TODO: Why is this so slow?
+    fn bench_determinant3_simd(b: &mut Bencher) {
+        // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1026][..]).simd_iter().stripe_nine().zip()
@@ -261,11 +261,80 @@ mod tests {
     }
 
     #[bench]
-    fn bench_determinant_scalar(b: &mut Bencher) {
+    fn bench_determinant3_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1026][..]).chunks(9).map(|m| {
                     (m[0] * m[4] * m[8]) + (m[1] * m[5] * m[6]) + (m[2] * m[3] * m[7]) - (m[2] * m[4] * m[6]) - (m[1] * m[3] * m[8]) - (m[0] * m[5] * m[7])
+                }).collect::<Vec<f32>>())
+        })
+    }
+
+    #[bench]
+    fn bench_determinant2_simd(b: &mut Bencher) {
+        // TODO: Why is this so slow? Cache locality?
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1024][..]).simd_iter().stripe_four().zip()
+                    .simd_map(|(a, b, c, d)| {
+                        a * d - b * c
+                    })
+                    .scalar_collect())
+        })
+    }
+
+    #[bench]
+    fn bench_determinant2_scalar(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1024][..]).chunks(4).map(|m| {
+                    m[0] * m[3] - m[1] * m[2]
+                }).collect::<Vec<f32>>())
+        })
+    }
+
+    #[bench]
+    fn bench_zip_simd(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123i32; 1024][..]).simd_iter().stripe_two().zip()
+                    .simd_map(|(a, b)| {
+                        let (aa, ab): (i64s, i64s) = a.upcast();
+                        let (ba, bb): (i64s, i64s) = b.upcast();
+                        (aa.abs() + ba.abs()).saturating_downcast(ab.abs() + ba.abs())
+                    })
+                    .scalar_collect())
+        })
+    }
+
+    #[bench]
+    fn bench_zip_scalar(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123i32; 1024][..]).chunks(2).map(|a| {
+                    ((a[0] as f64).abs() + (a[1] as f64).abs()) as f32
+                }).collect::<Vec<f32>>())
+        })
+    }
+
+    #[bench]
+    fn bench_zip_nop_simd(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1024][..]).simd_iter().stripe_two().zip()
+                    .simd_map(|(a, b)| {
+                        a + b
+                    })
+                    .scalar_collect())
+        })
+    }
+
+    #[bench]
+    fn bench_zip_nop_scalar(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1024][..]).chunks(2).map(|a| {
+                    a[0] + a[1]
                 }).collect::<Vec<f32>>())
         })
     }
