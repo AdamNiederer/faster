@@ -225,7 +225,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter()
-                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
+                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
@@ -234,7 +234,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1025][..]).simd_iter()
-                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| *a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
+                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
@@ -246,4 +246,32 @@ mod tests {
                     .fold(0.0, |a, v| a + 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt()))
         })
     }
+
+    #[bench]
+    fn bench_determinant_simd(b: &mut Bencher) {
+        // TODO: Why is this so slow?
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1026][..]).simd_iter().stripe_nine().zip()
+                    .simd_map(|(a, b, c, d, e, f, g, h, i)| {
+                        (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
+                    })
+                    .scalar_collect())
+        })
+    }
+
+    #[bench]
+    fn bench_determinant_scalar(b: &mut Bencher) {
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1026][..]).chunks(9).map(|m| {
+                    (m[0] * m[4] * m[8]) + (m[1] * m[5] * m[6]) + (m[2] * m[3] * m[7]) - (m[2] * m[4] * m[6]) - (m[1] * m[3] * m[8]) - (m[0] * m[5] * m[7])
+                }).collect::<Vec<f32>>())
+        })
+    }
+
+    // let striped = (0..300u32).collect::<Vec<u32>>().as_slice()
+    //     .simd_iter().stripe_two().zip()
+    //     .simd_map(|(a, b)| { a + b })
+    //     .scalar_collect();
 }
