@@ -13,88 +13,62 @@ pub trait PackedSaturatingHadd {
     fn saturating_hadd(&self, other: Self) -> Self;
 }
 
+#[cfg(target_feature = "ssse3")]
 impl PackedSaturatingHadd for i16x8 {
     #[inline(always)]
-    #[cfg(target_feature = "ssse3")]
     fn saturating_hadd(&self, other: Self) -> Self {
         unsafe { _mm_hadds_epi16(_mm_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                  _mm_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
-
-    #[inline(always)]
-    #[cfg(not(target_feature = "ssse3"))]
-    fn saturating_hadd(&self, other: Self) -> Self {
-        Self::new(self.extract(0).saturating_add(self.extract(1)),
-                  other.extract(0).saturating_add(other.extract(1)),
-                  self.extract(2).saturating_add(self.extract(3)),
-                  other.extract(2).saturating_add(other.extract(3)),
-                  self.extract(4).saturating_add(self.extract(5)),
-                  other.extract(4).saturating_add(other.extract(5)),
-                  self.extract(6).saturating_add(self.extract(7)),
-                  other.extract(6).saturating_add(other.extract(7)))
-    }
 }
 
-impl PackedSaturatingHadd for i32x4 {
-    #[inline(always)]
-    fn saturating_hadd(&self, other: Self) -> Self {
-        Self::new(self.extract(0).saturating_add(self.extract(1)),
-                  other.extract(0).saturating_add(other.extract(1)),
-                  self.extract(2).saturating_add(self.extract(3)),
-                  other.extract(2).saturating_add(other.extract(3)))
-    }
-}
-
+#[cfg(target_feature = "avx2")]
 impl PackedSaturatingHadd for i16x16 {
-    #[cfg(target_feature = "avx2")]
     #[inline(always)]
     fn saturating_hadd(&self, other: Self) -> Self {
         unsafe { _mm256_hadds_epi16(_mm256_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                     _mm256_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
-
-    #[inline(always)]
-    #[cfg(not(target_feature = "avx2"))]
-    fn saturating_hadd(&self, other: Self) -> Self {
-        Self::new(self.extract(0).saturating_add(self.extract(1)),
-                  other.extract(0).saturating_add(other.extract(1)),
-                  self.extract(2).saturating_add(self.extract(3)),
-                  other.extract(2).saturating_add(other.extract(3)),
-                  self.extract(4).saturating_add(self.extract(5)),
-                  other.extract(4).saturating_add(other.extract(5)),
-                  self.extract(6).saturating_add(self.extract(7)),
-                  other.extract(6).saturating_add(other.extract(7)),
-                  self.extract(8).saturating_add(self.extract(9)),
-                  other.extract(8).saturating_add(other.extract(9)),
-                  self.extract(10).saturating_add(self.extract(11)),
-                  other.extract(10).saturating_add(other.extract(11)),
-                  self.extract(12).saturating_add(self.extract(13)),
-                  other.extract(12).saturating_add(other.extract(13)),
-                  self.extract(14).saturating_add(self.extract(15)),
-                  other.extract(14).saturating_add(other.extract(15)))
-    }
 }
 
-
-impl PackedSaturatingHadd for i32x8 {
-    #[inline(always)]
-    fn saturating_hadd(&self, other: Self) -> Self {
-        Self::new(self.extract(0).saturating_add(self.extract(1)),
-                  other.extract(0).saturating_add(other.extract(1)),
-                  self.extract(2).saturating_add(self.extract(3)),
-                  other.extract(2).saturating_add(other.extract(3)),
-                  self.extract(4).saturating_add(self.extract(5)),
-                  other.extract(4).saturating_add(other.extract(5)),
-                  self.extract(6).saturating_add(self.extract(7)),
-                  other.extract(6).saturating_add(other.extract(7)))
-    }
-}
-
+impl PackedSaturatingHadd for u64x2 { hop!(saturating_hadd, u64::saturating_add, 0, 1); }
+impl PackedSaturatingHadd for u64x4 { hop!(saturating_hadd, u64::saturating_add, 0, 1, 2, 3); }
+impl PackedSaturatingHadd for u64x8 { hop!(saturating_hadd, u64::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl PackedSaturatingHadd for u32x4 { hop!(saturating_hadd, u32::saturating_add, 0, 1, 2, 3); }
+impl PackedSaturatingHadd for u32x8 { hop!(saturating_hadd, u32::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl PackedSaturatingHadd for u32x16 { hop!(saturating_hadd, u32::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl PackedSaturatingHadd for u16x8 { hop!(saturating_hadd, u16::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl PackedSaturatingHadd for u16x16 { hop!(saturating_hadd, u16::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl PackedSaturatingHadd for u16x32 { hop!(saturating_hadd, u16::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl PackedSaturatingHadd for u8x16 { hop!(saturating_hadd, u8::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl PackedSaturatingHadd for u8x32 { hop!(saturating_hadd, u8::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl PackedSaturatingHadd for u8x64 { hop!(saturating_hadd, u8::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
+impl PackedSaturatingHadd for i64x2 { hop!(saturating_hadd, i64::saturating_add, 0, 1); }
+impl PackedSaturatingHadd for i64x4 { hop!(saturating_hadd, i64::saturating_add, 0, 1, 2, 3); }
+impl PackedSaturatingHadd for i64x8 { hop!(saturating_hadd, i64::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl PackedSaturatingHadd for i32x4 { hop!(saturating_hadd, i32::saturating_add, 0, 1, 2, 3); }
+impl PackedSaturatingHadd for i32x8 { hop!(saturating_hadd, i32::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl PackedSaturatingHadd for i32x16 { hop!(saturating_hadd, i32::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+#[cfg(not(target_feature = "ssse3"))]
+impl PackedSaturatingHadd for i16x8 { hop!(saturating_hadd, i16::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7); }
+#[cfg(not(target_feature = "avx2"))]
+impl PackedSaturatingHadd for i16x16 { hop!(saturating_hadd, i16::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl PackedSaturatingHadd for i16x32 { hop!(saturating_hadd, i16::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl PackedSaturatingHadd for i8x16 { hop!(saturating_hadd, i8::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl PackedSaturatingHadd for i8x32 { hop!(saturating_hadd, i8::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl PackedSaturatingHadd for i8x64 { hop!(saturating_hadd, i8::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
 
 #[cfg(test)]
 mod tests {
     use vecs::*;
     use intrin::*;
+
+    #[test]
+    fn saturating_hadd_i8s() {
+        assert_eq!(i8s::splat(1).saturating_hadd(i8s::splat(2)), i8s::interleave(2, 4));
+        assert_eq!(i8s::interleave(1, 2).saturating_hadd(i8s::interleave(3, 4)), i8s::interleave(3, 7));
+        assert_eq!(i8s::interleave(-100, -100).saturating_hadd(i8s::interleave(100, 100)), i8s::interleave(i8::min_value(), i8::max_value()));
+    }
 
     #[test]
     fn saturating_hadd_i16s() {
@@ -108,5 +82,40 @@ mod tests {
         assert_eq!(i32s::splat(1).saturating_hadd(i32s::splat(2)), i32s::interleave(2, 4));
         assert_eq!(i32s::interleave(1, 2).saturating_hadd(i32s::interleave(3, 4)), i32s::interleave(3, 7));
         assert_eq!(i32s::interleave(-2_000_000_000, -2_000_000_000).saturating_hadd(i32s::interleave(2_000_000_000, 2_000_000_000)), i32s::interleave(i32::min_value(), i32::max_value()));
+    }
+
+    #[test]
+    fn saturating_hadd_i64s() {
+        assert_eq!(i64s::splat(1).saturating_hadd(i64s::splat(2)), i64s::interleave(2, 4));
+        assert_eq!(i64s::interleave(1, 2).saturating_hadd(i64s::interleave(3, 4)), i64s::interleave(3, 7));
+        assert_eq!(i64s::interleave(-9_000_000_000_000_000_000, -9_000_000_000_000_000_000).saturating_hadd(i64s::interleave(9_000_000_000_000_000_000, 9_000_000_000_000_000_000)), i64s::interleave(i64::min_value(), i64::max_value()));
+    }
+
+    #[test]
+    fn saturating_hadd_u8s() {
+        assert_eq!(u8s::splat(1).saturating_hadd(u8s::splat(2)), u8s::interleave(2, 4));
+        assert_eq!(u8s::interleave(1, 2).saturating_hadd(u8s::interleave(3, 4)), u8s::interleave(3, 7));
+        assert_eq!(u8s::splat(200).saturating_hadd(u8s::splat(200)), u8s::splat(u8::max_value()));
+    }
+
+    #[test]
+    fn saturating_hadd_u16s() {
+        assert_eq!(u16s::splat(1).saturating_hadd(u16s::splat(2)), u16s::interleave(2, 4));
+        assert_eq!(u16s::interleave(1, 2).saturating_hadd(u16s::interleave(3, 4)), u16s::interleave(3, 7));
+        assert_eq!(u16s::splat(60000).saturating_hadd(u16s::splat(60000)), u16s::splat(u16::max_value()));
+    }
+
+    #[test]
+    fn saturating_hadd_u32s() {
+        assert_eq!(u32s::splat(1).saturating_hadd(u32s::splat(2)), u32s::interleave(2, 4));
+        assert_eq!(u32s::interleave(1, 2).saturating_hadd(u32s::interleave(3, 4)), u32s::interleave(3, 7));
+        assert_eq!(u32s::splat(4_000_000_000).saturating_hadd(u32s::splat(4_000_000_000)), u32s::splat(u32::max_value()));
+    }
+
+    #[test]
+    fn saturating_hadd_u64s() {
+        assert_eq!(u64s::splat(1).saturating_hadd(u64s::splat(2)), u64s::interleave(2, 4));
+        assert_eq!(u64s::interleave(1, 2).saturating_hadd(u64s::interleave(3, 4)), u64s::interleave(3, 7));
+        assert_eq!(u64s::splat(18_000_000_000_000_000_000).saturating_hadd(u64s::splat(18_000_000_000_000_000_000)), u64s::splat(u64::max_value()));
     }
 }

@@ -46,3 +46,13 @@ macro_rules! rust_fallback_impl_binary {
         }
     );
 }
+
+macro_rules! hop {
+    ($name:ident, $fn:path, $($a:expr, $b:expr),*) => {
+        #[inline(always)]
+        fn $name(&self, other: Self) -> Self {
+            Self::new($($fn(self.extract($a), self.extract($b)),
+                        $fn(other.extract($a), other.extract($b))),*)
+        }
+    }
+}
