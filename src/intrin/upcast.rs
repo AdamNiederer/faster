@@ -11,6 +11,8 @@ use stdsimd::vendor::*;
 use stdsimd::simd::{__m256i, __m128i};
 use core_or_std::mem::transmute;
 
+// TODO: Upcast<i..> for u..
+
 pub trait Upcast<T> {
     /// Return two vectors containing elements of the same value, but different
     /// type. The first vector contains the first half of `self`, and the second
@@ -198,13 +200,13 @@ impl Upcast<i16x16> for i8x32 {
     fn upcast(self) -> (i16x16, i16x16) {
         unsafe {
             (_mm256_cvtepi8_epi16(
-                transmute::<__m128i, i8x16>(
+                transmute(
                     _mm256_castsi256_si128(
-                        transmute::<Self, __m256i>(self)))),
+                        transmute(self)))),
              _mm256_cvtepi8_epi16(
-                 transmute::<__m128i, i8x16>(
+                 transmute(
                      _mm256_castsi256_si128(
-                         transmute::<i64x4, __m256i>(
+                         transmute(
                              _mm256_permute4x64_epi64(self.be_i64s(), 0x0E))))))
         }
     }
@@ -286,13 +288,13 @@ impl Upcast<i32x8> for i16x16 {
     fn upcast(self) -> (i32x8, i32x8) {
         unsafe {
             (_mm256_cvtepi16_epi32(
-                transmute::<__m128i, i16x8>(
+                transmute(
                     _mm256_castsi256_si128(
-                        transmute::<Self, __m256i>(self)))),
+                        transmute(self)))),
              _mm256_cvtepi16_epi32(
-                 transmute::<__m128i, i16x8>(
+                 transmute(
                      _mm256_castsi256_si128(
-                         transmute::<i64x4, __m256i>(
+                         transmute(
                              _mm256_permute4x64_epi64(self.be_i64s(), 0x0E))))))
         }
     }
@@ -400,13 +402,13 @@ impl Upcast<f64x4> for f32x8 {
         // Shuffle the vector as i32s for better perf
         unsafe {
             (_mm256_cvtps_pd(
-                transmute::<__m128i, f32x4>(
+                transmute(
                     _mm256_castsi256_si128(
-                        transmute::<Self, __m256i>(self)))),
+                        transmute(self)))),
              _mm256_cvtps_pd(
-                 transmute::<__m128i, f32x4>(
+                 transmute(
                      _mm256_castsi256_si128(
-                         transmute::<i64x4, __m256i>(
+                         transmute(
                              _mm256_permute4x64_epi64(self.be_i64s(), 0x0E))))))
         }
     }
@@ -431,13 +433,13 @@ impl Upcast<f64x4> for i32x8 {
     fn upcast(self) -> (f64x4, f64x4) {
         unsafe {
             (_mm256_cvtepi32_pd(
-                transmute::<__m128i, i32x4>(
+                transmute(
                     _mm256_castsi256_si128(
-                        transmute::<Self, __m256i>(self)))),
+                        transmute(self)))),
              _mm256_cvtepi32_pd(
-                 transmute::<__m128i, i32x4>(
+                 transmute(
                      _mm256_castsi256_si128(
-                         transmute::<i64x4, __m256i>(
+                         transmute(
                              _mm256_permute4x64_epi64(self.be_i64s(), 0x0E))))))
         }
     }
@@ -462,13 +464,13 @@ impl Upcast<i64x4> for i32x8 {
     fn upcast(self) -> (i64x4, i64x4) {
         unsafe {
             (_mm256_cvtepi32_epi64(
-                transmute::<__m128i, i32x4>(
+                transmute(
                     _mm256_castsi256_si128(
-                        transmute::<Self, __m256i>(self)))),
+                        transmute(self)))),
              _mm256_cvtepi32_epi64(
-                 transmute::<__m128i, i32x4>(
+                 transmute(
                      _mm256_castsi256_si128(
-                         transmute::<i64x4, __m256i>(
+                         transmute(
                              _mm256_permute4x64_epi64(self.be_i64s(), 0x0E))))))
         }
     }
@@ -488,15 +490,16 @@ impl Upcast<i64x4> for i32x8 {
 }
 
 impl Upcast<u64x4> for u32x8 {
-    // Blocked by stdsimd
-    // #[inline(always)]
-    // #[cfg(target_feature = "avx2")]
-    // fn upcast(self) -> (u64x4, u64x4) {
-    //     unsafe { (_mm256_cvtepu32_epu64(self), _mm256_cvtepu32_epu64(_mm256_shuffle_epu32(0x0E))) }
-    // }
+    #[inline(always)]
+    #[cfg(target_feature = "avx2")]
+    fn upcast(self) -> (u64x4, u64x4) {
+        unsafe {
+            (_mm256_cvtepu32_epi64(self).be_u64s(),
+             _mm256_cvtepu32_epi64(_mm256_shuffle_epu32(0x0E)).be_u64s()) }
+    }
 
     #[inline(always)]
-    // #[cfg(not(target_feature = "avx2"))]
+    #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (u64x4, u64x4) {
         (u64x4::new(self.extract(0) as u64,
                     self.extract(1) as u64,
