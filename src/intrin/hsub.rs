@@ -40,15 +40,12 @@ impl PackedHsub for f32x8 {
     }
 }
 
+#[cfg(target_feature = "avx")]
 impl PackedHsub for f64x4 {
     #[inline(always)]
-    #[cfg(target_feature = "avx")]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm256_hsub_pd(*self, other) }
     }
-
-    #[cfg(not(target_feature = "avx"))]
-    hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7);
 }
 
 #[cfg(target_feature = "ssse3")]
@@ -59,6 +56,7 @@ impl PackedHsub for i16x8 {
                                 _mm_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
 }
+
 #[cfg(target_feature = "ssse3")]
 impl PackedHsub for i32x4 {
     #[inline(always)]
