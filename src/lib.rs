@@ -155,6 +155,7 @@ mod core_or_std {
 extern crate stdsimd;
 
 pub mod vecs;
+pub mod vec_patterns;
 pub mod iters;
 pub mod intrin;
 pub mod prelude;

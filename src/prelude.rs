@@ -6,7 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 pub use iters::*;
-pub use vecs::{Packed};
+pub use vecs::{Packed, PackedPattern};
 pub use vecs::{u8s, i8s, u16s, i16s, u32s, i32s, f32s, u64s, i64s, f64s};
 pub use intrin::*;
 pub use zip::*;
