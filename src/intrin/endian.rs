@@ -3,7 +3,7 @@ use stdsimd::vendor::*;
 use intrin::transmute::*;
 use core_or_std::mem::transmute;
 
-pub trait PackedReendianize {
+pub trait PackedReendianize : Sized + Copy {
     fn swap_bytes(&self) -> Self;
 
     #[cfg(target_endian = "big")]
