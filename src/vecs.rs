@@ -186,35 +186,35 @@ macro_rules! impl_packed {
 }
 
 impl_packed!(u8, u8s, u8x64, 1, 64, ["avx512"], ["avx1024"]);
-impl_packed!(u8, u8s, u8x32, 1, 32, ["avx"], ["avx512"]);
-impl_packed!(u8, u8s, u8x16, 1, 16, [], ["avx"]);
+impl_packed!(u8, u8s, u8x32, 1, 32, ["avx2"], ["avx512"]);
+impl_packed!(u8, u8s, u8x16, 1, 16, [], ["avx2"]);
 impl_packed!(i8, i8s, i8x64, 1, 64, ["avx512"], ["avx1024"]);
-impl_packed!(i8, i8s, i8x32, 1, 32, ["avx"], ["avx512"]);
-impl_packed!(i8, i8s, i8x16, 1, 16, [], ["avx"]);
+impl_packed!(i8, i8s, i8x32, 1, 32, ["avx2"], ["avx512"]);
+impl_packed!(i8, i8s, i8x16, 1, 16, [], ["avx2"]);
 impl_packed!(u16, u16s, u16x32, 2, 32, ["avx512"], ["avx1024"]);
-impl_packed!(u16, u16s, u16x16, 2, 16, ["avx"], ["avx512"]);
-impl_packed!(u16, u16s, u16x8, 2, 8, [], ["avx"]);
+impl_packed!(u16, u16s, u16x16, 2, 16, ["avx2"], ["avx512"]);
+impl_packed!(u16, u16s, u16x8, 2, 8, [], ["avx2"]);
 impl_packed!(i16, i16s, i16x32, 2, 32, ["avx512"], ["avx1024"]);
-impl_packed!(i16, i16s, i16x16, 2, 16, ["avx"], ["avx512"]);
-impl_packed!(i16, i16s, i16x8, 2, 8, [], ["avx"]);
+impl_packed!(i16, i16s, i16x16, 2, 16, ["avx2"], ["avx512"]);
+impl_packed!(i16, i16s, i16x8, 2, 8, [], ["avx2"]);
 impl_packed!(u32, u32s, u32x16, 4, 16, ["avx512"], ["avx1024"]);
-impl_packed!(u32, u32s, u32x8, 4, 8, ["avx"], ["avx512"]);
-impl_packed!(u32, u32s, u32x4, 4, 4, [], ["avx"]);
+impl_packed!(u32, u32s, u32x8, 4, 8, ["avx2"], ["avx512"]);
+impl_packed!(u32, u32s, u32x4, 4, 4, [], ["avx2"]);
 impl_packed!(i32, i32s, i32x16, 4, 16, ["avx512"], ["avx1024"]);
-impl_packed!(i32, i32s, i32x8, 4, 8, ["avx"], ["avx512"]);
-impl_packed!(i32, i32s, i32x4, 4, 4, [], ["avx"]);
+impl_packed!(i32, i32s, i32x8, 4, 8, ["avx2"], ["avx512"]);
+impl_packed!(i32, i32s, i32x4, 4, 4, [], ["avx2"]);
 impl_packed!(f32, f32s, f32x16, 4, 16, ["avx512"], ["avx1024"]);
-impl_packed!(f32, f32s, f32x8, 4, 8, ["avx"], ["avx512"]);
-impl_packed!(f32, f32s, f32x4, 4, 4, [], ["avx"]);
+impl_packed!(f32, f32s, f32x8, 4, 8, ["avx2"], ["avx512"]);
+impl_packed!(f32, f32s, f32x4, 4, 4, [], ["avx2"]);
 impl_packed!(u64, u64s, u64x8, 8, 8, ["avx512"], ["avx1024"]);
-impl_packed!(u64, u64s, u64x4, 8, 4, ["avx"], ["avx512"]);
-impl_packed!(u64, u64s, u64x2, 8, 2, [], ["avx"]);
+impl_packed!(u64, u64s, u64x4, 8, 4, ["avx2"], ["avx512"]);
+impl_packed!(u64, u64s, u64x2, 8, 2, [], ["avx2"]);
 impl_packed!(i64, i64s, i64x8, 8, 8, ["avx512"], ["avx1024"]);
-impl_packed!(i64, i64s, i64x4, 8, 4, ["avx"], ["avx512"]);
-impl_packed!(i64, i64s, i64x2, 8, 2, [], ["avx"]);
+impl_packed!(i64, i64s, i64x4, 8, 4, ["avx2"], ["avx512"]);
+impl_packed!(i64, i64s, i64x2, 8, 2, [], ["avx2"]);
 impl_packed!(f64, f64s, f64x8, 8, 8, ["avx512"], ["avx1024"]);
-impl_packed!(f64, f64s, f64x4, 8, 4, ["avx"], ["avx512"]);
-impl_packed!(f64, f64s, f64x2, 8, 2, [], ["avx"]);
+impl_packed!(f64, f64s, f64x4, 8, 4, ["avx2"], ["avx512"]);
+impl_packed!(f64, f64s, f64x2, 8, 2, [], ["avx2"]);
 
 #[cfg(test)]
 mod tests {
