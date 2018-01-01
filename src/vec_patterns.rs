@@ -5,14 +5,14 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// This file is machine-generated. See vec-patterns-gen.py for more info.
+// This file is machine-generated. See vec_patterns_gen.py for more info.
 
 use vecs::*;
 
 pub trait PackedPattern : Packed {
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self;
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self;
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self;
 }
 
 impl PackedPattern for u8x64 {
@@ -27,8 +27,8 @@ impl PackedPattern for u8x64 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -112,8 +112,8 @@ impl PackedPattern for u8x32 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -165,8 +165,8 @@ impl PackedPattern for u8x16 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -202,8 +202,8 @@ impl PackedPattern for i8x64 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -287,8 +287,8 @@ impl PackedPattern for i8x32 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -340,8 +340,8 @@ impl PackedPattern for i8x16 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -377,8 +377,8 @@ impl PackedPattern for u16x32 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -430,8 +430,8 @@ impl PackedPattern for u16x16 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -467,8 +467,8 @@ impl PackedPattern for u16x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -496,8 +496,8 @@ impl PackedPattern for i16x32 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -549,8 +549,8 @@ impl PackedPattern for i16x16 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -586,8 +586,8 @@ impl PackedPattern for i16x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -615,8 +615,8 @@ impl PackedPattern for u32x16 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -652,8 +652,8 @@ impl PackedPattern for u32x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -681,8 +681,8 @@ impl PackedPattern for u32x4 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -706,8 +706,8 @@ impl PackedPattern for i32x16 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -743,8 +743,8 @@ impl PackedPattern for i32x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -772,8 +772,8 @@ impl PackedPattern for i32x4 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -797,8 +797,8 @@ impl PackedPattern for f32x16 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -834,8 +834,8 @@ impl PackedPattern for f32x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -863,8 +863,8 @@ impl PackedPattern for f32x4 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -888,8 +888,8 @@ impl PackedPattern for u64x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -917,8 +917,8 @@ impl PackedPattern for u64x4 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -942,8 +942,8 @@ impl PackedPattern for u64x2 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),
@@ -965,8 +965,8 @@ impl PackedPattern for i64x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -994,8 +994,8 @@ impl PackedPattern for i64x4 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1019,8 +1019,8 @@ impl PackedPattern for i64x2 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),
@@ -1042,8 +1042,8 @@ impl PackedPattern for f64x8 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -1071,8 +1071,8 @@ impl PackedPattern for f64x4 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1096,8 +1096,8 @@ impl PackedPattern for f64x2 {
     }
 
     #[inline(always)]
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {
-        assert!(off <= Self::WIDTH as u8);
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+        assert!(off <= Self::WIDTH);
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),

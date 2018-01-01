@@ -7,7 +7,7 @@ use core_or_std::mem::transmute;
 pub trait PackedMerge {
     fn merge_halves(&self, other: Self) -> Self;
     fn merge_interleaved(&self, other: Self) -> Self;
-    fn merge_partitioned(&self, other: Self, offset: u8) -> Self;
+    fn merge_partitioned(&self, other: Self, offset: usize) -> Self;
 }
 
 macro_rules! impl_packed_merge {
@@ -27,8 +27,8 @@ macro_rules! impl_packed_merge {
             }
 
             #[inline(always)]
-            fn merge_partitioned(&self, other: Self, offset: u8) -> Self {
-                assert!(offset < Self::WIDTH as u8);
+            fn merge_partitioned(&self, other: Self, offset: usize) -> Self {
+                assert!(offset < Self::WIDTH);
                 let mut ret = self.clone();
                 for i in (offset as u32)..(Self::WIDTH as u32) {
                     ret = ret.replace(i, other.extract(i));
@@ -60,7 +60,7 @@ macro_rules! impl_packed_merge {
             }
 
             #[inline(always)]
-            fn merge_partitioned(&self, other: Self, offset: u8) -> Self {
+            fn merge_partitioned(&self, other: Self, offset: usize) -> Self {
                 unsafe {
                     transmute($mmfn(
                         self.be_i8s(), other.be_i8s(),
@@ -132,7 +132,7 @@ mod tests {
                     assert_eq!(a.merge_halves(b), $vec::halfs(asc, bsc));
                     assert_eq!(b.merge_halves(a), $vec::halfs(bsc, asc));
 
-                    for i in 0..$vec::WIDTH as u8 {
+                    for i in 0..$vec::WIDTH {
                         assert_eq!(a.merge_partitioned(b, i), $vec::partition(asc, bsc, i));
                         assert_eq!(b.merge_partitioned(a, i), $vec::partition(bsc, asc, i));
                     }

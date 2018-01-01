@@ -26,7 +26,7 @@ use vecs::*;
 pub trait PackedPattern : Packed {
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self;
-    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self;
+    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self;
 }
 """)
 
@@ -49,8 +49,8 @@ for e, v, l in zip(els, vecs, lens):
 
     # Generate partition
     print(f"    #[inline(always)]")
-    print(f"    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: u8) -> Self {{")
-    print(f"        assert!(off <= Self::WIDTH as u8);")
+    print(f"    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {{")
+    print(f"        assert!(off <= Self::WIDTH);")
     print(f"        match off {{")
     for i in range(0, l + 1):
         first = ", ".join("hi" for _ in range(i))
