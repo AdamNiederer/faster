@@ -33,4 +33,3 @@ script:
   - bash -c "[ $RUN == \"true\" ] && cargo bench --verbose --all || true"
 notifications:
   email: false
-cache: cargo
