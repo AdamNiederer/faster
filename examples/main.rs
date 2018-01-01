@@ -11,11 +11,11 @@ use faster::*;
 
 fn main() {
     let lots_of_84s = (&[-10i8; 33][..]).simd_iter()
-        .simd_map(|v| i8s::splat(9) * v.abs().be_i8s() - i8s::splat(4) - i8s::splat(2))
+        .simd_map(i8s::splat(0), |v| i8s::splat(9) * v.abs().be_i8s() - i8s::splat(4) - i8s::splat(2))
         .scalar_collect();
 
     let lots_of_3s = (&[-123.456f32; 128][..]).simd_iter()
-        .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
+        .simd_map(f32s::splat(0.0), |v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
                         f32s::splat(4.0) - f32s::splat(2.0) })
         .scalar_collect();
 
@@ -26,7 +26,7 @@ fn main() {
 
     let mut some_u8s = [0u8; 100];
     let filled_u8s = (&[5u8; 100][..]).simd_iter()
-        .simd_map(|vector| vector * u8s::splat(2))
+        .simd_map(u8s::splat(0), |vector| vector * u8s::splat(2))
         .scalar_fill(&mut some_u8s);
 
     let reduced = (&[-1.0f32; 128][..]).simd_iter()
@@ -34,7 +34,7 @@ fn main() {
 
     let striped = (0..300u32).collect::<Vec<u32>>().as_slice()
         .simd_iter().stripe_two().zip()
-        .simd_map(|(a, b)| { a + b })
+        .simd_map(tuplify!(2, u32s::splat(0)), |(a, b)| { a + b })
         .scalar_collect();
 
     println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced, striped);

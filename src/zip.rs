@@ -12,13 +12,26 @@ pub struct PackedZip<T> {
     iters: T
 }
 
-pub struct PackedZipMap<I, F> {
+pub struct PackedZipMap<I, F> where I : PackedZippedIterator {
     iter: I,
-    func: F
+    func: F,
+    defaults: I::Vectors
 }
 
 pub trait IntoPackedZip : Sized {
     fn zip(self) -> PackedZip<Self>;
+}
+
+#[macro_export] macro_rules! tuplify {
+    (1, $i:expr) => { ($i) };
+    (2, $i:expr) => { ($i, $i) };
+    (3, $i:expr) => { ($i, $i, $i) };
+    (4, $i:expr) => { ($i, $i, $i, $i) };
+    (5, $i:expr) => { ($i, $i, $i, $i, $i) };
+    (6, $i:expr) => { ($i, $i, $i, $i, $i, $i) };
+    (7, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i) };
+    (8, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i) };
+    (9, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i) };
 }
 
 pub trait PackedZippedIterator : ExactSizeIterator + Sized {
@@ -41,7 +54,7 @@ pub trait PackedZippedIterator : ExactSizeIterator + Sized {
     /// Pack and return a partially full vector containing upto the next
     /// `self.width()` of the iterator, or None if no elements are left.
     /// Elements which are not filled are instead initialized to default.
-    fn next_partials(&mut self, default: Self::Vectors) -> Option<Self::Vectors>;
+    fn next_partials(&mut self, default: Self::Vectors) -> Option<(Self::Vectors, usize)>;
 
     /// Pack and return a splatted vector containing the next element
     /// of the iterator, or None if no elements are left.
@@ -49,11 +62,12 @@ pub trait PackedZippedIterator : ExactSizeIterator + Sized {
 
     #[inline(always)]
     /// Return an iterator which calls `func` on vectors of elements.
-    fn simd_map<B, F>(self, func: F) -> PackedZipMap<Self, F>
+    fn simd_map<B, F>(self, defaults: Self::Vectors, func: F) -> PackedZipMap<Self, F>
         where F : FnMut(Self::Vectors) -> B {
         PackedZipMap {
             iter: self,
-            func: func
+            func: func,
+            defaults: defaults
         }
     }
 
@@ -116,16 +130,13 @@ pub trait PackedZippedIterator : ExactSizeIterator + Sized {
             while let Some(mut v) = self.next_vectors() {
                 acc = func(acc, v);
             }
-            if let Some(v) = self.next_partials(default) {
+            if let Some((v, _)) = self.next_partials(default) {
                 acc = func(acc, v);
             }
             debug_assert!(self.next_partials(default).is_none());
             acc
-        } else if let Some(v) = self.next_partials(default) {
+        } else if let Some((v, _)) = self.next_partials(default) {
             acc = func(start, v);
-            while let Some(v) = self.next_partials(default) {
-                acc = func(acc, v);
-            }
             debug_assert!(self.next_partials(default).is_none());
             acc
         } else {
@@ -205,8 +216,10 @@ macro_rules! impl_iter_zip {
             }
 
             #[inline(always)]
-            fn next_partials(&mut self, default: Self::Vectors) -> Option<Self::Vectors> {
-                Some(($(self.iters.$n.next_partial(default.$n)?),*))
+            fn next_partials(&mut self, default: Self::Vectors) -> Option<(Self::Vectors, usize)> {
+                let a = ($(self.iters.$n.next_partial(default.$n)),*);
+                debug_assert!($(!a.$n.is_none() && a.$n.unwrap().1 == a.0.unwrap().1)&&*);
+                Some((($(a.$n.unwrap().0),*), a.0.unwrap().1))
             }
         }
     );
@@ -257,10 +270,9 @@ impl<I, F, A> PackedIterator for PackedZipMap<I, F>
     }
 
     #[inline(always)]
-    fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
-        // TODO: Respect default and return amount in vector
-        None
-        // self.iter.next_partials(($($a::Vector::default()),*)).map(&self.func)
+    fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> {
+        let (v, n) = self.iter.next_partials(self.defaults)?;
+        Some((default.merge_partitioned((&mut self.func)(v), n), n))
     }
 }
 

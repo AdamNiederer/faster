@@ -6,6 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use vecs::{Packable, Packed};
+use intrin::PackedMerge;
 
 /// An iterator which automatically packs the values it iterates over into SIMD
 /// vectors.
@@ -32,15 +33,16 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     /// Pack and return a partially full vector containing upto the next
     /// `self.width()` of the iterator, or None if no elements are left.
     /// Elements which are not filled are instead initialized to default.
-    fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector>;
+    fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)>;
 
     #[inline(always)]
     /// Return an iterator which calls `func` on vectors of elements.
-    fn simd_map<A, B, F>(self, func: F) -> PackedMap<Self, F>
+    fn simd_map<A, B, F>(self, default: Self::Vector, func: F) -> PackedMap<Self, F>
         where F : FnMut(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
         PackedMap {
             iter: self,
-            func: func
+            func: func,
+            default: default
         }
     }
 
@@ -103,16 +105,13 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
             while let Some(v) = self.next_vector() {
                 acc = func(acc, v);
             }
-            if let Some(v) = self.next_partial(default) {
+            if let Some((v, _)) = self.next_partial(default) {
                 acc = func(acc, v);
             }
             debug_assert!(self.next_partial(default).is_none());
             acc
-        } else if let Some(v) = self.next_partial(default) {
+        } else if let Some((v, _)) = self.next_partial(default) {
             acc = func(start, v);
-            while let Some(v) = self.next_partial(default) {
-                acc = func(acc, v);
-            }
             debug_assert!(self.next_partial(default).is_none());
             acc
         } else {
@@ -128,9 +127,10 @@ pub struct PackedIter<'a, T : 'a + Packable> {
 }
 
 #[derive(Debug)]
-pub struct PackedMap<I, F> {
+pub struct PackedMap<I, F> where I : PackedIterator {
     pub iter: I,
     pub func: F,
+    pub default: I::Vector,
 }
 
 impl<'a, T> Iterator for PackedIter<'a, T> where T : Packable {
@@ -183,15 +183,21 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     }
 
     #[inline(always)]
-    fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> where T : Packable {
+    fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> where T : Packable {
         if self.position < self.scalar_len() {
-            let mut ret = Self::Vector::splat(default.extract(0));
-            for i in 0..self.scalar_len() - self.position {
-                ret = ret.replace(i, self.data[self.position + i].clone());
+            let mut ret = default.clone();
+            let empty_amt = Self::Vector::WIDTH - (self.scalar_len() - self.position);
+            // Right-align the partial vector to ensure the load is vectorized
+            if (Self::Vector::WIDTH) < self.scalar_len() {
+                ret = Self::Vector::load(self.data, self.scalar_len() - Self::Vector::WIDTH);
+                ret = default.merge_partitioned(ret, empty_amt);
+            } else {
+                for i in empty_amt..Self::Vector::WIDTH {
+                    ret = ret.replace(i, self.data[self.position + i].clone());
+                }
             }
-
             self.position = self.scalar_len();
-            Some(ret)
+            Some((ret, empty_amt))
         } else {
             None
         }
@@ -298,9 +304,9 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     }
 
     #[inline(always)]
-    fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
-        // TODO: Take a user-defined default and return number of elements actually mapped
-        self.iter.next_partial(I::Vector::default()).map(&mut self.func)
+    fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> {
+        let (v, n) = self.iter.next_partial(self.default)?;
+        Some(((self.func)(v).merge_partitioned(default, n), n))
     }
 }
 
@@ -345,16 +351,26 @@ impl<'a, T, I> IntoScalar<T> for I
     #[inline(always)]
     fn scalar_fill<'b>(&mut self, fill: &'b mut [Self::Scalar]) -> &'b mut [Self::Scalar] {
         let mut offset = 0;
+        let mut lastvec = Self::Vector::default();
 
         while let Some(vec) = self.next_vector() {
             vec.store(fill, offset);
             offset += Self::Vector::WIDTH;
+            lastvec = vec;
         }
 
-        while let Some(scl) = self.next() {
-            fill[offset] = scl;
-            offset += 1;
+        if let Some((p, n)) = self.next_partial(Self::Vector::default()) {
+            if offset > 0 {
+                // We stored a vector in this buffer; overwrite the unused elements
+                p.merge_partitioned(lastvec, n).store(fill, offset - n);
+            } else {
+                // The buffer won't fit one vector; store elementwise
+                for i in n..(Self::Vector::WIDTH - n) {
+                    fill[offset + i] = p.extract(i);
+                }
+            }
         }
+
         fill
     }
 }

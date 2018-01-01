@@ -220,13 +220,15 @@ macro_rules! impl_stripe {
 
             #[inline(always)]
             // #[cfg(not(target_feature = "avx2"))]
-            fn next_partial(&mut self, default: Self::Vector) -> Option<Self::Vector> {
+            fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> {
                 if self.pos() < self.iter.len() {
                     let mut ret = default.clone();
-                    for i in 0..((self.iter.len() - self.pos()) / self.stride()) {
+                    let fill_amt = (self.iter.len() - self.pos()) / self.stride();
+                    // Right-align the partial vector to maintain compat with PackedIter
+                    for i in (Self::Vector::WIDTH - fill_amt)..Self::Vector::WIDTH {
                         ret = ret.replace(i as u32, self.iter.data[self.offsets.extract(i as u32) as usize]);
                     }
-                    Some(ret)
+                    Some((ret, Self::Vector::WIDTH - fill_amt))
                 } else {
                     None
                 }

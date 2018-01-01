@@ -12,9 +12,9 @@ pub use shimvecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16
 pub use vec_patterns::PackedPattern;
 use iters::{IntoPackedRefIterator, IntoPackedRefMutIterator, PackedIter};
 use core_or_std::fmt::Debug;
-
+use intrin::*;
 /// A SIMD vector of some type.
-pub trait Packed : Sized + Copy + Debug {
+pub trait Packed : Sized + Copy + Debug + PackedMerge {
     /// The type which fits into this SIMD vector
     type Scalar : Packable;
 

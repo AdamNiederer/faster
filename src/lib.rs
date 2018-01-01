@@ -164,7 +164,7 @@ mod shimvecs;
 
 pub use prelude::*;
 
-pub mod zip;
+#[macro_use] pub mod zip;
 pub mod swizzle;
 
 #[cfg(test)]
@@ -176,7 +176,7 @@ mod tests {
     fn bench_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[0u8; 1024][..]).simd_iter().simd_map(|v| v).scalar_collect())
+                (&[0u8; 1024][..]).simd_iter().simd_map(u8s::splat(0), |v| v).scalar_collect())
         });
     }
 
@@ -193,8 +193,9 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter()
-                    .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
-                                    f32s::splat(4.0) - f32s::splat(2.0) })
+                    .simd_map(f32s::splat(0.0), |v| {
+                        f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
+                            - f32s::splat(4.0) - f32s::splat(2.0) })
                     .scalar_collect())
         })
     }
@@ -204,8 +205,9 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1025][..]).simd_iter()
-                    .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
-                                    f32s::splat(4.0) - f32s::splat(2.0) })
+                    .simd_map(f32s::splat(0.0), |v| {
+                        f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
+                            - f32s::splat(4.0) - f32s::splat(2.0) })
                     .scalar_collect())
         })
     }
@@ -254,7 +256,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1026][..]).simd_iter().stripe_nine().zip()
-                    .simd_map(|(a, b, c, d, e, f, g, h, i)| {
+                    .simd_map(tuplify!(9, f32s::splat(0.0)), |(a, b, c, d, e, f, g, h, i)| {
                         (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
                     })
                     .scalar_collect())
@@ -277,7 +279,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter().stripe_four().zip()
-                    .simd_map(|(a, b, c, d)| {
+                    .simd_map(tuplify!(4, f32s::splat(0.0)), |(a, b, c, d)| {
                         a * d - b * c
                     })
                     .scalar_collect())
@@ -299,7 +301,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123i32; 1024][..]).simd_iter().stripe_two().zip()
-                    .simd_map(|(a, b)| {
+                    .simd_map(tuplify!(2, i32s::splat(0)), |(a, b)| {
                         let (aa, ab): (i64s, i64s) = a.upcast();
                         let (ba, bb): (i64s, i64s) = b.upcast();
                         (aa.abs() + ba.abs()).saturating_downcast(ab.abs() + bb.abs())
@@ -323,7 +325,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter().stripe_two().zip()
-                    .simd_map(|(a, b)| {
+                    .simd_map(tuplify!(2, f32s::splat(0.0)), |(a, b)| {
                         a + b
                     })
                     .scalar_collect())
@@ -339,9 +341,4 @@ mod tests {
                 }).collect::<Vec<f32>>())
         })
     }
-
-    // let striped = (0..300u32).collect::<Vec<u32>>().as_slice()
-    //     .simd_iter().stripe_two().zip()
-    //     .simd_map(|(a, b)| { a + b })
-    //     .scalar_collect();
 }
