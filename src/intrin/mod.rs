@@ -46,3 +46,5 @@ mod addsub;
 pub use self::addsub::*;
 mod merge;
 pub use self::merge::*;
+mod swizzle;
+pub use self::swizzle::*;
