@@ -6,12 +6,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use vecs::*;
-use stdsimd::vendor::*;
 use iters::{PackedIter, PackedIterator};
 use core_or_std::iter::{Iterator, ExactSizeIterator};
-use core_or_std::mem::transmute;
-use stdsimd::simd::{__m256i, __m128i};
-use intrin::PackedTransmute;
 
 pub struct PackedStripe<'a, T> where T : 'a + Packable {
     iter: &'a PackedIter<'a, T>,
