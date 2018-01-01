@@ -44,3 +44,5 @@ mod saturating_hsub;
 pub use self::saturating_hsub::*;
 mod addsub;
 pub use self::addsub::*;
+mod merge;
+pub use self::merge::*;
