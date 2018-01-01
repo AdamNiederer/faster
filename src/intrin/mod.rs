@@ -48,3 +48,5 @@ mod merge;
 pub use self::merge::*;
 mod swizzle;
 pub use self::swizzle::*;
+mod endian;
+pub use self::endian::*;
