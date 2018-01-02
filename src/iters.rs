@@ -193,7 +193,7 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
                 ret = default.merge_partitioned(ret, empty_amt);
             } else {
                 for i in empty_amt..Self::Vector::WIDTH {
-                    ret = ret.replace(i, self.data[self.position + i].clone());
+                    ret = ret.replace(i, self.data[self.position + i - empty_amt].clone());
                 }
             }
             self.position = self.scalar_len();
@@ -306,7 +306,8 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     #[inline(always)]
     fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> {
         let (v, n) = self.iter.next_partial(self.default)?;
-        Some(((self.func)(v).merge_partitioned(default, n), n))
+        let nr = n * I::Scalar::SIZE / Self::Scalar::SIZE;
+        Some((default.merge_partitioned((self.func)(v), nr), nr))
     }
 }
 
@@ -362,11 +363,12 @@ impl<'a, T, I> IntoScalar<T> for I
         if let Some((p, n)) = self.next_partial(Self::Vector::default()) {
             if offset > 0 {
                 // We stored a vector in this buffer; overwrite the unused elements
-                p.merge_partitioned(lastvec, n).store(fill, offset - n);
+                p.store(fill, offset - n);
+                lastvec.store(fill, offset - Self::Vector::WIDTH);
             } else {
                 // The buffer won't fit one vector; store elementwise
-                for i in n..(Self::Vector::WIDTH - n) {
-                    fill[offset + i] = p.extract(i);
+                for i in 0..(Self::Vector::WIDTH - n) {
+                    fill[offset + i] = p.extract(i + n);
                 }
             }
         }
