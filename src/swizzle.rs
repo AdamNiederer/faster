@@ -5,9 +5,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#[allow(unused_imports)]
+
 use vecs::*;
 use iters::{PackedIter, PackedIterator};
 use core_or_std::iter::{Iterator, ExactSizeIterator};
+
+// For AVX2 gathers
+use core_or_std::mem::transmute;
+use stdsimd::vendor::*;
+use stdsimd::simd::{__m256i, __m128i};
+use intrin::PackedTransmute;
 
 pub struct PackedStripe<'a, T> where T : 'a + Packable {
     iter: &'a PackedIter<'a, T>,
