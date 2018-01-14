@@ -37,7 +37,7 @@ pub trait PackedPattern : Packed {
     fn partition_mask(off: usize) -> Self;
 }
 
-const part_mask: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -78,7 +78,7 @@ for e, v, l, f, b in zip(els, vecs, lens, feats, blends):
     fn partition_mask(off: usize) -> Self {{
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::load(unsafe {{ transmute(&part_mask[..]) }}, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe {{ transmute(&PART_MASK[..]) }}, 64 / Self::Scalar::SIZE - off)
     }}""",)
 
     # Generate partition polyfill
