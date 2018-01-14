@@ -11,6 +11,10 @@ use intrin::transmute::*;
 use core_or_std::ops::Add;
 
 pub trait PackedHadd {
+    /// Return a vector containing the interleaved sums of elements in `self`
+    /// and `other`. The returned vector will begin with the sum of the first
+    /// two elements in `self`, and end with the sum of the last two elements in
+    /// `other`
     fn hadd(&self, other: Self) -> Self;
 }
 

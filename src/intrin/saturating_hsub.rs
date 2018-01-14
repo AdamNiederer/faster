@@ -10,6 +10,10 @@ use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x
 use intrin::transmute::*;
 
 pub trait PackedSaturatingHsub {
+    /// Return a vector containing the interleaved differences of elements in
+    /// `self` and `other`, using saturating subtraction. The returned vector
+    /// will begin with the difference of the first two elements in `self`, and
+    /// end with the difference of the last two elements in `other`
     fn saturating_hsub(&self, other: Self) -> Self;
 }
 

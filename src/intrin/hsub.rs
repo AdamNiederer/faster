@@ -11,6 +11,10 @@ use intrin::transmute::*;
 use core_or_std::ops::Sub;
 
 pub trait PackedHsub {
+    /// Return a vector containing the interleaved differences of elements in
+    /// `self` and `other`. The returned vector will begin with the difference
+    /// of the first two elements in `self`, and end with the difference of the
+    /// last two elements in `other`
     fn hsub(&self, other: Self) -> Self;
 }
 

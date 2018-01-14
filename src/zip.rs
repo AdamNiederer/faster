@@ -19,6 +19,7 @@ pub struct PackedZipMap<I, F> where I : PackedZippedIterator {
 }
 
 pub trait IntoPackedZip : Sized {
+    /// Return an iterator which may iterate over `self` in lockstep.
     fn zip(self) -> PackedZip<Self>;
 }
 
@@ -34,10 +35,13 @@ pub trait IntoPackedZip : Sized {
     (9, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i) };
 }
 
+/// A collection of packed iterators of the same scalar length and vector width,
+/// which may be iterated over in lockstep.
 pub trait PackedZippedIterator : ExactSizeIterator + Sized {
     type Scalars : Copy + Sized;
     type Vectors : Copy + Sized;
 
+    /// Return the width of this iterator's constitutent vectors.
     fn width(&self) -> usize;
 
     /// Return the length of this iterator, measured in scalar elements.
