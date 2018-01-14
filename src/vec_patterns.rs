@@ -36,12 +36,12 @@ const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
 
 impl PackedPattern for u8x64 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -59,7 +59,7 @@ impl PackedPattern for u8x64 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -135,12 +135,12 @@ impl PackedPattern for u8x64 {
 }
 
 impl PackedPattern for u8x32 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -158,7 +158,7 @@ impl PackedPattern for u8x32 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -202,12 +202,12 @@ impl PackedPattern for u8x32 {
 }
 
 impl PackedPattern for u8x16 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -225,7 +225,7 @@ impl PackedPattern for u8x16 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -253,12 +253,12 @@ impl PackedPattern for u8x16 {
 }
 
 impl PackedPattern for i8x64 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -276,7 +276,7 @@ impl PackedPattern for i8x64 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -352,12 +352,12 @@ impl PackedPattern for i8x64 {
 }
 
 impl PackedPattern for i8x32 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -375,7 +375,7 @@ impl PackedPattern for i8x32 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -419,12 +419,12 @@ impl PackedPattern for i8x32 {
 }
 
 impl PackedPattern for i8x16 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -442,7 +442,7 @@ impl PackedPattern for i8x16 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -470,12 +470,12 @@ impl PackedPattern for i8x16 {
 }
 
 impl PackedPattern for u16x32 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -493,7 +493,7 @@ impl PackedPattern for u16x32 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -537,12 +537,12 @@ impl PackedPattern for u16x32 {
 }
 
 impl PackedPattern for u16x16 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -560,7 +560,7 @@ impl PackedPattern for u16x16 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -588,12 +588,12 @@ impl PackedPattern for u16x16 {
 }
 
 impl PackedPattern for u16x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -611,7 +611,7 @@ impl PackedPattern for u16x8 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -631,12 +631,12 @@ impl PackedPattern for u16x8 {
 }
 
 impl PackedPattern for i16x32 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -654,7 +654,7 @@ impl PackedPattern for i16x32 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -698,12 +698,12 @@ impl PackedPattern for i16x32 {
 }
 
 impl PackedPattern for i16x16 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -721,7 +721,7 @@ impl PackedPattern for i16x16 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -749,12 +749,12 @@ impl PackedPattern for i16x16 {
 }
 
 impl PackedPattern for i16x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -772,7 +772,7 @@ impl PackedPattern for i16x8 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -792,12 +792,12 @@ impl PackedPattern for i16x8 {
 }
 
 impl PackedPattern for u32x16 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -815,7 +815,7 @@ impl PackedPattern for u32x16 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -843,12 +843,12 @@ impl PackedPattern for u32x16 {
 }
 
 impl PackedPattern for u32x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -866,7 +866,7 @@ impl PackedPattern for u32x8 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -886,12 +886,12 @@ impl PackedPattern for u32x8 {
 }
 
 impl PackedPattern for u32x4 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo)
     }
@@ -909,7 +909,7 @@ impl PackedPattern for u32x4 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -925,12 +925,12 @@ impl PackedPattern for u32x4 {
 }
 
 impl PackedPattern for i32x16 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -948,7 +948,7 @@ impl PackedPattern for i32x16 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -976,12 +976,12 @@ impl PackedPattern for i32x16 {
 }
 
 impl PackedPattern for i32x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -999,7 +999,7 @@ impl PackedPattern for i32x8 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1019,12 +1019,12 @@ impl PackedPattern for i32x8 {
 }
 
 impl PackedPattern for i32x4 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo)
     }
@@ -1042,7 +1042,7 @@ impl PackedPattern for i32x4 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1058,12 +1058,12 @@ impl PackedPattern for i32x4 {
 }
 
 impl PackedPattern for f32x16 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -1081,7 +1081,7 @@ impl PackedPattern for f32x16 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1109,12 +1109,12 @@ impl PackedPattern for f32x16 {
 }
 
 impl PackedPattern for f32x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -1132,7 +1132,7 @@ impl PackedPattern for f32x8 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1152,12 +1152,12 @@ impl PackedPattern for f32x8 {
 }
 
 impl PackedPattern for f32x4 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo)
     }
@@ -1175,7 +1175,7 @@ impl PackedPattern for f32x4 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1191,12 +1191,12 @@ impl PackedPattern for f32x4 {
 }
 
 impl PackedPattern for u64x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -1214,7 +1214,7 @@ impl PackedPattern for u64x8 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1234,12 +1234,12 @@ impl PackedPattern for u64x8 {
 }
 
 impl PackedPattern for u64x4 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo)
     }
@@ -1257,7 +1257,7 @@ impl PackedPattern for u64x4 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1273,12 +1273,12 @@ impl PackedPattern for u64x4 {
 }
 
 impl PackedPattern for u64x2 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
     }
@@ -1296,7 +1296,7 @@ impl PackedPattern for u64x2 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1310,12 +1310,12 @@ impl PackedPattern for u64x2 {
 }
 
 impl PackedPattern for i64x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -1333,7 +1333,7 @@ impl PackedPattern for i64x8 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1353,12 +1353,12 @@ impl PackedPattern for i64x8 {
 }
 
 impl PackedPattern for i64x4 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo)
     }
@@ -1376,7 +1376,7 @@ impl PackedPattern for i64x4 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1392,12 +1392,12 @@ impl PackedPattern for i64x4 {
 }
 
 impl PackedPattern for i64x2 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
     }
@@ -1415,7 +1415,7 @@ impl PackedPattern for i64x2 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1429,12 +1429,12 @@ impl PackedPattern for i64x2 {
 }
 
 impl PackedPattern for f64x8 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo, hi, lo, hi, lo)
     }
@@ -1452,7 +1452,7 @@ impl PackedPattern for f64x8 {
         unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1472,12 +1472,12 @@ impl PackedPattern for f64x8 {
 }
 
 impl PackedPattern for f64x4 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo, hi, lo)
     }
@@ -1495,7 +1495,7 @@ impl PackedPattern for f64x4 {
         unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
@@ -1511,12 +1511,12 @@ impl PackedPattern for f64x4 {
 }
 
 impl PackedPattern for f64x2 {
-    #[inline(never)]
+    #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
     }
 
-    #[inline(never)]
+    #[inline(always)]
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
     }
@@ -1534,7 +1534,7 @@ impl PackedPattern for f64x2 {
         unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
     }
 
-    #[inline(never)]
+    #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);

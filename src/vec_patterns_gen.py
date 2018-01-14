@@ -58,7 +58,7 @@ const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 for e, v, l, f, b in zip(els, vecs, lens, feats, blends):
     # Generate halfs
     print(f"impl PackedPattern for {v} {{")
-    print(f"    #[inline(never)]")
+    print(f"    #[inline(always)]")
     print(f"    fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {{")
     first = ", ".join("hi" for _ in range(l // 2))
     second = ", ".join("lo" for _ in range(l // 2))
@@ -66,7 +66,7 @@ for e, v, l, f, b in zip(els, vecs, lens, feats, blends):
     print(f"    }}\n")
 
     # Generate interleave
-    print(f"    #[inline(never)]")
+    print(f"    #[inline(always)]")
     print(f"    fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {{")
     args = ", ".join("hi, lo" for _ in range(l // 2))
     print(f"        Self::new({args})")
@@ -91,7 +91,7 @@ for e, v, l, f, b in zip(els, vecs, lens, feats, blends):
     """)
 
     # Generate partition polyfill
-    print(f"    #[inline(never)]")
+    print(f"    #[inline(always)]")
     print(f"    #[cfg(not(target_feature = \"{f}\"))]")
     print(f"    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {{")
     print(f"        assert!(off <= Self::WIDTH);")
