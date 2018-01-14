@@ -245,6 +245,7 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefIterator<'a> for I
     where &'a I: IntoPackedIterator {
     type Iter = <&'a I as IntoPackedIterator>::Iter;
 
+    #[inline(always)]
     fn simd_iter(&'a self) -> Self::Iter {
         self.into_simd_iter()
     }
@@ -254,6 +255,7 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefMutIterator<'a> for I
     where &'a mut I: IntoPackedIterator {
     type Iter = <&'a mut I as IntoPackedIterator>::Iter;
 
+    #[inline(always)]
     fn simd_iter_mut(&'a mut self) -> Self::Iter {
         self.into_simd_iter()
     }
@@ -277,6 +279,7 @@ impl<A, B, I, F> Iterator for PackedMap<I, F>
 
 impl<'a, I, F> ExactSizeIterator for PackedMap<I, F>
     where Self : PackedIterator, I : PackedIterator {
+
     #[inline(always)]
     fn len(&self) -> usize {
         self.iter.len()
