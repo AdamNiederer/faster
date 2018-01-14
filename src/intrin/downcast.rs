@@ -270,13 +270,13 @@ impl Downcast<u16x16> for u32x8 {
 
 impl Downcast<u8x32> for u16x16 {
     #[inline(always)]
-    #[cfg(target_feature = "sse2")]
+    #[cfg(target_feature = "avx2")]
     fn saturating_downcast(self, other: Self) -> u8x32 {
         unsafe { _mm256_packus_epi16(self.be_i16s(), other.be_i16s()) }
     }
 
     #[inline(always)]
-    #[cfg(not(target_feature = "sse2"))]
+    #[cfg(not(target_feature = "avx2"))]
     fn saturating_downcast(self, other: Self) -> u8x32 {
         u8x32::new(self.extract(0).min(0x00FF) as u8,
                    self.extract(1).min(0x00FF) as u8,
