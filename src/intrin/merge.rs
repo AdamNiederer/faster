@@ -64,7 +64,7 @@ macro_rules! impl_packed_merge {
                 unsafe {
                     transmute($mmfn(
                         self.be_i8s(), other.be_i8s(),
-                        transmute($uvec::partition($uscl::min_value(), $uscl::max_value(), offset))))
+                        transmute(Self::partition_mask(offset))))
                 }
             }
         }
