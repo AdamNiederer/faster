@@ -151,8 +151,8 @@ impl Upcast<u16x16> for u8x32 {
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (u16x16, u16x16) {
         unsafe {
-            (_mm256_cvtepu8_epi16(self).be_u16s(),
-             _mm256_cvtepu8_epi16(_mm256_permute4x64_epi64(self.be_i64s(), 0x0E).be_u16s()).be_u16s())
+            (_mm256_cvtepu8_epi16(transmute(_mm256_castsi256_si128(transmute(self)))).be_u16s(),
+             _mm256_cvtepu8_epi16(transmute(_mm256_castsi256_si128(transmute(_mm256_permute4x64_epi64(self.be_i64s(), 0x0E).be_u16s())))).be_u16s())
         }
     }
 
@@ -254,8 +254,8 @@ impl Upcast<u32x8> for u16x16 {
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (u32x8, u32x8) {
         unsafe {
-            (_mm256_cvtepu16_epi32(self).be_u32s(),
-             _mm256_cvtepu16_epi32(_mm256_permute4x64_epi64(self.be_i64s(), 0x0E).be_u32s()).be_u32s())
+            (_mm256_cvtepu16_epi32(transmute(_mm256_castsi256_si128(transmute(self)))).be_u32s(),
+             _mm256_cvtepu16_epi32(transmute(_mm256_castsi256_si128(transmute(_mm256_permute4x64_epi64(self.be_i64s(), 0x0E).be_u32s())))).be_u32s())
         }
     }
 
@@ -494,8 +494,8 @@ impl Upcast<u64x4> for u32x8 {
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (u64x4, u64x4) {
         unsafe {
-            (_mm256_cvtepu32_epi64(self).be_u64s(),
-             _mm256_cvtepu32_epi64(_mm256_shuffle_epi32(0x0E).be_u32s()).be_u64s()) }
+            (_mm256_cvtepu32_epi64(transmute(_mm256_castsi256_si128(transmute(self)))).be_u64s(),
+             _mm256_cvtepu32_epi64(transmute(_mm256_castsi256_si128(transmute(_mm256_shuffle_epi32(transmute(self), 0x0E).be_u32s())))).be_u64s()) }
     }
 
     #[inline(always)]

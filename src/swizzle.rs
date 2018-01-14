@@ -248,7 +248,7 @@ macro_rules! impl_stripe {
                 if self.offsets.extract($offlim) < self.iter.len() as i32 {
                     unsafe {
                         let ret = Some($cvt2($gather(self.iter.data[self.pos()..].as_ptr() as *const $ptr,
-                                                     $cvt(self.offsets), Self::Scalar::SIZE as i8)));
+                                                     $cvt(self.offsets), Self::Scalar::SIZE as i32)));
                         self.offsets += i32x8::splat((self.offsets.extract($offlim) as usize - self.pos() + self.stride() + 1) as i32);
                         ret
                     }
@@ -263,7 +263,7 @@ macro_rules! impl_stripe {
 impl_stripe!(u32, i32, _mm256_i32gather_epi32, 7, |v| v, |v: i32x8| v.be_u32s());
 impl_stripe!(i32, i32, _mm256_i32gather_epi32, 7, |v| v, |v| v);
 impl_stripe!(f32, f32, _mm256_i32gather_ps, 7, |v| v, |v| v);
-impl_stripe!(u64, i64, _mm256_i32gather_epi64, 3, |v| transmute::<__m128i, i32x4>(_mm256_castsi256_si128(transmute::<i32x8, __m256i>(v))),  |v: i64x4| v.be_u64s());
-impl_stripe!(i64, i64, _mm256_i32gather_epi64, 3, |v| transmute::<__m128i, i32x4>(_mm256_castsi256_si128(transmute::<i32x8, __m256i>(v))), |v| v);
-impl_stripe!(f64, f64, _mm256_i32gather_pd, 3, |v| transmute::<__m128i, i32x4>(_mm256_castsi256_si128(transmute::<i32x8, __m256i>(v))), |v| v);
+impl_stripe!(u64, i64, _mm256_i32gather_epi64, 3, |v| transmute(_mm256_castsi256_si128(transmute(v))), |v: i64x4| v.be_u64s());
+impl_stripe!(i64, i64, _mm256_i32gather_epi64, 3, |v| transmute(_mm256_castsi256_si128(transmute(v))), |v| v);
+impl_stripe!(f64, f64, _mm256_i32gather_pd, 3, |v| transmute(_mm256_castsi256_si128(transmute(v))), |v| v);
 // TODO: 16- and 8-bit vector polyfills
