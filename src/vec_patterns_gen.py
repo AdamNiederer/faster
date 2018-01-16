@@ -30,10 +30,22 @@ use vecs::*;
 use core_or_std::mem::transmute;
 use stdsimd::vendor::*;
 
+/// Constructors which may be used to instantiate vectors with patterned data.
 pub trait PackedPattern : Packed {
+    /// Return a vector whose first `Self::WIDTH / 2` elements are `hi`, and
+    /// whose last `Self::WIDTH / 2` elements are `lo`.
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
+
+    /// Return a vector containing `hi` at every even index, and lo at every odd
+    /// index.
     fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self;
+
+    /// Return a vector whose first `off` elements are `hi`, and whose last
+    /// `Self::WIDTH - off` elements are `lo`.
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self;
+
+    /// Return a vector whose first `off` elements are memset to 0x00, and whose
+    /// last `Self::WIDTH - off` elements are memset to 0xFF.
     fn partition_mask(off: usize) -> Self;
 }
 
