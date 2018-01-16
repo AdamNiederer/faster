@@ -17,6 +17,8 @@ use stdsimd::vendor::*;
 use stdsimd::simd::{__m256i, __m128i};
 use intrin::PackedTransmute;
 
+/// A slice-backed iterator which packs every nth element of its constituent
+/// elements into a vector.
 pub struct PackedStripe<'a, T> where T : 'a + Packable {
     iter: &'a PackedIter<'a, T>,
     offsets: i32x8
@@ -61,6 +63,11 @@ impl<'a, T> ExactSizeIterator for PackedStripe<'a, T>
 }
 
 impl<'a, T> PackedIter<'a, T> where T : Packable {
+    /// Return a vec of iterators which pack every `count`th element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, `count`th, `count * 2`th...
+    /// elements, while the 2nd iterator will pack the 1st, `count + 1`th,
+    /// `count * 2 + 1`th... elements.
     #[cfg(not(feature = "no-std"))]
     pub fn stripe(&'a self, count: usize) -> Vec<PackedStripe<'a, T>> {
         (0..count).map(move |i| {
@@ -79,6 +86,10 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     }
 
     // TODO: Const generics?
+    /// Return a tuple of iterators which pack every 2nd element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 2nd, 4th... elements, while the 2nd
+    /// iterator will pack the 1st, 3rd, 5th... elements.
     pub fn stripe_two(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>) {
         (
             PackedStripe {
@@ -94,6 +105,10 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
         )
     }
 
+    /// Return a tuple of iterators which pack every 3rd element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 3rd, 6th... elements, while the 2nd
+    /// iterator will pack the 1st, 4th, 7th... elements.
     pub fn stripe_three(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>) {
         (
             PackedStripe {
@@ -114,6 +129,10 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
         )
     }
 
+    /// Return a tuple of iterators which pack every 4th element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 4th, 8th... elements, while the 2nd
+    /// iterator will pack the 1st, 5th, 9th... elements.
     pub fn stripe_four(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>) {
         (
             PackedStripe {
@@ -139,6 +158,10 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
         )
     }
 
+    /// Return a tuple of iterators which pack every 9th element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 9th, 18th... elements, while the 2nd
+    /// iterator will pack the 1st, 10th, 19th... elements.
     pub fn stripe_nine(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>) {
         (
             PackedStripe {

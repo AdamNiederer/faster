@@ -5,16 +5,16 @@ use intrin::transmute::*;
 use core_or_std::mem::transmute;
 
 pub trait PackedMerge {
-    /// Return a vector with the first half populated by the first half of self,
-    /// and the second half populated by the second half of other.
+    /// Return a vector with the first half populated by the first half of
+    /// `self`, and the second half populated by the second half of `other`.
     fn merge_halves(&self, other: Self) -> Self;
 
-    /// Return a vector containing the even elements of self interleaved with
-    /// the odd elements of other, starting with the first element of self.
+    /// Return a vector containing the even elements of `self` interleaved with
+    /// the odd elements of other, starting with the first element of `self`.
     fn merge_interleaved(&self, other: Self) -> Self;
 
-    /// Return a vector containing the first `offset` elements of self, then
-    /// the last `(Self::WIDTH - offset)` elements of other.
+    /// Return a vector containing the first `offset` elements of `self`, then
+    /// the last `(Self::WIDTH - offset)` elements of `other`.
     fn merge_partitioned(&self, other: Self, offset: usize) -> Self;
 }
 

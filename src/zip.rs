@@ -8,21 +8,40 @@
 use iters::{PackedIterator};
 use vecs::{Packed, Packable};
 
+/// A lazy iterator which returns tuples of the elements of its contained
+/// iterators.
 pub struct PackedZip<T> {
     iters: T
 }
 
+/// A lazy mapping iterator which applies its function to a stream of tuples of
+/// vectors.
 pub struct PackedZipMap<I, F> where I : PackedZippedIterator {
     iter: I,
     func: F,
     defaults: I::Vectors
 }
 
+/// A trait which can transform a collection of iterators into a `PackedZip`
 pub trait IntoPackedZip : Sized {
     /// Return an iterator which may iterate over `self` in lockstep.
     fn zip(self) -> PackedZip<Self>;
 }
 
+/// A macro which takes a number n and an expression, and returns a tuple
+/// containing n copies of the expression. Only works for numbers less than or
+/// equal to 12.
+///
+/// ```
+/// #[macro_use] extern crate faster;
+/// use faster::*;
+///
+/// # fn main() {
+/// assert_eq!(tuplify!(2, 1), (1, 1))
+/// assert_eq!(tuplify!(5, "hi"), ("hi", "hi", "hi", "hi", "hi"))
+/// assert_eq!(tuplify!(3, i8s::splat(0)), (i8s::splat(0), i8s::splat(0), i8s::splat(0)))
+/// # }
+/// ```
 #[macro_export] macro_rules! tuplify {
     (1, $i:expr) => { ($i) };
     (2, $i:expr) => { ($i, $i) };
@@ -33,6 +52,9 @@ pub trait IntoPackedZip : Sized {
     (7, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i) };
     (8, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i) };
     (9, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i) };
+    (10, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i) };
+    (11, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i) };
+    (12, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i) };
 }
 
 /// A collection of packed iterators of the same scalar length and vector width,

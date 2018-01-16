@@ -652,7 +652,7 @@ mod tests {
     #[test]
     fn upcast_f32s() {
         assert_eq!(f32s::interleave(1.0, 2.0).upcast(), (f64s::interleave(1.0, 2.0), f64s::interleave(1.0, 2.0)));
-        //     assert_eq!(f32s::interleave(1.0, 2.0).upcast().0, f64s::interleave(1.0, 2.0));
+        // assert_eq!(f32s::interleave(1.0, 2.0).upcast().0, f64s::interleave(1.0, 2.0));
         // assert_eq!(f32s::interleave(1.0, 2.0).upcast().1, f64s::interleave(1.0, 2.0));
     }
 }

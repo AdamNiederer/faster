@@ -4,8 +4,7 @@ use intrin::transmute::*;
 use core_or_std::mem::transmute;
 
 pub trait PackedReendianize : Sized + Copy {
-    /// Return a vector with all the endianness of all elements in self
-    /// switched.
+    /// Return a vector containing elements of `self` with switched endianness.
     fn swap_bytes(&self) -> Self;
 
     #[cfg(target_endian = "big")]

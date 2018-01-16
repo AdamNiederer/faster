@@ -11,6 +11,18 @@ use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x
 // TODO: Guards and non-simd
 
 pub trait PackedRsqrt {
+    /// Return a vector containing an approximation of the reciprocals of the
+    /// square-roots of elements in `self`. May contain significant float error
+    /// past 10^-3.
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq(f32s::splat(9.0).rsqrt(), f32s::splat(0.33325195))
+    /// # }
+    /// ```
     fn rsqrt(&self) -> Self;
 }
 

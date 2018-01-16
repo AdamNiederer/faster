@@ -120,12 +120,15 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     }
 }
 
+/// A slice-backed iterator which can automatically pack its constituent
+/// elements into vectors.
 #[derive(Debug)]
 pub struct PackedIter<'a, T : 'a + Packable> {
     pub position: usize,
     pub data: &'a [T],
 }
 
+/// A lazy mapping iterator which applies its function to a stream of vectors.
 #[derive(Debug)]
 pub struct PackedMap<I, F> where I : PackedIterator {
     pub iter: I,
@@ -213,6 +216,8 @@ impl<T: PackedIterator> IntoPackedIterator for T {
     }
 }
 
+/// A trait which transforms a contiguous collection into an owned stream of
+/// vectors.
 pub trait IntoPackedIterator {
     type Iter: PackedIterator;
 
@@ -222,6 +227,8 @@ pub trait IntoPackedIterator {
     fn into_simd_iter(self) -> Self::Iter;
 }
 
+/// A trait which transforms a contiguous collection into a slice-backed stream
+/// of vectors.
 pub trait IntoPackedRefIterator<'a> {
     type Iter: PackedIterator;
 
@@ -231,6 +238,8 @@ pub trait IntoPackedRefIterator<'a> {
     fn simd_iter(&'a self) -> Self::Iter;
 }
 
+/// A trait which transforms a contiguous collection into a mutable slice-backed
+/// stream of vectors.
 pub trait IntoPackedRefMutIterator<'a> {
     type Iter: PackedIterator;
 
@@ -240,7 +249,6 @@ pub trait IntoPackedRefMutIterator<'a> {
     fn simd_iter_mut(&'a mut self) -> Self::Iter;
 }
 
-// Impl ref & ref mut iterators for moved iterator
 impl<'a, I: 'a + ?Sized> IntoPackedRefIterator<'a> for I
     where &'a I: IntoPackedIterator {
     type Iter = <&'a I as IntoPackedIterator>::Iter;
@@ -314,6 +322,8 @@ impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
     }
 }
 
+/// A trait which can transform a stream of vectors into a contiguous
+/// collection of scalars.
 pub trait IntoScalar<T> where T : Packable {
     type Scalar : Packable;
     type Vector : Packed<Scalar = Self::Scalar>;
