@@ -19,7 +19,7 @@ pub trait PackedRecip {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(f32s::splat(4.0).recip(), f32s::splat(0.24993896));
+    /// assert_eq!(f32s(4.0).recip(), f32s(0.24993896));
     /// # }
     /// ```
     fn recip(&self) -> Self;
@@ -48,8 +48,8 @@ mod tests {
         let mut i = -1024.0;
         while i < 1024.0 {
             // This test has some pretty significant float error if done on x86
-            let ans = f32s::splat(i).recip().extract(0);
-            let real = f32s::splat(1.0 / i).extract(0);
+            let ans = f32s(i).recip().extract(0);
+            let real = f32s(1.0 / i).extract(0);
             assert!((real == INFINITY && ans == INFINITY) || (ans - real).abs() < 0.0005);
             i += 1.0
         }

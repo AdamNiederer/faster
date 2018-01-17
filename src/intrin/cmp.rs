@@ -17,7 +17,7 @@ pub trait PackedCmp {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(i8s::splat(0).max(i8s::splat(2)), i8s::splat(2));
+    /// assert_eq!(i8s(0).max(i8s(2)), i8s(2));
     /// assert_eq!(i8s::halfs(1, 0).max(i8s::halfs(2, -1)), i8s::halfs(2, 0));
     /// # }
     /// ```
@@ -31,7 +31,7 @@ pub trait PackedCmp {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(i8s::splat(0).min(i8s::splat(2)), i8s::splat(0));
+    /// assert_eq!(i8s(0).min(i8s(2)), i8s(0));
     /// assert_eq!(i8s::halfs(1, 0).min(i8s::halfs(2, -1)), i8s::halfs(1, -1));
     /// # }
     /// ```

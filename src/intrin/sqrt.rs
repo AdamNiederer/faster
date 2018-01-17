@@ -18,8 +18,8 @@ pub trait PackedSqrt {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(f32s::splat(4.0).sqrt(), f32s::splat(2.0));
-    /// assert_eq!(f64s::splat(9.0).sqrt(), f64s::splat(3.0));
+    /// assert_eq!(f32s(4.0).sqrt(), f32s(2.0));
+    /// assert_eq!(f64s(9.0).sqrt(), f64s(3.0));
     /// # }
     /// ```
     fn sqrt(&self) -> Self;
@@ -56,15 +56,15 @@ mod tests {
 
     #[test]
     fn sqrt_f64s() {
-        assert_eq!(f64s::splat(1.0).sqrt(), f64s::splat(1.0));
-        assert!(f64s::splat(9.0).sqrt().max(f64s::splat(2.999)) == f64s::splat(9.0).sqrt());
-        assert!(f64s::splat(9.0).sqrt().min(f64s::splat(3.001)) == f64s::splat(9.0).sqrt());
+        assert_eq!(f64s(1.0).sqrt(), f64s(1.0));
+        assert!(f64s(9.0).sqrt().max(f64s(2.999)) == f64s(9.0).sqrt());
+        assert!(f64s(9.0).sqrt().min(f64s(3.001)) == f64s(9.0).sqrt());
     }
 
     #[test]
     fn sqrt_f32s() {
-        assert_eq!(f32s::splat(1.0).sqrt(), f32s::splat(1.0));
-        assert!(f32s::splat(9.0).sqrt().max(f32s::splat(2.999)) == f32s::splat(9.0).sqrt());
-        assert!(f32s::splat(9.0).sqrt().min(f32s::splat(3.001)) == f32s::splat(9.0).sqrt());
+        assert_eq!(f32s(1.0).sqrt(), f32s(1.0));
+        assert!(f32s(9.0).sqrt().max(f32s(2.999)) == f32s(9.0).sqrt());
+        assert!(f32s(9.0).sqrt().min(f32s(3.001)) == f32s(9.0).sqrt());
     }
 }

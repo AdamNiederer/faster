@@ -26,7 +26,7 @@ pub trait Upcast<T> {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(i8s::halfs(2, 3).upcast(), (i16s::splat(2), i16s::splat(3)))
+    /// assert_eq!(i8s::halfs(2, 3).upcast(), (i16s(2), i16s(3)))
     /// # }
     /// ```
     fn upcast(self) -> (T, T);

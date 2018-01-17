@@ -143,14 +143,14 @@ mod tests {
         )
     }
 
-    test_transmute!(transmute_u8s, u8s::splat(1), be_u8s);
-    test_transmute!(transmute_i8s, i8s::splat(1), be_i8s);
-    test_transmute!(transmute_u16s, u16s::splat(1), be_u16s);
-    test_transmute!(transmute_i16s, i16s::splat(1), be_i16s);
-    test_transmute!(transmute_u32s, u32s::splat(1), be_u32s);
-    test_transmute!(transmute_i32s, i32s::splat(1), be_i32s);
-    test_transmute!(transmute_f32s, f32s::splat(1.0), be_f32s_unchecked);
-    test_transmute!(transmute_u64s, u64s::splat(1), be_u64s);
-    test_transmute!(transmute_i64s, i64s::splat(1), be_i64s);
-    test_transmute!(transmute_f64s, f64s::splat(1.0), be_f64s_unchecked);
+    test_transmute!(transmute_u8s, u8s(1), be_u8s);
+    test_transmute!(transmute_i8s, i8s(1), be_i8s);
+    test_transmute!(transmute_u16s, u16s(1), be_u16s);
+    test_transmute!(transmute_i16s, i16s(1), be_i16s);
+    test_transmute!(transmute_u32s, u32s(1), be_u32s);
+    test_transmute!(transmute_i32s, i32s(1), be_i32s);
+    test_transmute!(transmute_f32s, f32s(1.0), be_f32s_unchecked);
+    test_transmute!(transmute_u64s, u64s(1), be_u64s);
+    test_transmute!(transmute_i64s, i64s(1), be_i64s);
+    test_transmute!(transmute_f64s, f64s(1.0), be_f64s_unchecked);
 }

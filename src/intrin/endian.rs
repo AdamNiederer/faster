@@ -11,7 +11,7 @@ pub trait PackedReendianize : Sized + Copy {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(u32s::splat(0xDEADBEEF).swap_bytes(), u32s::splat(0xEFBEADDE));
+    /// assert_eq!(u32s(0xDEADBEEF).swap_bytes(), u32s(0xEFBEADDE));
     /// # }
     /// ```
     fn swap_bytes(&self) -> Self;

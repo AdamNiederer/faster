@@ -20,7 +20,7 @@ pub trait PackedRsqrt {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(f32s::splat(9.0).rsqrt(), f32s::splat(0.33325195));
+    /// assert_eq!(f32s(9.0).rsqrt(), f32s(0.33325195));
     /// # }
     /// ```
     fn rsqrt(&self) -> Self;

@@ -20,8 +20,8 @@ pub trait PackedAbs {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(i32s::splat(-2).abs(), u32s::splat(2));
-    /// assert_eq!(i8s::splat(-256).abs(), u8s::splat(256));
+    /// assert_eq!(i32s(-2).abs(), u32s(2));
+    /// assert_eq!(i8s(-256).abs(), u8s(256));
     /// # }
     /// ```
     fn abs(&self) -> Self::Out;
@@ -326,28 +326,28 @@ mod tests {
     #[test]
     fn abs_i8s() {
         for i in -128..127 {
-            assert_eq!(i8s::splat(i).abs().extract(0), (i as i64).abs() as u8);
+            assert_eq!(i8s(i).abs().extract(0), (i as i64).abs() as u8);
         }
     }
 
     #[test]
     fn abs_i16s() {
         for i in -32768..32767 {
-            assert_eq!(i16s::splat(i).abs().extract(0), (i as i64).abs() as u16);
+            assert_eq!(i16s(i).abs().extract(0), (i as i64).abs() as u16);
         }
     }
 
     #[test]
     fn abs_i32s() {
         for i in -65536..65536 {
-            assert_eq!(i32s::splat(i).abs().extract(0), (i as i64).abs() as u32);
+            assert_eq!(i32s(i).abs().extract(0), (i as i64).abs() as u32);
         }
     }
 
     #[test]
     fn abs_i64s() {
         for i in -65536..65536 {
-            assert_eq!(i64s::splat(i).abs().extract(0), (i as i64).abs() as u64);
+            assert_eq!(i64s(i).abs().extract(0), (i as i64).abs() as u64);
         }
     }
 
@@ -356,7 +356,7 @@ mod tests {
         let mut i = -1024.0;
         while i < 1024.0 {
             // This test has some pretty significant float error if done on x86
-            assert_eq!(f32s::splat(i).abs().extract(0), i.abs());
+            assert_eq!(f32s(i).abs().extract(0), i.abs());
             i += 1.0
         }
     }
@@ -366,7 +366,7 @@ mod tests {
         let mut i = -1024.0;
         while i < 1024.0 {
             // This test has some pretty significant float error if done on x86
-            assert_eq!(f64s::splat(i).abs().extract(0), i.abs());
+            assert_eq!(f64s(i).abs().extract(0), i.abs());
             i += 1.0
         }
     }

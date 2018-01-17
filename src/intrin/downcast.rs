@@ -24,8 +24,8 @@ pub trait Downcast<T> {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(i32s::splat(2).saturating_downcast(i32s::splat(3)), i16s::halfs(2, 3));
-    /// assert_eq!(i16s::splat(128).saturating_downcast(i16s::splat(-129)), i8s::halfs(127, -128));
+    /// assert_eq!(i32s(2).saturating_downcast(i32s(3)), i16s::halfs(2, 3));
+    /// assert_eq!(i16s(128).saturating_downcast(i16s(-129)), i8s::halfs(127, -128));
     /// # }
     /// ```
     fn saturating_downcast(self, other: Self) -> T;
