@@ -50,7 +50,7 @@
 //!
 //! # fn main() {
 //! let lots_of_10s = (&[-10i8; 3000][..]).simd_iter()
-//!    .simd_map(|v| v.abs())
+//!    .simd_map(i8s::splat(0), |v| v.abs())
 //!    .scalar_collect();
 //! assert_eq!(lots_of_10s, vec![10u8; 3000]);
 //! # }
@@ -113,7 +113,7 @@
 //! # fn main() {
 //! let mut flip = true;
 //! let impure = (&[1i8; 3000][..]).simd_iter()
-//!    .simd_map(|v| { flip = !flip; if flip { v + i8s::splat(1) } else { v } })
+//!    .simd_map(i8s::splat(0), |v| { flip = !flip; if flip { v + i8s::splat(1) } else { v } })
 //!    .scalar_collect();
 //! // Depending on the width of your target's SIMD vectors, `impure` could be
 //! // [1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, ...] or

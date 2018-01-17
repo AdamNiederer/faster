@@ -5,6 +5,15 @@ use core_or_std::mem::transmute;
 
 pub trait PackedReendianize : Sized + Copy {
     /// Return a vector containing elements of `self` with switched endianness.
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(u32s::splat(0xDEADBEEF).swap_bytes(), u32s::splat(0xEFBEADDE));
+    /// # }
+    /// ```
     fn swap_bytes(&self) -> Self;
 
     #[cfg(target_endian = "big")]

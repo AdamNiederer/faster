@@ -37,9 +37,9 @@ pub trait IntoPackedZip : Sized {
 /// use faster::*;
 ///
 /// # fn main() {
-/// assert_eq!(tuplify!(2, 1), (1, 1))
-/// assert_eq!(tuplify!(5, "hi"), ("hi", "hi", "hi", "hi", "hi"))
-/// assert_eq!(tuplify!(3, i8s::splat(0)), (i8s::splat(0), i8s::splat(0), i8s::splat(0)))
+/// assert_eq!(tuplify!(2, 1), (1, 1));
+/// assert_eq!(tuplify!(5, "hi"), ("hi", "hi", "hi", "hi", "hi"));
+/// assert_eq!(tuplify!(3, i8s::splat(0)), (i8s::splat(0), i8s::splat(0), i8s::splat(0)));
 /// # }
 /// ```
 #[macro_export] macro_rules! tuplify {

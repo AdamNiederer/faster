@@ -13,7 +13,7 @@ pub trait PackedSqrt {
     ///
     /// # Examples
     ///
-    /// ```ignore
+    /// ```
     /// extern crate faster;
     /// use faster::*;
     ///
@@ -42,6 +42,7 @@ rust_fallback_impl! {
         sqrt => _mm_sqrt_ps(), [0, 1, 2, 3];
     }
 }
+
 rust_fallback_impl! {
     impl PackedSqrt for f64x2 where "sse2" {
         sqrt => _mm_sqrt_pd(), [0, 1];
