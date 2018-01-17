@@ -27,20 +27,20 @@ pub trait Packed : Sized + Copy + Debug + PackedMerge {
         Self::WIDTH
     }
 
-    /// Create a new vector with `Self::WIDTH` elements from `data`,
-    /// beginning at `offset`.
+    /// Create a new vector with `Self::WIDTH` elements from `data`, beginning
+    /// at `offset`.
     fn load(data: &[Self::Scalar], offset: usize) -> Self;
 
-    /// Write `Self::WIDTH` elements from this vector to `data`,
-    /// beginning at `offset`.
+    /// Write `Self::WIDTH` elements from this vector to `data`, beginning at
+    /// `offset`.
     fn store(self, data: &mut [Self::Scalar], offset: usize);
 
     /// Assert all elements of the vector are equal, then return the
     /// element. Opposiite operation of `Self::splat`.
     fn coalesce(self) -> Self::Scalar;
 
-    /// Return a vector with all elements initialized to
-    /// `data`. Opposite operation for `Self::coalesce`.
+    /// Return a vector with all elements initialized to `data`. Opposite
+    /// operation for `Self::coalesce`.
     fn splat(data: Self::Scalar) -> Self;
 
     /// Return a vector with all elements initialized to the default
@@ -53,12 +53,11 @@ pub trait Packed : Sized + Copy + Debug + PackedMerge {
     /// Replace the `idx`th element of this vector with `data`.
     fn replace(&mut self, idx: usize, data: Self::Scalar) -> Self;
 
-    /// Return a scalar equivalent to the sum of all elements of this
-    /// vector.
+    /// Return a scalar equivalent to the sum of all elements of this vector.
     fn sum(&self) -> Self::Scalar;
 
-    /// Return a scalar equivalent to the product of all elements of
-    /// this vector.
+    /// Return a scalar equivalent to the product of all elements of this
+    /// vector.
     fn product(&self) -> Self::Scalar;
 
     /// Return the result of a scalar reduction over this vector
@@ -79,6 +78,14 @@ macro_rules! impl_packed {
         #[allow(non_camel_case_types)]
         #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
         pub type $pvec = $vec;
+
+        /// Return a vector of this type with all elements initialized to
+        /// `data`.
+        #[inline(always)]
+        #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
+        pub fn $pvec(data: $el) -> $pvec {
+            $vec::splat(data)
+        }
 
         #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
         impl Packable for $el {
