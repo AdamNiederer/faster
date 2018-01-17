@@ -11,17 +11,66 @@ use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x
 pub trait PackedRound {
     /// Return a vector with all elements of `self` rounded to the nearest
     /// integer.
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(f32s(2.7).round(), f32s(3.0));
+    /// assert_eq!(f32s(2.4).round(), f32s(2.0));
+    /// assert_eq!(f32s(-2.7).round(), f32s(-3.0));
+    /// assert_eq!(f32s(-2.4).round(), f32s(-2.0));
+    /// # }
+    /// ```
     fn round(&self) -> Self;
 
     /// Return a vector with all elements of `self` rounded up to the nearest
     /// integer.
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(f32s(2.7).ceil(), f32s(3.0));
+    /// assert_eq!(f32s(2.4).ceil(), f32s(3.0));
+    /// assert_eq!(f32s(-2.7).ceil(), f32s(-2.0));
+    /// assert_eq!(f32s(-2.4).ceil(), f32s(-2.0));
+    /// # }
+    /// ```
     fn ceil(&self) -> Self;
 
     /// Return a vector with all elements of `self` rounded down to the nearest
     /// integer.
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(f32s(2.7).floor(), f32s(2.0));
+    /// assert_eq!(f32s(2.4).floor(), f32s(2.0));
+    /// assert_eq!(f32s(-2.7).floor(), f32s(-3.0));
+    /// assert_eq!(f32s(-2.4).floor(), f32s(-3.0));
+    /// # }
+    /// ```
     fn floor(&self) -> Self;
 
-    /// Return a vector with all elements of `self` truncated.
+    /// Return a vector with all elements of `self` truncated. Effectively
+    /// rounds the elements towards zero.
+    ///
+    /// ```
+    /// extern crate faster;
+    /// use faster::*;
+    ///
+    /// # fn main() {
+    /// assert_eq!(f32s(2.7).trunc(), f32s(2.0));
+    /// assert_eq!(f32s(2.4).trunc(), f32s(2.0));
+    /// assert_eq!(f32s(-2.7).trunc(), f32s(-2.0));
+    /// assert_eq!(f32s(-2.4).trunc(), f32s(-2.0));
+    /// # }
+    /// ```
     fn trunc(&self) -> Self;
 }
 
