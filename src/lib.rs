@@ -97,6 +97,47 @@
 //! operations. See below for some tips on keeping your code portable across all
 //! architectures.
 //!
+//! ## Multiple collections
+//!
+//! Faster supports vectorized lockstep iteration over multiple collections.
+//! Simply [`zip`] them up, and proceed as normal.
+//!
+//! [`zip`]: zip/trait.IntoPackedZip.html
+//!
+//! ```
+//! extern crate faster;
+//! use faster::*;
+//!
+//! # fn main() {
+//! let sevens = ((&[4i32; 200][..]).simd_iter(), (&[3i32; 200][..]).simd_iter()).zip()
+//!     .simd_map(tuplify!(2, i32s(0)), |(a, b)| a + b)
+//!     .scalar_collect();
+//! # }
+//! ```
+//!
+//! ## Striping Collections
+//!
+//! Reading every nth element of a collection can be vectorized on most
+//! machines. Simply call [`stripe`], or one of the slightly-faster tuple-based
+//! functions, such as [`stripe_two`].
+//!
+//! [`stripe`]: iters/struct.PackedIter.html#method.stripe
+//! [`stripe_two`]: iters/struct.PackedIter.html#method.stripe_two
+//!
+//! ```
+//! extern crate faster;
+//! use faster::*;
+//!
+//! # fn main() {
+//! // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
+//! let determinants = &[1; 1024][..]).simd_iter().stripe_four().zip()
+//!     .simd_map(tuplify!(4, f32s(0.0)), |(a, b, c, d)| {
+//!         a * d - b * c
+//!     })
+//!     .scalar_collect()
+//! # }
+//! ```
+//!
 //! # Portability
 //!
 //! While `faster` does most of the work ensuring your code stays portable
