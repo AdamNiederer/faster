@@ -18,16 +18,18 @@ iteration, vectorized loading/storing, and support for uneven collections.
 It looks something like this:
 #+BEGIN_SRC rust
   let lots_of_3s = (&[-123.456f32; 128][..]).simd_iter()
-      .simd_map(|v| { f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() -
-                      f32s::splat(4.0) - f32s::splat(2.0) })
+      .simd_map(f32s(0.0), |v| {
+          f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0)
+      })
       .scalar_collect();
 #+END_SRC
 
 Which is analogous to this scalar code:
 #+BEGIN_SRC rust
   let lots_of_3s = (&[-123.456f32; 128][..]).iter()
-      .map(|v| { 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() -
-                      4.0 - 2.0 })
+      .map(|v| {
+          9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() - 4.0 - 2.0
+      })
       .collect::<Vec<f32>>();
 #+END_SRC
 
@@ -64,8 +66,6 @@ Compare this to traditional explicit SIMD:
           let v = f32x8::load(ch, 0);
           let scalar_abs_mask = unsafe { transmute::<u32, f32>(0x7fffffff) };
           let abs_mask = f32x8::splat(scalar_abs_mask);
-          // There isn't actually an absolute value intrinsic for floats - you
-          // have to look at the IEEE 754 spec and do some bit flipping
           v = unsafe { _mm256_and_ps(v, abs_mask) };
           v = unsafe { _mm256_sqrt_ps(v) };
           v = unsafe { _mm256_rsqrt_ps(v) };
@@ -82,12 +82,11 @@ Even with all of that boilerplate, this still only supports x86-64 machines with
 SSE or AVX - and you have to look up each intrinsic to ensure it's usable for
 your compilation target.
 ** Upcoming Features
-Gathers and scatters are next in the pipeline. This should let you one-line
-matrix determinants, cross products, and many vector calculus primitives.
+A rewrite of the iterator API is upcoming, as well as internal changes to better
+match the direction Rust is taking with explicit SIMD.
 ** Compatibility
-Faster currently supports x86 back to the first Pentium, although AVX-512
-support isn't working in rustc yet. It builds on many architectures, although
-I'm not sure whether the tests pass.
+Faster currently supports any architecture with floating point support, although
+hardware acceleration is only enabled on machines with x86's vector extensions.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
 isn't any worse than scalar iterators. Even on ancient CPUs, a lot of

@@ -50,7 +50,7 @@
 //!
 //! # fn main() {
 //! let lots_of_10s = (&[-10i8; 3000][..]).simd_iter()
-//!    .simd_map(i8s::splat(0), |v| v.abs())
+//!    .simd_map(i8s(0), |v| v.abs())
 //!    .scalar_collect();
 //! assert_eq!(lots_of_10s, vec![10u8; 3000]);
 //! # }
@@ -79,7 +79,7 @@
 //!
 //! # fn main() {
 //! let two_hundred = (&[2.0f32; 100][..]).simd_iter()
-//!    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |acc, v| acc + v)
+//!    .simd_reduce(f32s(0.0), f32s(0.0), |acc, v| acc + v)
 //!    .sum();
 //! assert_eq!(two_hundred, 200.0f32);
 //! # }
@@ -113,7 +113,7 @@
 //! # fn main() {
 //! let mut flip = true;
 //! let impure = (&[1i8; 3000][..]).simd_iter()
-//!    .simd_map(i8s::splat(0), |v| { flip = !flip; if flip { v + i8s::splat(1) } else { v } })
+//!    .simd_map(i8s(0), |v| { flip = !flip; if flip { v + i8s(1) } else { v } })
 //!    .scalar_collect();
 //! // Depending on the width of your target's SIMD vectors, `impure` could be
 //! // [1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, ...] or
@@ -127,7 +127,7 @@
 //!
 //! # fn main() {
 //! let length_dependent = (&[0i8; 10][..]).simd_iter()
-//!    .simd_reduce(i8s::splat(0), i8s::splat(0), |acc, v| acc + v + i8s::splat(1)).sum();
+//!    .simd_reduce(i8s(0), i8s(0), |acc, v| acc + v + i8s(1)).sum();
 //! // `length_dependent` could be a different number on a different target!
 //! # }
 //! ```
@@ -176,7 +176,7 @@ mod tests {
     fn bench_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[0u8; 1024][..]).simd_iter().simd_map(u8s::splat(0), |v| v).scalar_collect())
+                (&[0u8; 1024][..]).simd_iter().simd_map(u8s(0), |v| v).scalar_collect())
         });
     }
 
@@ -193,9 +193,9 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter()
-                    .simd_map(f32s::splat(0.0), |v| {
-                        f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
-                            - f32s::splat(4.0) - f32s::splat(2.0) })
+                    .simd_map(f32s(0.0), |v| {
+                        f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
+                            - f32s(4.0) - f32s(2.0) })
                     .scalar_collect())
         })
     }
@@ -205,9 +205,9 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1025][..]).simd_iter()
-                    .simd_map(f32s::splat(0.0), |v| {
-                        f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
-                            - f32s::splat(4.0) - f32s::splat(2.0) })
+                    .simd_map(f32s(0.0), |v| {
+                        f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
+                            - f32s(4.0) - f32s(2.0) })
                     .scalar_collect())
         })
     }
@@ -228,7 +228,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter()
-                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
+                    .simd_reduce(f32s(0.0), f32s(0.0), |a, v| a + f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
@@ -237,7 +237,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1025][..]).simd_iter()
-                    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |a, v| a + f32s::splat(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
+                    .simd_reduce(f32s(0.0), f32s(0.0), |a, v| a + f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
@@ -256,7 +256,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1026][..]).simd_iter().stripe_nine().zip()
-                    .simd_map(tuplify!(9, f32s::splat(0.0)), |(a, b, c, d, e, f, g, h, i)| {
+                    .simd_map(tuplify!(9, f32s(0.0)), |(a, b, c, d, e, f, g, h, i)| {
                         (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
                     })
                     .scalar_collect())
@@ -279,7 +279,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter().stripe_four().zip()
-                    .simd_map(tuplify!(4, f32s::splat(0.0)), |(a, b, c, d)| {
+                    .simd_map(tuplify!(4, f32s(0.0)), |(a, b, c, d)| {
                         a * d - b * c
                     })
                     .scalar_collect())
@@ -301,7 +301,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123i32; 1024][..]).simd_iter().stripe_two().zip()
-                    .simd_map(tuplify!(2, i32s::splat(0)), |(a, b)| {
+                    .simd_map(tuplify!(2, i32s(0)), |(a, b)| {
                         let (aa, ab): (i64s, i64s) = a.upcast();
                         let (ba, bb): (i64s, i64s) = b.upcast();
                         (aa.abs() + ba.abs()).saturating_downcast(ab.abs() + bb.abs())
@@ -325,7 +325,7 @@ mod tests {
         b.iter(|| {
             black_box(
                 (&[-123.456f32; 1024][..]).simd_iter().stripe_two().zip()
-                    .simd_map(tuplify!(2, f32s::splat(0.0)), |(a, b)| {
+                    .simd_map(tuplify!(2, f32s(0.0)), |(a, b)| {
                         a + b
                     })
                     .scalar_collect())
