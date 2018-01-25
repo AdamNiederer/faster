@@ -127,15 +127,16 @@
 //! ```
 //! extern crate faster;
 //! use faster::*;
-//!
-//! # fn main() {
-//! // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
-//! let determinants = &[1; 1024][..]).simd_iter().stripe_four().zip()
-//!     .simd_map(tuplify!(4, f32s(0.0)), |(a, b, c, d)| {
+//! 
+//! 
+//! fn main() {
+//!     // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
+//!     let slice: &[f32] = &[1.0f32; 1024][..];
+//!     let simd_iter = slice.simd_iter();
+//!     let determinant = simd_iter.stripe_four().zip().simd_map(tuplify!(4, f32s(0.0)), |(a, b, c, d)| {
 //!         a * d - b * c
-//!     })
-//!     .scalar_collect()
-//! # }
+//!     });
+//! }
 //! ```
 //!
 //! # Portability
