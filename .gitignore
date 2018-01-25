@@ -8,3 +8,4 @@
 *.sav
 kek.*
 Cargo.lock
+.idea
