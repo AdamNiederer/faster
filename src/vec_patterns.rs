@@ -9,6 +9,7 @@
 
 use vecs::*;
 use core_or_std::mem::transmute;
+use stdsimd::vendor::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
 pub trait PackedPattern : Packed {
