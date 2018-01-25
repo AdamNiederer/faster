@@ -382,4 +382,55 @@ mod tests {
                 }).collect::<Vec<f32>>())
         })
     }
+
+    #[bench]
+    fn bench_base100_enc_simd(b: &mut Bencher) {
+        let mut out = [0u8; 4096];
+        let mut runoff = [0u32; 1024];
+        b.iter(|| {
+            let mut i = 0;
+            (&[123u8; 1024][..]).simd_iter().simd_map(u8s(0), |v| {
+                let (a, b) = v.upcast();
+                let third = ((a + u16s(55)) / u16s(64) + u16s(143)).saturating_downcast((b + u16s(55)) / u16s(64) + u16s(143));
+                let fourth = ((v + u8s(55)) & u8s(0x3f)) + u8s(128);
+
+                // Make some room for interleaving
+                let (ta, tb) = third.upcast();
+                let (fa, fb) = fourth.upcast();
+
+                // Interleave third and fourth bytes
+                let third_fourth_a = ta.swap_bytes().merge_interleaved(fa);
+                let third_fourth_b = tb.swap_bytes().merge_interleaved(fb);
+
+                // Make some more room for another interleaving
+                let (tfa, tfb) = third_fourth_a.be_u16s().upcast();
+                let (tfc, tfd) = third_fourth_b.be_u16s().upcast();
+
+                // Interleave a constant 0xf09f with the third and fourth bytes,
+                // and store into out buffer
+                // println!("{:?}, {:?}", i, i + v.width() * 4);
+                u32s(0xf09f0000).merge_interleaved(tfa).be_u8s().store(&mut out, i);
+                u32s(0xf09f0000).merge_interleaved(tfb).be_u8s().store(&mut out, i + v.width());
+                u32s(0xf09f0000).merge_interleaved(tfc).be_u8s().store(&mut out, i + v.width() * 2);
+                u32s(0xf09f0000).merge_interleaved(tfd).be_u8s().store(&mut out, i + v.width() * 3);
+                i += v.width() * 4;
+                tfa
+            }).scalar_fill(&mut runoff);
+            out
+        })
+    }
+
+    #[bench]
+    fn bench_base100_enc_scalar(b: &mut Bencher) {
+        let mut out = [0u8; 4096];
+        b.iter(|| {
+            for (i, ch) in (&[123u8; 1024][..]).iter().enumerate() {
+                out[4 * i + 0] = 0xf0;
+                out[4 * i + 1] = 0x9f;
+                out[4 * i + 2] = ((((*ch as u16).wrapping_add(55)) >> 6) + 143) as u8;
+                out[4 * i + 3] = (ch.wrapping_add(55) & 0x3f).wrapping_add(128);
+            }
+            out
+        })
+    }
 }
