@@ -1,3 +1,7 @@
+* 0.4.1
+** Bugfixes & Minor Improvements
+- Fix an issue with zipping even collections
+- Fix an upcast on AVX2 machines
 * 0.4.0
 Announcing faster 0.4.0 - a 4,500+ line diff from 0.3.0
 ** Big Changes
