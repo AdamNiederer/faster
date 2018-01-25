@@ -495,7 +495,7 @@ impl Upcast<u64x4> for u32x8 {
     fn upcast(self) -> (u64x4, u64x4) {
         unsafe {
             (_mm256_cvtepu32_epi64(transmute(_mm256_castsi256_si128(transmute(self)))).be_u64s(),
-             _mm256_cvtepu32_epi64(transmute(_mm256_castsi256_si128(transmute(_mm256_shuffle_epi32(transmute(self), 0x0E).be_u32s())))).be_u64s()) }
+             _mm256_cvtepu32_epi64(transmute(_mm256_castsi256_si128(transmute(_mm256_permute4x64_epi64(transmute(self), 0x0E).be_u32s())))).be_u64s()) }
     }
 
     #[inline(always)]
