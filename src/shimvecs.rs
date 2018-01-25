@@ -12,7 +12,7 @@
 
 use core_or_std::mem::{transmute, size_of};
 use core_or_std::ptr::{copy_nonoverlapping};
-use core_or_std::ops::{Mul, MulAssign, Div, DivAssign, Add, AddAssign, Sub, SubAssign, Shl, ShlAssign, Shr, ShrAssign, Rem, RemAssign};
+use core_or_std::ops::{Mul, MulAssign, Div, DivAssign, Add, AddAssign, Sub, SubAssign, Shl, ShlAssign, Shr, ShrAssign, Rem, RemAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
 use core_or_std::fmt::{Error, Debug, Formatter};
 
 macro_rules! impl_packed {
@@ -232,117 +232,165 @@ impl_from!(u8x64, u64x8, i64x8, u32x16, i32x16, u16x32, i16x32, i8x64);
 impl_from!(i8x64, u64x8, i64x8, u32x16, i32x16, u16x32, i16x32, u8x64);
 
 impl_ops!(i8, i8x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u8, u8x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(i16, i16x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u16, u16x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(i32, i32x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u32, u32x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(f32, f32x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
 impl_ops!(i64, i64x2, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u64, u64x2, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(f64, f64x2, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
 
 impl_ops!(i8, i8x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u8, u8x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(i16, i16x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u16, u16x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(i32, i32x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u32, u32x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(f32, f32x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
 impl_ops!(i64, i64x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u64, u64x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(f64, f64x4, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
 
 impl_ops!(i8, i8x64, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u8, u8x64, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(i16, i16x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u16, u16x32, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(i32, i32x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u32, u32x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(f32, f32x16, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
 impl_ops!(i64, i64x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(u64, u64x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -],
-          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %]);
+          [Shl, shl, <<], [Shr, shr, >>], [Rem, rem, %], [BitAnd, bitand, &],
+          [BitOr, bitor, |], [BitXor, bitxor, ^]);
 impl_ops!(f64, f64x8, [Mul, mul, *], [Div, div, /], [Add, add, +], [Sub, sub, -]);
 
 impl_assignops!(i8, i8x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u8, u8x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(i16, i16x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u16, u16x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(i32, i32x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u32, u32x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(f32, f32x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
 impl_assignops!(i64, i64x2, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u64, u64x2, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(f64, f64x2, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
 
 impl_assignops!(i8, i8x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u8, u8x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(i16, i16x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u16, u16x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(i32, i32x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u32, u32x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(f32, f32x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
 impl_assignops!(i64, i64x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u64, u64x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(f64, f64x4, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
 
 impl_assignops!(i8, i8x64, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u8, u8x64, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(i16, i16x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u16, u16x32, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(i32, i32x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u32, u32x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(f32, f32x16, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
 impl_assignops!(i64, i64x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(u64, u64x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=],
-                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=]);
+                [ShlAssign, shl_assign, <<=], [ShrAssign, shr_assign, >>=], [RemAssign, rem_assign, %=], [BitAndAssign, bitand_assign, &=],
+                [BitOrAssign, bitor_assign, |=], [BitXorAssign, bitxor_assign, ^=]);
 impl_assignops!(f64, f64x8, [MulAssign, mul_assign, *=], [DivAssign, div_assign, /=], [AddAssign, add_assign, +=], [SubAssign, sub_assign, -=]);
 
 impl_cast!(i8x16, u8x16, u8, as_u8x16);
