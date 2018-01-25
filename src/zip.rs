@@ -244,8 +244,15 @@ macro_rules! impl_iter_zip {
             #[inline(always)]
             fn next_partials(&mut self, default: Self::Vectors) -> Option<(Self::Vectors, usize)> {
                 let a = ($(self.iters.$n.next_partial(default.$n)),*);
-                debug_assert!($(!a.$n.is_none() && a.$n.unwrap().1 == a.0.unwrap().1)&&*);
-                Some((($(a.$n.unwrap().0),*), a.0.unwrap().1))
+                // Ensure everything is None, Or nothing is None and all vectors
+                // are the same size.
+                debug_assert!($((!a.$n.is_none() && a.$n.unwrap().1 == a.0.unwrap().1))&&*
+                              || $(a.$n.is_none())&&*);
+                if !a.0.is_none() {
+                    Some((($(a.$n.unwrap().0),*), a.0.unwrap().1))
+                } else {
+                    None
+                }
             }
         }
     );
