@@ -242,6 +242,33 @@ mod tests {
     }
 
     #[bench]
+    fn bench_map_eager_simd(b: &mut Bencher) {
+        let mut into = [0f32; 1024];
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1024][..]).simd_iter()
+                    .simd_map_into(&mut into, f32s(0.0), |v| {
+                        f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
+                            - f32s(4.0) - f32s(2.0)
+                    }));
+        })
+    }
+
+    #[bench]
+    fn bench_map_fill_simd(b: &mut Bencher) {
+        let mut into = [0f32; 1024];
+        b.iter(|| {
+            black_box(
+                (&[-123.456f32; 1024][..]).simd_iter()
+                    .simd_map(f32s(0.0), |v| {
+                        f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
+                            - f32s(4.0) - f32s(2.0)
+                    }).scalar_fill(&mut into));
+        })
+    }
+
+
+    #[bench]
     fn bench_map_uneven_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(

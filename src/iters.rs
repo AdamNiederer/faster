@@ -136,6 +136,33 @@ pub struct PackedMap<I, F> where I : PackedIterator {
     pub default: I::Vector,
 }
 
+impl<'a, T> PackedIter<'a, T> where T : Packable {
+
+    #[inline(always)]
+    pub fn simd_map_into<'b, A, B, F>(&'a mut self, into: &'b mut [B], default: <Self as PackedIterator>::Vector, mut func: F) -> &'b [B]
+    where F : FnMut(<Self as PackedIterator>::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+        debug_assert!(into.len() >= self.scalar_len());
+
+        let even_elements = self.data.len() - (self.data.len() % self.width());
+        let mut i = 0;
+
+        while i < even_elements {
+            let vec = <Self as PackedIterator>::Vector::load(self.data, i);
+                func(vec).store(into, i);
+                i += self.width()
+        }
+
+        if even_elements < self.scalar_len() {
+            let empty_elements = self.scalar_len() - even_elements;
+            let uneven_vec = <Self as PackedIterator>::Vector::load(self.data, self.scalar_len() - self.width());
+            func(default.merge_partitioned(uneven_vec, empty_elements)).store(into, self.scalar_len() - self.width());
+        }
+
+        into
+    }
+}
+
+
 impl<'a, T> Iterator for PackedIter<'a, T> where T : Packable {
     type Item = <PackedIter<'a, T> as PackedIterator>::Scalar;
 
