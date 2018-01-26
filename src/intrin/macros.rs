@@ -34,7 +34,8 @@ macro_rules! rust_fallback_impl_binary {
                 #[inline(always)]
                 #[cfg(target_feature = $feat)]
                 fn $rustfn(&self, other: Self) -> Self {
-                    unsafe { $mmfn(*self, other, $($mmfnargs),*) }
+                    use core_or_std::mem::transmute;
+                    unsafe { transmute($mmfn(transmute(*self), transmute(other), $($mmfnargs),*)) }
                 }
 
                 #[inline(always)]
