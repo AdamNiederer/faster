@@ -217,7 +217,7 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     #[inline(always)]
     fn next_vector(&mut self) -> Option<Self::Vector> {
         if self.position + self.width() <= self.scalar_len() {
-            let ret = Some(Self::Vector::load(self.data, self.position));
+            let ret = unsafe{ Some(Self::Vector::load_unchecked(self.data, self.position))};
             self.position += Self::Vector::WIDTH;
             ret
         } else {

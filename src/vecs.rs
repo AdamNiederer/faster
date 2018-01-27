@@ -31,6 +31,10 @@ pub trait Packed : Sized + Copy + Debug + PackedMerge {
     /// at `offset`.
     fn load(data: &[Self::Scalar], offset: usize) -> Self;
 
+    /// Create a new vector with `Self::WIDTH` elements from `data`, beginning
+    /// at `offset`, without asserting length of data.
+    unsafe fn load_unchecked(data: &[Self::Scalar], offset: usize) -> Self;
+
     /// Write `Self::WIDTH` elements from this vector to `data`, beginning at
     /// `offset`.
     fn store(self, data: &mut [Self::Scalar], offset: usize);
@@ -101,6 +105,11 @@ macro_rules! impl_packed {
             #[inline(always)]
             fn load(data: &[$el], offset: usize) -> $vec {
                 $vec::load(data, offset)
+            }
+
+            #[inline(always)]
+            unsafe fn load_unchecked(data: &[$el], offset: usize) -> $vec {
+                $vec::load_unchecked(data, offset)
             }
 
             #[inline(always)]
