@@ -34,6 +34,8 @@ mod rsqrt;
 pub use self::rsqrt::*;
 mod cmp;
 pub use self::cmp::*;
+mod eq;
+pub use self::eq::*;
 mod saturating_add;
 pub use self::saturating_add::*;
 mod saturating_hadd;
