@@ -1,3 +1,10 @@
+* 0.4.3
+** Features
+- Significantly speed up automatic iterators (huge thanks to Osveron!)
+* 0.4.2
+** Features
+- Add ~simd_for_each~
+- Add equality comparison via ~PackedEq~
 * 0.4.1
 ** Bugfixes & Minor Improvements
 - Fix an issue with zipping even collections
