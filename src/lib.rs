@@ -413,11 +413,10 @@ mod tests {
     #[bench]
     fn bench_base100_enc_simd(b: &mut Bencher) {
         let mut out = [0u8; 4096];
-        let mut runoff = [0u32; 1024];
         b.iter(|| {
             let mut i = 0;
-            (&[123u8; 1024][..]).simd_iter().simd_map(u8s(0), |v| {
-                let (a, b) = v.upcast();
+            (&[123u8; 1024][..]).simd_iter().simd_for_each(u8s(0), |v| {
+                let (a, b): (u16s, u16s) = v.upcast();
                 let third = ((a + u16s(55)) / u16s(64) + u16s(143)).saturating_downcast((b + u16s(55)) / u16s(64) + u16s(143));
                 let fourth = ((v + u8s(55)) & u8s(0x3f)) + u8s(128);
 
@@ -435,14 +434,12 @@ mod tests {
 
                 // Interleave a constant 0xf09f with the third and fourth bytes,
                 // and store into out buffer
-                // println!("{:?}, {:?}", i, i + v.width() * 4);
                 u32s(0xf09f0000).merge_interleaved(tfa).be_u8s().store(&mut out, i);
                 u32s(0xf09f0000).merge_interleaved(tfb).be_u8s().store(&mut out, i + v.width());
                 u32s(0xf09f0000).merge_interleaved(tfc).be_u8s().store(&mut out, i + v.width() * 2);
                 u32s(0xf09f0000).merge_interleaved(tfd).be_u8s().store(&mut out, i + v.width() * 3);
                 i += v.width() * 4;
-                tfa
-            }).scalar_fill(&mut runoff);
+            });
             out
         })
     }
@@ -461,3 +458,8 @@ mod tests {
         })
     }
 }
+// test tests::bench_base100_enc_simd    ... bench:         532 ns/iter (+/- 3)
+// test tests::bench_base100_enc_scalar  ... bench:       1,301 ns/iter (+/- 113)
+
+// test tests::bench_base100_enc_simd    ... bench:         319 ns/iter (+/- 10)
+// test tests::bench_base100_enc_scalar  ... bench:       1,300 ns/iter (+/- 9)
