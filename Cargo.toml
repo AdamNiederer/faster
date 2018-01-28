@@ -7,7 +7,7 @@ version = "0.4.2"
 
 keywords = ["simd"]
 categories = ["no-std", "hardware-support", "api-bindings"]
-documentation = "https://docs.rs/faster"
+documentation = "https://docs.adamniederer.com/faster/index.html"
 repository = "https://github.com/AdamNiederer/faster"
 readme = "README.org"
 
