@@ -74,9 +74,11 @@ mod tests {
                         .sum();
 
 
-                    // Same example as above, but instead of requiring hard number, we just want 
-                    // results to be the same (float math ...)
+                    // Ensure both ways produce the same result 
                     assert_eq!(sum_scalar, sum_simd);
+                    
+                    // Make sure the result is equal to our target within a certain limit.
+                    assert!((sum_simd - (n * 4) as $native_type).abs() < 0.0001);
                 }
             }    
         )
