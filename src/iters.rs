@@ -30,7 +30,7 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     /// of the iterator, or return None if there aren't enough elements left
     fn next_vector(&mut self) -> Option<Self::Vector>;
 
-    /// Pack and return a partially full vector containing upto the next
+    /// Pack and return a partially full vector containing up to the next
     /// `self.width()` of the iterator, or None if no elements are left.
     /// Elements which are not filled are instead initialized to default.
     fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)>;
@@ -104,7 +104,7 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
     /// # Footgun Warning
     ///
     /// The results of `simd_reduce` are not portable, and it is your
-    /// responsibility to interepret the result in such a way that the it is
+    /// responsibility to interpret the result in such a way that the it is
     /// consistent across different architectures. See [`Packed::sum`] and
     /// [`Packed::product`] for built-in functions which may be helpful.
     ///
