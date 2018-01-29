@@ -21,7 +21,7 @@ mod tests {
         
                     // Should produce n times (1 - 3) * (1 - 3) == n * 4 for each element
                     let sum: $native_type = ((&vec_of_1[..]).simd_iter(), (&vec_of_3[..]).simd_iter()).zip()
-                        .simd_map(($simd_type::splat(0), $simd_type::splat(0)), |(a, b)| (a - b) * (a - b) )
+                        .simd_map(($simd_type(0), $simd_type(0)), |(a, b)| (a - b) * (a - b) )
                         .sum();
 
                     assert_eq!(sum, (n * 4) as $native_type);
@@ -29,8 +29,8 @@ mod tests {
 
                     // Same as above, but this time we reduce with simd_reduce
                     let sum: $native_type = ((&vec_of_1[..]).simd_iter(), (&vec_of_3[..]).simd_iter()).zip()
-                        .simd_map(($simd_type::splat(0), $simd_type::splat(0)), |(a, b)| (a - b) * (a - b) )
-                        .simd_reduce($simd_type::splat(0), $simd_type::splat(0), |a, v| a + v )
+                        .simd_map(($simd_type(0), $simd_type(0)), |(a, b)| (a - b) * (a - b) )
+                        .simd_reduce($simd_type(0), $simd_type(0), |a, v| a + v )
                         .sum();
 
                     assert_eq!(sum, (n * 4) as $native_type);
@@ -63,14 +63,14 @@ mod tests {
         
                     // Should produce n times (1 - 3) * (1 - 3) == n * 4 for each element
                     let sum_scalar: $native_type = ((&vec_of_1[..]).simd_iter(), (&vec_of_3[..]).simd_iter()).zip()
-                        .simd_map(($simd_type::splat(0.0 as $native_type), $simd_type::splat(0.0 as $native_type)), |(a, b)| (a - b) * (a - b) )
+                        .simd_map(($simd_type(0.0 as $native_type), $simd_type(0.0 as $native_type)), |(a, b)| (a - b) * (a - b) )
                         .sum();
 
 
                     // Same as above, but this time we reduce with simd_reduce
                     let sum_simd: $native_type = ((&vec_of_1[..]).simd_iter(), (&vec_of_3[..]).simd_iter()).zip()
-                        .simd_map(($simd_type::splat(0.0 as $native_type), $simd_type::splat(0.0 as $native_type)), |(a, b)| (a - b) * (a - b) )
-                        .simd_reduce($simd_type::splat(0.0 as $native_type), $simd_type::splat(0.0 as $native_type), |a, v| a + v )
+                        .simd_map(($simd_type(0.0 as $native_type), $simd_type(0.0 as $native_type)), |(a, b)| (a - b) * (a - b) )
+                        .simd_reduce($simd_type(0.0 as $native_type), $simd_type(0.0 as $native_type), |a, v| a + v )
                         .sum();
 
 
