@@ -40,7 +40,7 @@ pub trait Packed : Sized + Copy + Debug + PackedMerge {
     fn store(self, data: &mut [Self::Scalar], offset: usize);
 
     /// Assert all elements of the vector are equal, then return the
-    /// element. Opposiite operation of `Self::splat`.
+    /// element. Opposite operation of `Self::splat`.
     fn coalesce(self) -> Self::Scalar;
 
     /// Return a vector with all elements initialized to `data`. Opposite
