@@ -11,7 +11,7 @@ mod tests {
     macro_rules! kernel_definite {
         ($name:ident, $native_type:ty, $simd_type:ident) => (
         
-            /// Tests a number of simple kernel computations with int32 values. 
+            /// Tests a number of simple kernel computations with integer values. 
             #[test]
             fn $name() {
                 for n in 0 .. 16 {
@@ -53,7 +53,7 @@ mod tests {
     macro_rules! kernel_relative {
         ($name:ident, $native_type:ty, $simd_type:ident) => (
         
-            /// Tests a number of simple kernel computations with int32 values. 
+            /// Tests a number of simple kernel computations with float values. 
             #[test]
             fn $name() {
                 for n in 0 .. 16 {
