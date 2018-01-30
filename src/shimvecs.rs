@@ -7,7 +7,7 @@
 
 #![allow(dead_code)]
 
-//! Vector types which aren't interpereted as SIMD vectors, for systems which
+//! Vector types which aren't interpreted as SIMD vectors, for systems which
 //! don't have SIMD support.
 
 use core_or_std::mem::{transmute, size_of};
