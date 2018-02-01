@@ -3,33 +3,30 @@ sudo: false
 rust:
   - nightly
 env:
-  - RUSTFLAGS="-C target-feature=-sse -C target-feature=+x87"
-  - RUSTFLAGS="-C target-feature=+sse"
-  - RUSTFLAGS="-C target-feature=+sse2"
-  - RUSTFLAGS="-C target-feature=+sse3"
-  - RUSTFLAGS="-C target-feature=+ssse3"
-  - RUSTFLAGS="-C target-feature=+sse4a"
-  - RUSTFLAGS="-C target-feature=+sse4.1"
-  - RUSTFLAGS="-C target-feature=+sse4.2"
-  - RUSTFLAGS="-C target-feature=+avx"
-  - RUSTFLAGS="-C target-feature=+avx2"
-  - RUSTFLAGS="-C target-feature=+avx512"
-  - RUSTFLAGS="-C target-cpu=pentium" RUN="true"
-  - RUSTFLAGS="-C target-cpu=pentium3" RUN="true"
-  - RUSTFLAGS="-C target-cpu=pentium4" RUN="true"
-  - RUSTFLAGS="-C target-cpu=core2" RUN="true"
-  - RUSTFLAGS="-C target-cpu=nehalem" RUN="true"
-  - RUSTFLAGS="-C target-cpu=sandybridge" RUN="true"
-  - RUSTFLAGS="-C target-cpu=native" RUN="true"
+  - RUSTFLAGS="-C target-feature=-sse -C target-feature=+x87" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+sse" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+sse2" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+sse3" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+ssse3" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+sse4a" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+sse4.1" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+sse4.2" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+avx" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+avx2" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-feature=+avx512" RUN="build --all --examples --tests --benches --bins"
+  - RUSTFLAGS="-C target-cpu=pentium" RUN="test --lib"
+  - RUSTFLAGS="-C target-cpu=pentium3" RUN="test --lib"
+  - RUSTFLAGS="-C target-cpu=pentium4" RUN="test --lib"
+  - RUSTFLAGS="-C target-cpu=core2" RUN="test --lib"
+  - RUSTFLAGS="-C target-cpu=nehalem" RUN="test --lib"
+  - RUSTFLAGS="-C target-cpu=sandybridge" RUN="test --lib"
+  - RUSTFLAGS="-C target-cpu=native" RUN="test --lib"
 matrix:
   fast_finish: true
 install:
-  - cargo build
-  - cargo build --features "no-std"
 script:
   - cat /proc/cpuinfo
-  - bash -c "[ $RUN == \"true\" ] && cargo test --verbose --all --features \"no-std\" || true"
-  - bash -c "[ $RUN == \"true\" ] && cargo test --verbose --all || true"
-  - bash -c "[ $RUN == \"true\" ] && cargo bench --verbose --all || true"
+  - bash -c "cargo $RUN --verbose --features \"no-std\""
+  - bash -c "cargo $RUN --verbose"
 notifications:
   email: false
