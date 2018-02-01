@@ -14,13 +14,13 @@ env:
   - RUSTFLAGS="-C target-feature=+avx" RUN="build --all --examples --tests --benches --bins"
   - RUSTFLAGS="-C target-feature=+avx2" RUN="build --all --examples --tests --benches --bins"
   - RUSTFLAGS="-C target-feature=+avx512" RUN="build --all --examples --tests --benches --bins"
-  - RUSTFLAGS="-C target-cpu=pentium" RUN="test --lib"
-  - RUSTFLAGS="-C target-cpu=pentium3" RUN="test --lib"
-  - RUSTFLAGS="-C target-cpu=pentium4" RUN="test --lib"
-  - RUSTFLAGS="-C target-cpu=core2" RUN="test --lib"
-  - RUSTFLAGS="-C target-cpu=nehalem" RUN="test --lib"
-  - RUSTFLAGS="-C target-cpu=sandybridge" RUN="test --lib"
-  - RUSTFLAGS="-C target-cpu=native" RUN="test --lib"
+  - RUSTFLAGS="-C target-cpu=pentium" RUN="test --lib --tests --benches --examples"
+  - RUSTFLAGS="-C target-cpu=pentium3" RUN="test --lib --tests --benches --examples"
+  - RUSTFLAGS="-C target-cpu=pentium4" RUN="test --lib --tests --benches --examples"
+  - RUSTFLAGS="-C target-cpu=core2" RUN="test --lib --tests --benches --examples"
+  - RUSTFLAGS="-C target-cpu=nehalem" RUN="test --lib --tests --benches --examples"
+  - RUSTFLAGS="-C target-cpu=sandybridge" RUN="test --lib --tests --benches --examples"
+  - RUSTFLAGS="-C target-cpu=native" RUN="test --lib --tests --benches --examples"
 matrix:
   fast_finish: true
 install:
