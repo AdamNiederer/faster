@@ -253,7 +253,6 @@ mod tests {
             fn $name() {
                 // Try not to overflow
                 let mut i = $el::min_value() / 64 + 1;
-                eprintln!("{:?}", i);
 
                 while i < $el::max_value() / 64 - 1 {
                     let v = $vec::splat(i);
