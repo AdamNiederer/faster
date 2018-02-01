@@ -59,7 +59,7 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     pub fn stripe(&'a self, count: usize) -> Vec<PackedStripe<'a, T>> {
         (0..count).map(move |offset| {
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: offset,
                 stride: count
             }
@@ -73,12 +73,12 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     pub fn stripe_two(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>) {
         (
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 0,
                 stride: 2
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 1,
                 stride: 2
             }
@@ -92,17 +92,17 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     pub fn stripe_three(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T> , PackedStripe<'a, T>) {
         (
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 0,
                 stride: 3
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 1,
                 stride: 3
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 2,
                 stride: 3
             }
@@ -116,22 +116,22 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     pub fn stripe_four(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>) {
         (
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 0,
                 stride: 4
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 1,
                 stride: 4
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 2,
                 stride: 4
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 3,
                 stride: 4
             }
@@ -145,47 +145,47 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     pub fn stripe_nine(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>) {
         (
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 0,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 1,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 2,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 3,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 4,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 5,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 6,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 7,
                 stride: 9
             },
             PackedStripe {
-                iter: &self,
+                iter: self,
                 base: 8,
                 stride: 9
             }
