@@ -40,3 +40,6 @@ fn main() {
 
     println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced, striped);
 }
+
+#[cfg(feature = "no-std")]
+fn main() {}
