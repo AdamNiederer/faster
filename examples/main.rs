@@ -9,6 +9,7 @@ extern crate stdsimd;
 extern crate faster;
 use faster::*;
 
+#[cfg(not(feature = "no-std"))]
 fn main() {
     let lots_of_84s = (&[-10i8; 33][..]).simd_iter()
         .simd_map(i8s::splat(0), |v| i8s::splat(9) * v.abs().be_i8s() - i8s::splat(4) - i8s::splat(2))

@@ -127,8 +127,8 @@
 //! ```
 //! extern crate faster;
 //! use faster::*;
-//! 
-//! 
+//!
+//!
 //! fn main() {
 //!     // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
 //!     let slice: &[f32] = &[1.0f32; 1024][..];
@@ -215,6 +215,7 @@ mod tests {
     use test::{Bencher, black_box};
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -223,6 +224,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_nop_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -231,6 +233,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_map_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -270,6 +273,7 @@ mod tests {
 
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_map_uneven_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -282,6 +286,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_map_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -320,6 +325,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_determinant3_simd(b: &mut Bencher) {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
@@ -333,6 +339,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_determinant3_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -343,6 +350,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_determinant2_simd(b: &mut Bencher) {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
@@ -356,6 +364,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_determinant2_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -366,6 +375,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_zip_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -380,6 +390,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_zip_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -390,6 +401,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_zip_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -402,6 +414,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn bench_zip_nop_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -459,8 +472,3 @@ mod tests {
         })
     }
 }
-// test tests::bench_base100_enc_simd    ... bench:         532 ns/iter (+/- 3)
-// test tests::bench_base100_enc_scalar  ... bench:       1,301 ns/iter (+/- 113)
-
-// test tests::bench_base100_enc_simd    ... bench:         319 ns/iter (+/- 10)
-// test tests::bench_base100_enc_scalar  ... bench:       1,300 ns/iter (+/- 9)
