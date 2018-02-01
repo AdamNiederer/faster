@@ -15,6 +15,7 @@ feats = [{512: "avx512-notyet", 256: "avx2", 128: "sse4.1"}[l * e]
          for l, e in zip(lens, elsz)]
 blends = [{512: "_mm512_mask_mov_epi8", 256: "_mm256_blendv_epi8", 128: "_mm_blendv_epi8"}[l * e]
           for l, e in zip(lens, elsz)]
+masks = ["u" + el[1:] for el in els]
 
 print("""// This file is part of faster, the SIMD library for humans.
 // Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
@@ -47,6 +48,12 @@ pub trait PackedPattern : Packed {
     /// Return a vector whose first `off` elements are memset to 0x00, and whose
     /// last `Self::WIDTH - off` elements are memset to 0xFF.
     fn partition_mask(off: usize) -> Self;
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self;
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self;
 }
 
 const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -67,7 +74,7 @@ const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
 """)
 
-for e, v, l, f, b in zip(els, vecs, lens, feats, blends):
+for e, v, l, f, b, s, m in zip(els, vecs, lens, feats, blends, elsz, masks):
     # Generate halfs
     print(f"impl PackedPattern for {v} {{")
     print(f"    #[inline(always)]")
@@ -116,4 +123,18 @@ for e, v, l, f, b in zip(els, vecs, lens, feats, blends):
     print(f"            _ => unreachable!()")
     print(f"        }}")
     print(f"    }}")
+
+    # Generate ones & zeroes
+    print(f"""
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {{
+        Self::splat(unsafe {{ transmute(0x{'F' * (s // 4)}{m}) }})
+    }}
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {{
+        Self::splat(unsafe {{ transmute(0x{'0' * (s // 4)}{m}) }})
+    }}""")
+
+
     print(f"}}\n")

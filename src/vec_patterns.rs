@@ -28,6 +28,12 @@ pub trait PackedPattern : Packed {
     /// Return a vector whose first `off` elements are memset to 0x00, and whose
     /// last `Self::WIDTH - off` elements are memset to 0xFF.
     fn partition_mask(off: usize) -> Self;
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self;
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self;
 }
 
 const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -144,6 +150,16 @@ impl PackedPattern for u8x64 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFu8) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00u8) })
+    }
 }
 
 impl PackedPattern for u8x32 {
@@ -211,6 +227,16 @@ impl PackedPattern for u8x32 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFu8) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00u8) })
+    }
 }
 
 impl PackedPattern for u8x16 {
@@ -261,6 +287,16 @@ impl PackedPattern for u8x16 {
             16 => Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFu8) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00u8) })
     }
 }
 
@@ -361,6 +397,16 @@ impl PackedPattern for i8x64 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFu8) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00u8) })
+    }
 }
 
 impl PackedPattern for i8x32 {
@@ -428,6 +474,16 @@ impl PackedPattern for i8x32 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFu8) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00u8) })
+    }
 }
 
 impl PackedPattern for i8x16 {
@@ -478,6 +534,16 @@ impl PackedPattern for i8x16 {
             16 => Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFu8) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00u8) })
     }
 }
 
@@ -546,6 +612,16 @@ impl PackedPattern for u16x32 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFu16) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000u16) })
+    }
 }
 
 impl PackedPattern for u16x16 {
@@ -597,6 +673,16 @@ impl PackedPattern for u16x16 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFu16) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000u16) })
+    }
 }
 
 impl PackedPattern for u16x8 {
@@ -639,6 +725,16 @@ impl PackedPattern for u16x8 {
             8 => Self::new(hi, hi, hi, hi, hi, hi, hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFu16) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000u16) })
     }
 }
 
@@ -707,6 +803,16 @@ impl PackedPattern for i16x32 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFu16) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000u16) })
+    }
 }
 
 impl PackedPattern for i16x16 {
@@ -758,6 +864,16 @@ impl PackedPattern for i16x16 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFu16) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000u16) })
+    }
 }
 
 impl PackedPattern for i16x8 {
@@ -800,6 +916,16 @@ impl PackedPattern for i16x8 {
             8 => Self::new(hi, hi, hi, hi, hi, hi, hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFu16) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000u16) })
     }
 }
 
@@ -852,6 +978,16 @@ impl PackedPattern for u32x16 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
+    }
 }
 
 impl PackedPattern for u32x8 {
@@ -895,6 +1031,16 @@ impl PackedPattern for u32x8 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
+    }
 }
 
 impl PackedPattern for u32x4 {
@@ -933,6 +1079,16 @@ impl PackedPattern for u32x4 {
             4 => Self::new(hi, hi, hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
     }
 }
 
@@ -985,6 +1141,16 @@ impl PackedPattern for i32x16 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
+    }
 }
 
 impl PackedPattern for i32x8 {
@@ -1028,6 +1194,16 @@ impl PackedPattern for i32x8 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
+    }
 }
 
 impl PackedPattern for i32x4 {
@@ -1066,6 +1242,16 @@ impl PackedPattern for i32x4 {
             4 => Self::new(hi, hi, hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
     }
 }
 
@@ -1118,6 +1304,16 @@ impl PackedPattern for f32x16 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
+    }
 }
 
 impl PackedPattern for f32x8 {
@@ -1161,6 +1357,16 @@ impl PackedPattern for f32x8 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
+    }
 }
 
 impl PackedPattern for f32x4 {
@@ -1199,6 +1405,16 @@ impl PackedPattern for f32x4 {
             4 => Self::new(hi, hi, hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x00000000u32) })
     }
 }
 
@@ -1243,6 +1459,16 @@ impl PackedPattern for u64x8 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
+    }
 }
 
 impl PackedPattern for u64x4 {
@@ -1282,6 +1508,16 @@ impl PackedPattern for u64x4 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
+    }
 }
 
 impl PackedPattern for u64x2 {
@@ -1318,6 +1554,16 @@ impl PackedPattern for u64x2 {
             2 => Self::new(hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
     }
 }
 
@@ -1362,6 +1608,16 @@ impl PackedPattern for i64x8 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
+    }
 }
 
 impl PackedPattern for i64x4 {
@@ -1401,6 +1657,16 @@ impl PackedPattern for i64x4 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
+    }
 }
 
 impl PackedPattern for i64x2 {
@@ -1437,6 +1703,16 @@ impl PackedPattern for i64x2 {
             2 => Self::new(hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
     }
 }
 
@@ -1481,6 +1757,16 @@ impl PackedPattern for f64x8 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
+    }
 }
 
 impl PackedPattern for f64x4 {
@@ -1520,6 +1806,16 @@ impl PackedPattern for f64x4 {
             _ => unreachable!()
         }
     }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
+    }
 }
 
 impl PackedPattern for f64x2 {
@@ -1556,5 +1852,15 @@ impl PackedPattern for f64x2 {
             2 => Self::new(hi, hi),
             _ => unreachable!()
         }
+    }
+
+    /// Return a vector made entirely of ones.
+    fn ones() -> Self {
+        Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
+    }
+
+    /// Return a vector made entirely of zeroes.
+    fn zeroes() -> Self {
+        Self::splat(unsafe { transmute(0x0000000000000000u64) })
     }
 }
