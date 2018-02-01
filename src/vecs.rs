@@ -57,9 +57,6 @@ pub trait Packed : Sized + Copy + Debug + PackedMerge {
     /// Replace the `idx`th element of this vector with `data`.
     fn replace(&mut self, idx: usize, data: Self::Scalar) -> Self;
 
-    /// Return a scalar equivalent to the sum of all elements of this vector.
-    fn sum(&self) -> Self::Scalar;
-
     /// Return a scalar equivalent to the product of all elements of this
     /// vector.
     fn product(&self) -> Self::Scalar;
@@ -155,15 +152,6 @@ macro_rules! impl_packed {
             }
 
             #[inline(always)]
-            fn sum(&self) -> Self::Scalar {
-                let mut acc = 0 as $el;
-                for i in 0..Self::WIDTH {
-                    acc += self.extract(i)
-                }
-                acc
-            }
-
-            #[inline(always)]
             fn scalar_reduce<T, F>(&self, mut acc: T, mut func: F) -> T
                 where F: FnMut(T, Self::Scalar) -> T {
                 for i in 0..Self::WIDTH {
@@ -237,17 +225,6 @@ mod tests {
     use super::Packed;
     use super::*;
 
-    macro_rules! test_sum {
-        (($($el:tt),*), ($($vec:tt),*), ($($fn:tt),*), ($($sum:tt),*)) => (
-            $(
-                #[test]
-                fn $fn() {
-                    assert_eq!($vec::splat(1i8 as $el).sum(), $sum as $el);
-                }
-            )*
-        )
-    }
-
     macro_rules! test_product {
         (($($el:tt),*), ($($vec:tt),*), ($($fn:tt),*), ($($sum:tt),*)) => (
             $(
@@ -258,11 +235,6 @@ mod tests {
             )*
         )
     }
-
-    test_sum!((u8, u8, u8, i8, i8, i8, u16, u16, u16, i16, i16, i16, u32, u32, u32, i32, i32, i32, f32, f32, f32, u64, u64, u64, i64, i64, i64, f64, f64, f64),
-              (u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2),
-              (scalar_sum_u8x64, scalar_sum_u8x32, scalar_sum_u8x16, scalar_sum_i8x64, scalar_sum_i8x32, scalar_sum_i8x16, scalar_sum_u16x32, scalar_sum_u16x16, scalar_sum_u16x8, scalar_sum_i16x32, scalar_sum_i16x16, scalar_sum_i16x8, scalar_sum_u32x16, scalar_sum_u32x8, scalar_sum_u32x4, scalar_sum_i32x16, scalar_sum_i32x8, scalar_sum_i32x4, scalar_sum_f32x16, scalar_sum_f32x8, scalar_sum_f32x4, scalar_sum_u64x8, scalar_sum_u64x4, scalar_sum_u64x2, scalar_sum_i64x8, scalar_sum_i64x4, scalar_sum_i64x2, scalar_sum_f64x8, scalar_sum_f64x4, scalar_sum_f64x2),
-              (64, 32, 16, 64, 32, 16, 32, 16, 8, 32, 16, 8, 16, 8, 4, 16, 8, 4, 16, 8, 4, 8, 4, 2, 8, 4, 2, 8, 4, 2));
 
     // TODO: Do we need better test cases for this?
     test_product!((u8, u8, u8, i8, i8, i8, u16, u16, u16, i16, i16, i16, u32, u32, u32, i32, i32, i32, f32, f32, f32, u64, u64, u64, i64, i64, i64, f64, f64, f64),

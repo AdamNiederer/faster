@@ -52,3 +52,5 @@ mod swizzle;
 pub use self::swizzle::*;
 mod endian;
 pub use self::endian::*;
+mod sum;
+pub use self::sum::*;
