@@ -24,7 +24,6 @@ mod tests {
 
                     assert_eq!(sum, (n * 4) as $native_type);
 
-
                     // Same as above, but this time we reduce with simd_reduce
                     let sum: $native_type = ((&vec_of_1[..]).simd_iter(), (&vec_of_3[..]).simd_iter()).zip()
                         .simd_map(($simd_type(0), $simd_type(0)), |(a, b)| (a - b) * (a - b) )
@@ -46,7 +45,6 @@ mod tests {
     kernel_definite!(kernel_u32, u32, u32s);
     kernel_definite!(kernel_u16, u16, u16s);
     kernel_definite!(kernel_u8, u8, u8s);
-
 
     macro_rules! kernel_relative {
         ($name:ident, $native_type:ty, $simd_type:ident) => (

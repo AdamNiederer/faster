@@ -59,8 +59,8 @@ impl PackedUpcastSum for i8x16 {
 impl PackedSum for i8x32 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
-        let pos = unsafe { _mm256_sad_epu8(self.min(i8s(0)).be_u8s(), u8s(0)).be_u16s() };
-        let neg = unsafe { _mm256_sad_epu8(self.max(i8s(0)).be_u8s(), u8s(0)).be_u16s() };
+        let pos = unsafe { _mm256_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x32::splat(0)).be_u16s() };
+        let neg = unsafe { _mm256_sad_epu8(self.min(Self::splat(0)).abs().be_u8s(), u8x32::splat(0)).be_u16s() };
         pos.extract(0).overflowing_sub(neg.extract(0)).0
             .overflowing_add(pos.extract(4).overflowing_sub(neg.extract(4)).0).0
             .overflowing_add(pos.extract(8).overflowing_sub(neg.extract(8)).0).0
@@ -72,8 +72,8 @@ impl PackedSum for i8x32 {
 impl PackedUpcastSum for i8x32 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
-        let pos = unsafe { _mm256_sad_epu8(self.min(i8s(0)).be_u8s(), u8s(0)).be_u16s() };
-        let neg = unsafe { _mm256_sad_epu8(self.max(i8s(0)).be_u8s(), u8s(0)).be_u16s() };
+        let pos = unsafe { _mm256_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x32::splat(0)).be_u16s() };
+        let neg = unsafe { _mm256_sad_epu8(self.min(Self::splat(0)).abs().be_u8s(), u8x32::splat(0)).be_u16s() };
         pos.extract(0).overflowing_sub(neg.extract(0)).0
             .overflowing_add(pos.extract(4).overflowing_sub(neg.extract(4)).0).0
             .overflowing_add(pos.extract(8).overflowing_sub(neg.extract(8)).0).0
@@ -253,6 +253,7 @@ mod tests {
             fn $name() {
                 // Try not to overflow
                 let mut i = $el::min_value() / 64 + 1;
+                eprintln!("{:?}", i);
 
                 while i < $el::max_value() / 64 - 1 {
                     let v = $vec::splat(i);
