@@ -32,7 +32,7 @@ use core_or_std::mem::transmute;
 use stdsimd::vendor::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
-pub trait PackedPattern : Packed {
+pub trait Pattern : Packed {
     /// Return a vector whose first `Self::WIDTH / 2` elements are `hi`, and
     /// whose last `Self::WIDTH / 2` elements are `lo`.
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
@@ -76,7 +76,7 @@ const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 
 for e, v, l, f, b, s, m in zip(els, vecs, lens, feats, blends, elsz, masks):
     # Generate halfs
-    print(f"impl PackedPattern for {v} {{")
+    print(f"impl Pattern for {v} {{")
     print(f"    #[inline(always)]")
     print(f"    fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {{")
     first = ", ".join("hi" for _ in range(l // 2))

@@ -5,7 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{PackedIterator};
+use iters::{SIMDIterator};
 use vecs::{Packed, Packable};
 
 /// A lazy iterator which returns tuples of the elements of its contained
@@ -23,7 +23,7 @@ pub struct PackedZipMap<I, F> where I : PackedZippedIterator {
 }
 
 /// A trait which can transform a collection of iterators into a `PackedZip`
-pub trait IntoPackedZip : Sized {
+pub trait IntoSIMDZip : Sized {
     /// Return an iterator which may iterate over `self` in lockstep.
     fn zip(self) -> PackedZip<Self>;
 }
@@ -173,7 +173,7 @@ pub trait PackedZippedIterator : ExactSizeIterator + Sized {
 
 macro_rules! impl_iter_zip {
     (($($a:tt),*), ($($b:tt),*), ($($n:tt),*)) => (
-        impl<$($a),*> IntoPackedZip for ($($a),*) where $($a : PackedIterator),* {
+        impl<$($a),*> IntoSIMDZip for ($($a),*) where $($a : SIMDIterator),* {
 
             #[inline(always)]
             fn zip(self) -> PackedZip<Self> {
@@ -181,7 +181,7 @@ macro_rules! impl_iter_zip {
             }
         }
 
-        // impl<'a, $($a),*> IntoPackedRefMutIterator<'a> for ($(&'a mut $a),*) where $(&'a mut $a : PackedIterator),* {
+        // impl<'a, $($a),*> IntoSIMDRefMutIterator<'a> for ($(&'a mut $a),*) where $(&'a mut $a : SIMDIterator),* {
         //     type Iter = PackedZip<($(&'a mut $a),*)>;
 
         //     fn simd_iter_mut(&mut self) -> Self::Iter {
@@ -190,7 +190,7 @@ macro_rules! impl_iter_zip {
         // }
 
         impl<Z, $($a),*> ExactSizeIterator for PackedZip<($($a),*)>
-            where $($a : PackedIterator<Scalar = Z, Item = Z>),*, Z : Packable {
+            where $($a : SIMDIterator<Scalar = Z, Item = Z>),*, Z : Packable {
 
             #[inline(always)]
             fn len(&self) -> usize {
@@ -200,7 +200,7 @@ macro_rules! impl_iter_zip {
         }
 
         impl<Z, $($a),*> Iterator for PackedZip<($($a),*)>
-            where $($a : PackedIterator<Scalar = Z, Item = Z>),*, Z : Packable {
+            where $($a : SIMDIterator<Scalar = Z, Item = Z>),*, Z : Packable {
             type Item = ($(<$a as Iterator>::Item),*);
 
             fn next(&mut self) -> Option<Self::Item> {
@@ -209,7 +209,7 @@ macro_rules! impl_iter_zip {
         }
 
         impl<Z, $($a),*> PackedZippedIterator for PackedZip<($($a),*)>
-            where $($a : PackedIterator<Scalar = Z, Item = Z>),*, Z : Packable {
+            where $($a : SIMDIterator<Scalar = Z, Item = Z>),*, Z : Packable {
             type Vectors = ($($a::Vector),*);
             type Scalars = ($($a::Scalar),*);
 
@@ -277,7 +277,7 @@ impl<I, F, A> ExactSizeIterator for PackedZipMap<I, F>
     }
 }
 
-impl<I, F, A> PackedIterator for PackedZipMap<I, F>
+impl<I, F, A> SIMDIterator for PackedZipMap<I, F>
     where I : PackedZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
     type Vector = A;
     type Scalar = A::Scalar;

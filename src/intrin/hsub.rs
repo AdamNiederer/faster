@@ -10,7 +10,7 @@ use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x
 use intrin::transmute::*;
 use core_or_std::ops::Sub;
 
-pub trait PackedHsub {
+pub trait HSub {
     /// Return a vector containing the interleaved differences of elements in
     /// `self` and `other`. The returned vector will begin with the difference
     /// of the first two elements in `self`, and end with the difference of the
@@ -19,7 +19,7 @@ pub trait PackedHsub {
 }
 
 #[cfg(target_feature = "sse3")]
-impl PackedHsub for f32x4 {
+impl HSub for f32x4 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm_hsub_ps(_mm_shuffle_ps(*self, other, 0b01000100),
@@ -28,7 +28,7 @@ impl PackedHsub for f32x4 {
 }
 
 #[cfg(target_feature = "sse3")]
-impl PackedHsub for f64x2 {
+impl HSub for f64x2 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm_hsub_pd(*self, other) }
@@ -36,7 +36,7 @@ impl PackedHsub for f64x2 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedHsub for f32x8 {
+impl HSub for f32x8 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm256_hsub_ps(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_f32s_unchecked(),
@@ -45,7 +45,7 @@ impl PackedHsub for f32x8 {
 }
 
 #[cfg(target_feature = "avx")]
-impl PackedHsub for f64x4 {
+impl HSub for f64x4 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm256_hsub_pd(*self, other) }
@@ -53,7 +53,7 @@ impl PackedHsub for f64x4 {
 }
 
 #[cfg(target_feature = "ssse3")]
-impl PackedHsub for i16x8 {
+impl HSub for i16x8 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm_hsub_epi16(_mm_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
@@ -62,7 +62,7 @@ impl PackedHsub for i16x8 {
 }
 
 #[cfg(target_feature = "ssse3")]
-impl PackedHsub for i32x4 {
+impl HSub for i32x4 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm_hsub_epi32(_mm_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
@@ -71,7 +71,7 @@ impl PackedHsub for i32x4 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedHsub for i16x16 {
+impl HSub for i16x16 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm256_hsub_epi16(_mm256_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
@@ -80,7 +80,7 @@ impl PackedHsub for i16x16 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedHsub for i32x8 {
+impl HSub for i32x8 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
         unsafe { _mm256_hsub_epi32(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
@@ -88,44 +88,44 @@ impl PackedHsub for i32x8 {
     }
 }
 
-impl PackedHsub for u64x2 { hop!(hsub, Sub::sub, 0, 1); }
-impl PackedHsub for u64x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
-impl PackedHsub for u64x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHsub for u32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
-impl PackedHsub for u32x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHsub for u32x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHsub for u16x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHsub for u16x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHsub for u16x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHsub for u8x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHsub for u8x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHsub for u8x64 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
-impl PackedHsub for i64x2 { hop!(hsub, Sub::sub, 0, 1); }
-impl PackedHsub for i64x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
-impl PackedHsub for i64x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for u64x2 { hop!(hsub, Sub::sub, 0, 1); }
+impl HSub for u64x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
+impl HSub for u64x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for u32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
+impl HSub for u32x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for u32x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HSub for u16x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for u16x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HSub for u16x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HSub for u8x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HSub for u8x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HSub for u8x64 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
+impl HSub for i64x2 { hop!(hsub, Sub::sub, 0, 1); }
+impl HSub for i64x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
+impl HSub for i64x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
 #[cfg(not(target_feature = "ssse3"))]
-impl PackedHsub for i32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
+impl HSub for i32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
 #[cfg(not(target_feature = "avx2"))]
-impl PackedHsub for i32x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHsub for i32x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HSub for i32x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for i32x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
 #[cfg(not(target_feature = "ssse3"))]
-impl PackedHsub for i16x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for i16x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
 #[cfg(not(target_feature = "avx2"))]
-impl PackedHsub for i16x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHsub for i16x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHsub for i8x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHsub for i8x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHsub for i8x64 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
+impl HSub for i16x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HSub for i16x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HSub for i8x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HSub for i8x32 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HSub for i8x64 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
 #[cfg(not(target_feature = "sse3"))]
-impl PackedHsub for f64x2 { hop!(hsub, Sub::sub, 0, 1); }
+impl HSub for f64x2 { hop!(hsub, Sub::sub, 0, 1); }
 #[cfg(not(target_feature = "avx"))]
-impl PackedHsub for f64x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
-impl PackedHsub for f64x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for f64x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
+impl HSub for f64x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
 #[cfg(not(target_feature = "sse3"))]
-impl PackedHsub for f32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
+impl HSub for f32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
 #[cfg(not(target_feature = "avx2"))]
-impl PackedHsub for f32x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHsub for f32x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HSub for f32x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HSub for f32x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
 
 
 #[cfg(test)]

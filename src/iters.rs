@@ -6,11 +6,11 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use vecs::{Packable, Packed};
-use intrin::PackedMerge;
+use intrin::Merge;
 
 /// An iterator which automatically packs the values it iterates over into SIMD
 /// vectors.
-pub trait PackedIterator : Sized + ExactSizeIterator {
+pub trait SIMDIterator : Sized + ExactSizeIterator {
     type Scalar : Packable;
     type Vector : Packed<Scalar = Self::Scalar>;
 
@@ -37,9 +37,9 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
 
     #[inline(always)]
     /// Return an iterator which calls `func` on vectors of elements.
-    fn simd_map<A, B, F>(self, default: Self::Vector, func: F) -> PackedMap<Self, F>
+    fn simd_map<A, B, F>(self, default: Self::Vector, func: F) -> SIMDMap<Self, F>
         where F : FnMut(Self::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
-        PackedMap {
+        SIMDMap {
             iter: self,
             func: func,
             default: default
@@ -136,38 +136,38 @@ pub trait PackedIterator : Sized + ExactSizeIterator {
 /// A slice-backed iterator which can automatically pack its constituent
 /// elements into vectors.
 #[derive(Debug)]
-pub struct PackedIter<'a, T : 'a + Packable> {
+pub struct SIMDIter<'a, T : 'a + Packable> {
     pub position: usize,
     pub data: &'a [T],
 }
 
 /// A lazy mapping iterator which applies its function to a stream of vectors.
 #[derive(Debug)]
-pub struct PackedMap<I, F> where I : PackedIterator {
+pub struct SIMDMap<I, F> where I : SIMDIterator {
     pub iter: I,
     pub func: F,
     pub default: I::Vector,
 }
 
-impl<'a, T> PackedIter<'a, T> where T : Packable {
+impl<'a, T> SIMDIter<'a, T> where T : Packable {
 
     #[inline(always)]
-    pub fn simd_map_into<'b, A, B, F>(&'a mut self, into: &'b mut [B], default: <Self as PackedIterator>::Vector, mut func: F) -> &'b [B]
-    where F : FnMut(<Self as PackedIterator>::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+    pub fn simd_map_into<'b, A, B, F>(&'a mut self, into: &'b mut [B], default: <Self as SIMDIterator>::Vector, mut func: F) -> &'b [B]
+    where F : FnMut(<Self as SIMDIterator>::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
         debug_assert!(into.len() >= self.scalar_len());
 
         let even_elements = self.data.len() - (self.data.len() % self.width());
         let mut i = 0;
 
         while i < even_elements {
-            let vec = <Self as PackedIterator>::Vector::load(self.data, i);
+            let vec = <Self as SIMDIterator>::Vector::load(self.data, i);
                 func(vec).store(into, i);
                 i += self.width()
         }
 
         if even_elements < self.scalar_len() {
             let empty_elements = self.scalar_len() - even_elements;
-            let uneven_vec = <Self as PackedIterator>::Vector::load(self.data, self.scalar_len() - self.width());
+            let uneven_vec = <Self as SIMDIterator>::Vector::load(self.data, self.scalar_len() - self.width());
             func(default.merge_partitioned(uneven_vec, empty_elements)).store(into, self.scalar_len() - self.width());
         }
 
@@ -176,8 +176,8 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
 }
 
 
-impl<'a, T> Iterator for PackedIter<'a, T> where T : Packable {
-    type Item = <PackedIter<'a, T> as PackedIterator>::Scalar;
+impl<'a, T> Iterator for SIMDIter<'a, T> where T : Packable {
+    type Item = <SIMDIter<'a, T> as SIMDIterator>::Scalar;
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
@@ -191,7 +191,7 @@ impl<'a, T> Iterator for PackedIter<'a, T> where T : Packable {
     }
 }
 
-impl<'a, T> ExactSizeIterator for PackedIter<'a, T>
+impl<'a, T> ExactSizeIterator for SIMDIter<'a, T>
     where T : Packable {
 
     #[inline(always)]
@@ -200,7 +200,7 @@ impl<'a, T> ExactSizeIterator for PackedIter<'a, T>
     }
 }
 
-impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
+impl<'a, T> SIMDIterator for SIMDIter<'a, T> where T : Packable {
     type Vector = <T as Packable>::Vector;
     type Scalar = T;
 
@@ -247,7 +247,7 @@ impl<'a, T> PackedIterator for PackedIter<'a, T> where T : Packable {
     }
 }
 
-impl<T: PackedIterator> IntoPackedIterator for T {
+impl<T: SIMDIterator> IntoSIMDIterator for T {
     type Iter = T;
 
     #[inline(always)]
@@ -258,40 +258,40 @@ impl<T: PackedIterator> IntoPackedIterator for T {
 
 /// A trait which transforms a contiguous collection into an owned stream of
 /// vectors.
-pub trait IntoPackedIterator {
-    type Iter: PackedIterator;
+pub trait IntoSIMDIterator {
+    type Iter: SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
-    /// values into SIMD vectors. See `PackedIterator::simd_map` and
-    /// `PackedIterator::simd_reduce` for more information.
+    /// values into SIMD vectors. See `SIMDIterator::simd_map` and
+    /// `SIMDIterator::simd_reduce` for more information.
     fn into_simd_iter(self) -> Self::Iter;
 }
 
 /// A trait which transforms a contiguous collection into a slice-backed stream
 /// of vectors.
-pub trait IntoPackedRefIterator<'a> {
-    type Iter: PackedIterator;
+pub trait IntoSIMDRefIterator<'a> {
+    type Iter: SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
-    /// values into SIMD vectors. See `PackedIterator::simd_map` and
-    /// `PackedIterator::simd_reduce` for more information.
+    /// values into SIMD vectors. See `SIMDIterator::simd_map` and
+    /// `SIMDIterator::simd_reduce` for more information.
     fn simd_iter(&'a self) -> Self::Iter;
 }
 
 /// A trait which transforms a contiguous collection into a mutable slice-backed
 /// stream of vectors.
-pub trait IntoPackedRefMutIterator<'a> {
-    type Iter: PackedIterator;
+pub trait IntoSIMDRefMutIterator<'a> {
+    type Iter: SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
-    /// values into SIMD vectors. See `PackedIterator::simd_map` and
-    /// `PackedIterator::simd_reduce` for more information.
+    /// values into SIMD vectors. See `SIMDIterator::simd_map` and
+    /// `SIMDIterator::simd_reduce` for more information.
     fn simd_iter_mut(&'a mut self) -> Self::Iter;
 }
 
-impl<'a, I: 'a + ?Sized> IntoPackedRefIterator<'a> for I
-    where &'a I: IntoPackedIterator {
-    type Iter = <&'a I as IntoPackedIterator>::Iter;
+impl<'a, I: 'a + ?Sized> IntoSIMDRefIterator<'a> for I
+    where &'a I: IntoSIMDIterator {
+    type Iter = <&'a I as IntoSIMDIterator>::Iter;
 
     #[inline(always)]
     fn simd_iter(&'a self) -> Self::Iter {
@@ -299,9 +299,9 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefIterator<'a> for I
     }
 }
 
-impl<'a, I: 'a + ?Sized> IntoPackedRefMutIterator<'a> for I
-    where &'a mut I: IntoPackedIterator {
-    type Iter = <&'a mut I as IntoPackedIterator>::Iter;
+impl<'a, I: 'a + ?Sized> IntoSIMDRefMutIterator<'a> for I
+    where &'a mut I: IntoSIMDIterator {
+    type Iter = <&'a mut I as IntoSIMDIterator>::Iter;
 
     #[inline(always)]
     fn simd_iter_mut(&'a mut self) -> Self::Iter {
@@ -309,8 +309,8 @@ impl<'a, I: 'a + ?Sized> IntoPackedRefMutIterator<'a> for I
     }
 }
 
-impl<A, B, I, F> Iterator for PackedMap<I, F>
-    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+impl<A, B, I, F> Iterator for SIMDMap<I, F>
+    where I : SIMDIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
     type Item = B;
 
     #[inline(always)]
@@ -325,8 +325,8 @@ impl<A, B, I, F> Iterator for PackedMap<I, F>
     }
 }
 
-impl<'a, I, F> ExactSizeIterator for PackedMap<I, F>
-    where Self : PackedIterator, I : PackedIterator {
+impl<'a, I, F> ExactSizeIterator for SIMDMap<I, F>
+    where Self : SIMDIterator, I : SIMDIterator {
 
     #[inline(always)]
     fn len(&self) -> usize {
@@ -334,8 +334,8 @@ impl<'a, I, F> ExactSizeIterator for PackedMap<I, F>
     }
 }
 
-impl<'a, A, B, I, F> PackedIterator for PackedMap<I, F>
-    where I : PackedIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+impl<'a, A, B, I, F> SIMDIterator for SIMDMap<I, F>
+    where I : SIMDIterator<Scalar = <I as Iterator>::Item>, <I as Iterator>::Item : Packable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
     type Vector = A;
     type Scalar = B;
 
@@ -378,7 +378,7 @@ pub trait IntoScalar<T> where T : Packable {
 }
 
 impl<'a, T, I> IntoScalar<T> for I
-    where I : PackedIterator<Scalar = T, Item = T>, I::Vector : Packed<Scalar = T>, T : Packable {
+    where I : SIMDIterator<Scalar = T, Item = T>, I::Vector : Packed<Scalar = T>, T : Packable {
     type Scalar = I::Scalar;
     type Vector = I::Vector;
 

@@ -4,7 +4,7 @@ use stdsimd::vendor::*;
 use intrin::transmute::*;
 use core_or_std::mem::transmute;
 
-pub trait PackedMerge {
+pub trait Merge {
     /// Return a vector with the first half populated by the first half of
     /// `self`, and the second half populated by the second half of `other`.
     ///
@@ -48,7 +48,7 @@ pub trait PackedMerge {
 macro_rules! impl_packed_merge {
     ($vec:ty, $uvec:tt, $uscl:tt, $mmfn:expr, $feat:expr, ($($a:expr),*), ($($b:expr),*), $($na:expr, $nb:expr),*) => {
         #[cfg(not(target_feature = $feat))]
-        impl PackedMerge for $vec {
+        impl Merge for $vec {
 
             #[inline(always)]
             fn merge_halves(&self, other: Self) -> Self {
@@ -73,7 +73,7 @@ macro_rules! impl_packed_merge {
         }
 
         #[cfg(target_feature = $feat)]
-        impl PackedMerge for $vec {
+        impl Merge for $vec {
 
             #[inline(always)]
             fn merge_halves(&self, other: Self) -> Self {

@@ -2,23 +2,23 @@ use vecs::*;
 use stdsimd::vendor::*;
 use core_or_std::ops::Add;
 use intrin::upcast::Upcast;
-use intrin::cmp::PackedCmp;
-use intrin::abs::PackedAbs;
-use intrin::transmute::PackedTransmute;
+use intrin::cmp::Cmp;
+use intrin::abs::Abs;
+use intrin::transmute::Transmute;
 
-pub trait PackedSum : Packed {
+pub trait Sum : Packed {
     /// Return a scalar equivalent to the sum of all elements of this vector.
     fn sum(&self) -> Self::Scalar;
 }
 
-pub trait PackedUpcastSum : Packed {
+pub trait UpcastSum :  {
     /// Return a scalar equivalent to the sum of all elements of this vector,
     /// but collect the result in an i64 rather than the vector's type.
     fn sum_upcast(&self) -> i64;
 }
 
 // TODO: Specialization
-// impl<T> PackedSum for T where T : Packed, T::Scalar : Add<T::Scalar, Output = T::Scalar>, T::Scalar : From<i8> {
+// impl<T> Sum for T where T : , T::Scalar : Add<T::Scalar, Output = T::Scalar>, T::Scalar : From<i8> {
 //     #[inline(always)]
 //     default fn sum(&self) -> Self::Scalar {
 //         self.scalar_reduce(Self::Scalar::from(0i8), |acc, s| acc + s)
@@ -26,7 +26,7 @@ pub trait PackedUpcastSum : Packed {
 // }
 
 // TODO: Specialization
-// impl<T> PackedUpcastSum for T where T : Packed, T::Scalar : Add<i64, Output = i64>, i64 : From<T::Scalar> {
+// impl<T> UpcastSum for T where T : , T::Scalar : Add<i64, Output = i64>, i64 : From<T::Scalar> {
 //     #[inline(always)]
 //     default fn sum_upcast(&self) -> i64 {
 //         self.scalar_reduce(0i64, |acc, s| acc + i64::from(s))
@@ -34,7 +34,7 @@ pub trait PackedUpcastSum : Packed {
 // }
 
 #[cfg(target_feature = "sse2")]
-impl PackedSum for i8x16 {
+impl Sum for i8x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         let pos = unsafe { _mm_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x16::splat(0)).be_u16s() };
@@ -45,7 +45,7 @@ impl PackedSum for i8x16 {
 }
 
 #[cfg(target_feature = "sse2")]
-impl PackedUpcastSum for i8x16 {
+impl UpcastSum for i8x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
         let pos = unsafe { _mm_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x16::splat(0)).be_u16s() };
@@ -56,7 +56,7 @@ impl PackedUpcastSum for i8x16 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedSum for i8x32 {
+impl Sum for i8x32 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         let pos = unsafe { _mm256_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x32::splat(0)).be_u16s() };
@@ -69,7 +69,7 @@ impl PackedSum for i8x32 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedUpcastSum for i8x32 {
+impl UpcastSum for i8x32 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
         let pos = unsafe { _mm256_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x32::splat(0)).be_u16s() };
@@ -82,7 +82,7 @@ impl PackedUpcastSum for i8x32 {
 }
 
 #[cfg(target_feature = "sse2")]
-impl PackedSum for u8x16 {
+impl Sum for u8x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         let x = unsafe { _mm_sad_epu8(*self, Self::splat(0)).be_u16s() };
@@ -91,7 +91,7 @@ impl PackedSum for u8x16 {
 }
 
 #[cfg(target_feature = "sse2")]
-impl PackedUpcastSum for u8x16 {
+impl UpcastSum for u8x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
         let x = unsafe { _mm_sad_epu8(*self, Self::splat(0)).be_u16s() };
@@ -100,7 +100,7 @@ impl PackedUpcastSum for u8x16 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedSum for u8x32 {
+impl Sum for u8x32 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         let x = unsafe { _mm256_sad_epu8(*self, Self::splat(0)).be_u16s() };
@@ -109,7 +109,7 @@ impl PackedSum for u8x32 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedUpcastSum for u8x32 {
+impl UpcastSum for u8x32 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
         let x = unsafe { _mm256_sad_epu8(*self, Self::splat(0)).be_u16s() };
@@ -118,7 +118,7 @@ impl PackedUpcastSum for u8x32 {
 }
 
 #[cfg(target_feature = "ssse3")]
-impl PackedSum for i16x8 {
+impl Sum for i16x8 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         let x =  unsafe {
@@ -131,7 +131,7 @@ impl PackedSum for i16x8 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedSum for i16x16 {
+impl Sum for i16x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         let x =  unsafe {
@@ -144,7 +144,7 @@ impl PackedSum for i16x16 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedUpcastSum for i16x16 {
+impl UpcastSum for i16x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
         unsafe {
@@ -159,7 +159,7 @@ impl PackedUpcastSum for i16x16 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedSum for u16x16 {
+impl Sum for u16x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         unsafe {
@@ -174,7 +174,7 @@ impl PackedSum for u16x16 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedUpcastSum for u16x16 {
+impl UpcastSum for u16x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
         unsafe {
@@ -189,7 +189,7 @@ impl PackedUpcastSum for u16x16 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedSum for i32x8 {
+impl Sum for i32x8 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
         let x = unsafe {
@@ -203,7 +203,7 @@ impl PackedSum for i32x8 {
 macro_rules! impl_packed_sum {
     ($($vec:tt),*) => {
         $(
-            impl PackedSum for $vec {
+            impl Sum for $vec {
                 #[inline(always)]
                 default fn sum(&self) -> Self::Scalar {
                     self.scalar_reduce(0 as Self::Scalar, |acc, s| acc + s)
@@ -216,7 +216,7 @@ macro_rules! impl_packed_sum {
 macro_rules! impl_packed_upcast_sum {
     ($($vec:tt),*) => {
         $(
-            impl PackedUpcastSum for $vec {
+            impl UpcastSum for $vec {
                 #[inline(always)]
                 default fn sum_upcast(&self) -> i64 {
                     self.scalar_reduce(0i64, |acc, s| acc + (s as i64))

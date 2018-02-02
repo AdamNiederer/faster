@@ -8,19 +8,19 @@
 #![allow(unused_imports)]
 
 use vecs::*;
-use iters::{PackedIter, PackedIterator};
+use iters::{SIMDIter, SIMDIterator};
 use core_or_std::iter::{Iterator, ExactSizeIterator};
 
 // For AVX2 gathers
 use core_or_std::mem::transmute;
 use stdsimd::vendor::*;
 use stdsimd::simd::{__m256i, __m128i};
-use intrin::PackedTransmute;
+use intrin::Transmute;
 
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.
 pub struct PackedStripe<'a, T> where T : Packable + 'a {
-    iter: &'a PackedIter<'a, T>,
+    iter: &'a SIMDIter<'a, T>,
     base: usize,
     stride: usize
 }
@@ -49,7 +49,7 @@ impl<'a, T> ExactSizeIterator for PackedStripe<'a, T>
     }
 }
 
-impl<'a, T> PackedIter<'a, T> where T : Packable {
+impl<'a, T> SIMDIter<'a, T> where T : Packable {
     /// Return a vec of iterators which pack every `count`th element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, `count`th, `count * 2`th...
@@ -193,7 +193,7 @@ impl<'a, T> PackedIter<'a, T> where T : Packable {
     }
 }
 
-impl<'a, T> PackedIterator for PackedStripe<'a, T> where T : Packable {
+impl<'a, T> SIMDIterator for PackedStripe<'a, T> where T : Packable {
     type Scalar = T;
     type Vector = <T as Packable>::Vector;
 
@@ -231,7 +231,7 @@ impl<'a, T> PackedIterator for PackedStripe<'a, T> where T : Packable {
         if self.base < self.iter.len() {
             let mut ret = default.clone();
             let fill_amt = (self.iter.len() - self.base) / self.stride;
-            // Right-align the partial vector to maintain compat with PackedIter
+            // Right-align the partial vector to maintain compat with SIMDIter
             for i in (self.width() - fill_amt)..self.width() {
                 ret = ret.replace(i, self.iter.data[self.base + self.stride * i]);
             }

@@ -9,8 +9,8 @@ use stdsimd::vendor::*;
 use core_or_std::ops::BitXor;
 use vecs::*;
 
-pub trait PackedEq : Packed {
-    type Out : PackedPattern + BitXor<Self::Out, Output = Self::Out>;
+pub trait Eq : Packed {
+    type Out : Pattern + BitXor<Self::Out, Output = Self::Out>;
 
     /// Return a vector where each element at an index i is filled with 1s if
     /// the elements of `self` and `other` at index i are equal, and filled with
@@ -77,124 +77,124 @@ macro_rules! rust_fallback_eq {
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u8x16 where "sse2" {
+    impl Eq for u8x16 where "sse2" {
         eq_mask, eq => u8x16, u8, _mm_cmpeq_epi8(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for i8x16 where "sse4.1" {
+    impl Eq for i8x16 where "sse4.1" {
         eq_mask, eq => u8x16, u8, _mm_cmpeq_epi8(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u16x8 where "sse4.1" {
+    impl Eq for u16x8 where "sse4.1" {
         eq_mask, eq => u16x8, u16, _mm_cmpeq_epi16(), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for i16x8 where "sse4.1" {
+    impl Eq for i16x8 where "sse4.1" {
         eq_mask, eq => u16x8, u16, _mm_cmpeq_epi16(), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u32x4 where "sse4.1" {
+    impl Eq for u32x4 where "sse4.1" {
         eq_mask, eq => u32x4, u32, _mm_cmpeq_epi32(), [0, 1, 2, 3];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for i32x4 where "sse4.1" {
+    impl Eq for i32x4 where "sse4.1" {
         eq_mask, eq => u32x4, u32, _mm_cmpeq_epi32(), [0, 1, 2, 3];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for f32x4 where "sse" {
+    impl Eq for f32x4 where "sse" {
         eq_mask, eq => u32x4, u32, _mm_cmpeq_ps(), [0, 1, 2, 3];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for f64x2 where "sse2" {
+    impl Eq for f64x2 where "sse2" {
         eq_mask, eq => u64x2, u64, _mm_cmpeq_pd(), [0, 1];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u64x2 where "sse4.1" {
+    impl Eq for u64x2 where "sse4.1" {
         eq_mask, eq => u64x2, u64, _mm_cmpeq_epi64(), [0, 1];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for i64x2 where "sse4.1" {
+    impl Eq for i64x2 where "sse4.1" {
         eq_mask, eq => u64x2, u64, _mm_cmpeq_epi64(), [0, 1];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u8x32 where "avx2" {
+    impl Eq for u8x32 where "avx2" {
         eq_mask, eq => u8x32, u8, _mm256_cmpeq_epi8(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
                                                17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for i8x32 where "avx2" {
+    impl Eq for i8x32 where "avx2" {
         eq_mask, eq => u8x32, u8, _mm256_cmpeq_epi8(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
                                                17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u16x16 where "avx2" {
+    impl Eq for u16x16 where "avx2" {
         eq_mask, eq => u16x16, u16, _mm256_cmpeq_epi16(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     }
 }
 
 
 rust_fallback_eq! {
-    impl PackedEq for i16x16 where "avx2" {
+    impl Eq for i16x16 where "avx2" {
         eq_mask, eq => u16x16, u16, _mm256_cmpeq_epi16(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u32x8 where "avx" {
+    impl Eq for u32x8 where "avx" {
         eq_mask, eq => u32x8, u32, _mm256_cmpeq_epi32(), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for i32x8 where "avx" {
+    impl Eq for i32x8 where "avx" {
         eq_mask, eq => u32x8, u32, _mm256_cmpeq_epi32(), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for f32x8 where "avx" {
+    impl Eq for f32x8 where "avx" {
         eq_mask, eq => u32x8, u32, _mm256_cmp_ps(0x00), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for f64x4 where "avx" {
+    impl Eq for f64x4 where "avx" {
         eq_mask, eq => u64x4, u64, _mm256_cmp_pd(0x00), [0, 1, 2, 3];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for u64x4 where "avx2" {
+    impl Eq for u64x4 where "avx2" {
         eq_mask, eq => u64x4, u64, _mm256_cmpeq_epi64(), [0, 1, 2, 3];
     }
 }
 
 rust_fallback_eq! {
-    impl PackedEq for i64x4 where "avx2" {
+    impl Eq for i64x4 where "avx2" {
         eq_mask, eq => u64x4, u64, _mm256_cmpeq_epi64(), [0, 1, 2, 3];
     }
 }

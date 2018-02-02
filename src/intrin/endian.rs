@@ -3,7 +3,7 @@ use stdsimd::vendor::*;
 use intrin::transmute::*;
 use core_or_std::mem::transmute;
 
-pub trait PackedReendianize : Sized + Copy {
+pub trait Reendianize : Sized + Copy {
     /// Return a vector containing elements of `self` with switched endianness.
     ///
     /// ```
@@ -67,7 +67,7 @@ pub trait PackedReendianize : Sized + Copy {
 
 macro_rules! impl_packed_swap_bytes {
     ($vec:tt, $uvec:tt, $feat:expr, $mmfn:tt, ($($c:expr),*), ($($a:expr, $b:expr),*)) => {
-        impl PackedReendianize for $vec {
+        impl Reendianize for $vec {
             #[cfg(not(target_feature = $feat))]
             #[inline(always)]
             fn swap_bytes(&self) -> Self {

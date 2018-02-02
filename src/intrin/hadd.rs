@@ -10,7 +10,7 @@ use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x
 use intrin::transmute::*;
 use core_or_std::ops::Add;
 
-pub trait PackedHadd {
+pub trait HAdd {
     /// Return a vector containing the interleaved sums of elements in `self`
     /// and `other`. The returned vector will begin with the sum of the first
     /// two elements in `self`, and end with the sum of the last two elements in
@@ -19,7 +19,7 @@ pub trait PackedHadd {
 }
 
 #[cfg(target_feature = "sse3")]
-impl PackedHadd for f32x4 {
+impl HAdd for f32x4 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm_hadd_ps(_mm_shuffle_ps(*self, other, 0b01000100),
@@ -28,7 +28,7 @@ impl PackedHadd for f32x4 {
 }
 
 #[cfg(target_feature = "sse3")]
-impl PackedHadd for f64x2 {
+impl HAdd for f64x2 {
     #[inline(always)]
     #[cfg(target_feature = "sse3")]
     fn hadd(&self, other: Self) -> Self {
@@ -37,7 +37,7 @@ impl PackedHadd for f64x2 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedHadd for f32x8 {
+impl HAdd for f32x8 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm256_hadd_ps(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_f32s_unchecked(),
@@ -46,7 +46,7 @@ impl PackedHadd for f32x8 {
 }
 
 #[cfg(target_feature = "avx")]
-impl PackedHadd for f64x4 {
+impl HAdd for f64x4 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm256_hadd_pd(*self, other) }
@@ -54,7 +54,7 @@ impl PackedHadd for f64x4 {
 }
 
 #[cfg(target_feature = "ssse3")]
-impl PackedHadd for i16x8 {
+impl HAdd for i16x8 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm_hadd_epi16(_mm_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
@@ -63,7 +63,7 @@ impl PackedHadd for i16x8 {
 }
 
 #[cfg(target_feature = "ssse3")]
-impl PackedHadd for i32x4 {
+impl HAdd for i32x4 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm_hadd_epi32(_mm_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
@@ -72,7 +72,7 @@ impl PackedHadd for i32x4 {
 }
 
 #[cfg(target_feature = "avx2")]
-impl PackedHadd for i16x16 {
+impl HAdd for i16x16 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm256_hadd_epi16(_mm256_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
@@ -82,7 +82,7 @@ impl PackedHadd for i16x16 {
 
 
 #[cfg(target_feature = "avx2")]
-impl PackedHadd for i32x8 {
+impl HAdd for i32x8 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
         unsafe { _mm256_hadd_epi32(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
@@ -90,44 +90,44 @@ impl PackedHadd for i32x8 {
     }
 }
 
-impl PackedHadd for u64x2 { hop!(hadd, Add::add, 0, 1); }
-impl PackedHadd for u64x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
-impl PackedHadd for u64x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHadd for u32x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
-impl PackedHadd for u32x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHadd for u32x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHadd for u16x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHadd for u16x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHadd for u16x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHadd for u8x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHadd for u8x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHadd for u8x64 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
-impl PackedHadd for i64x2 { hop!(hadd, Add::add, 0, 1); }
-impl PackedHadd for i64x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
-impl PackedHadd for i64x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for u64x2 { hop!(hadd, Add::add, 0, 1); }
+impl HAdd for u64x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
+impl HAdd for u64x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for u32x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
+impl HAdd for u32x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for u32x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HAdd for u16x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for u16x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HAdd for u16x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HAdd for u8x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HAdd for u8x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HAdd for u8x64 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
+impl HAdd for i64x2 { hop!(hadd, Add::add, 0, 1); }
+impl HAdd for i64x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
+impl HAdd for i64x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
 #[cfg(not(target_feature = "ssse3"))]
-impl PackedHadd for i32x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
+impl HAdd for i32x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
 #[cfg(not(target_feature = "avx2"))]
-impl PackedHadd for i32x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHadd for i32x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HAdd for i32x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for i32x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
 #[cfg(not(target_feature = "ssse3"))]
-impl PackedHadd for i16x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for i16x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
 #[cfg(not(target_feature = "avx2"))]
-impl PackedHadd for i16x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHadd for i16x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHadd for i8x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-impl PackedHadd for i8x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
-impl PackedHadd for i8x64 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
+impl HAdd for i16x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HAdd for i16x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HAdd for i8x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HAdd for i8x32 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31); }
+impl HAdd for i8x64 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63); }
 #[cfg(not(target_feature = "sse3"))]
-impl PackedHadd for f64x2 { hop!(hadd, Add::add, 0, 1); }
+impl HAdd for f64x2 { hop!(hadd, Add::add, 0, 1); }
 #[cfg(not(target_feature = "avx"))]
-impl PackedHadd for f64x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
-impl PackedHadd for f64x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for f64x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
+impl HAdd for f64x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
 #[cfg(not(target_feature = "sse3"))]
-impl PackedHadd for f32x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
+impl HAdd for f32x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
 #[cfg(not(target_feature = "avx2"))]
-impl PackedHadd for f32x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
-impl PackedHadd for f32x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
+impl HAdd for f32x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }
+impl HAdd for f32x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
 
 #[cfg(test)]
 mod tests {

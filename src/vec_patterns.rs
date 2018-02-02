@@ -12,7 +12,7 @@ use core_or_std::mem::transmute;
 use stdsimd::vendor::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
-pub trait PackedPattern : Packed {
+pub trait Pattern : Packed {
     /// Return a vector whose first `Self::WIDTH / 2` elements are `hi`, and
     /// whose last `Self::WIDTH / 2` elements are `lo`.
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;
@@ -53,7 +53,7 @@ const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
 
-impl PackedPattern for u8x64 {
+impl Pattern for u8x64 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -162,7 +162,7 @@ impl PackedPattern for u8x64 {
     }
 }
 
-impl PackedPattern for u8x32 {
+impl Pattern for u8x32 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -239,7 +239,7 @@ impl PackedPattern for u8x32 {
     }
 }
 
-impl PackedPattern for u8x16 {
+impl Pattern for u8x16 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -300,7 +300,7 @@ impl PackedPattern for u8x16 {
     }
 }
 
-impl PackedPattern for i8x64 {
+impl Pattern for i8x64 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -409,7 +409,7 @@ impl PackedPattern for i8x64 {
     }
 }
 
-impl PackedPattern for i8x32 {
+impl Pattern for i8x32 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -486,7 +486,7 @@ impl PackedPattern for i8x32 {
     }
 }
 
-impl PackedPattern for i8x16 {
+impl Pattern for i8x16 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -547,7 +547,7 @@ impl PackedPattern for i8x16 {
     }
 }
 
-impl PackedPattern for u16x32 {
+impl Pattern for u16x32 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -624,7 +624,7 @@ impl PackedPattern for u16x32 {
     }
 }
 
-impl PackedPattern for u16x16 {
+impl Pattern for u16x16 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -685,7 +685,7 @@ impl PackedPattern for u16x16 {
     }
 }
 
-impl PackedPattern for u16x8 {
+impl Pattern for u16x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -738,7 +738,7 @@ impl PackedPattern for u16x8 {
     }
 }
 
-impl PackedPattern for i16x32 {
+impl Pattern for i16x32 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -815,7 +815,7 @@ impl PackedPattern for i16x32 {
     }
 }
 
-impl PackedPattern for i16x16 {
+impl Pattern for i16x16 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -876,7 +876,7 @@ impl PackedPattern for i16x16 {
     }
 }
 
-impl PackedPattern for i16x8 {
+impl Pattern for i16x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -929,7 +929,7 @@ impl PackedPattern for i16x8 {
     }
 }
 
-impl PackedPattern for u32x16 {
+impl Pattern for u32x16 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -990,7 +990,7 @@ impl PackedPattern for u32x16 {
     }
 }
 
-impl PackedPattern for u32x8 {
+impl Pattern for u32x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -1043,7 +1043,7 @@ impl PackedPattern for u32x8 {
     }
 }
 
-impl PackedPattern for u32x4 {
+impl Pattern for u32x4 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
@@ -1092,7 +1092,7 @@ impl PackedPattern for u32x4 {
     }
 }
 
-impl PackedPattern for i32x16 {
+impl Pattern for i32x16 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -1153,7 +1153,7 @@ impl PackedPattern for i32x16 {
     }
 }
 
-impl PackedPattern for i32x8 {
+impl Pattern for i32x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -1206,7 +1206,7 @@ impl PackedPattern for i32x8 {
     }
 }
 
-impl PackedPattern for i32x4 {
+impl Pattern for i32x4 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
@@ -1255,7 +1255,7 @@ impl PackedPattern for i32x4 {
     }
 }
 
-impl PackedPattern for f32x16 {
+impl Pattern for f32x16 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, hi, hi, hi, hi, lo, lo, lo, lo, lo, lo, lo, lo)
@@ -1316,7 +1316,7 @@ impl PackedPattern for f32x16 {
     }
 }
 
-impl PackedPattern for f32x8 {
+impl Pattern for f32x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -1369,7 +1369,7 @@ impl PackedPattern for f32x8 {
     }
 }
 
-impl PackedPattern for f32x4 {
+impl Pattern for f32x4 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
@@ -1418,7 +1418,7 @@ impl PackedPattern for f32x4 {
     }
 }
 
-impl PackedPattern for u64x8 {
+impl Pattern for u64x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -1471,7 +1471,7 @@ impl PackedPattern for u64x8 {
     }
 }
 
-impl PackedPattern for u64x4 {
+impl Pattern for u64x4 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
@@ -1520,7 +1520,7 @@ impl PackedPattern for u64x4 {
     }
 }
 
-impl PackedPattern for u64x2 {
+impl Pattern for u64x2 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
@@ -1567,7 +1567,7 @@ impl PackedPattern for u64x2 {
     }
 }
 
-impl PackedPattern for i64x8 {
+impl Pattern for i64x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -1620,7 +1620,7 @@ impl PackedPattern for i64x8 {
     }
 }
 
-impl PackedPattern for i64x4 {
+impl Pattern for i64x4 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
@@ -1669,7 +1669,7 @@ impl PackedPattern for i64x4 {
     }
 }
 
-impl PackedPattern for i64x2 {
+impl Pattern for i64x2 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)
@@ -1716,7 +1716,7 @@ impl PackedPattern for i64x2 {
     }
 }
 
-impl PackedPattern for f64x8 {
+impl Pattern for f64x8 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, hi, hi, lo, lo, lo, lo)
@@ -1769,7 +1769,7 @@ impl PackedPattern for f64x8 {
     }
 }
 
-impl PackedPattern for f64x4 {
+impl Pattern for f64x4 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, hi, lo, lo)
@@ -1818,7 +1818,7 @@ impl PackedPattern for f64x4 {
     }
 }
 
-impl PackedPattern for f64x2 {
+impl Pattern for f64x2 {
     #[inline(always)]
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {
         Self::new(hi, lo)

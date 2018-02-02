@@ -19,11 +19,11 @@
 //! pack your iterator's data into SIMD vectors and allow you to transparently
 //! operate on them in a closure.
 //!
-//! [`simd_iter`]: iters/trait.IntoPackedIterator.html#tymethod.into_simd_iter
-//! [`simd_iter_mut`]: iters/trait.IntoPackedRefIterator.html#tymethod.simd_iter
-//! [`into_simd_iter`]: iters/trait.IntoPackedRefMutIterator.html#tymethod.simd_iter_mut
-//! [`simd_map`]: iters/trait.PackedIterator.html#tymethod.simd_map
-//! [`simd_reduce`]: iters/trait.PackedIterator.html#tymethod.simd_reduce
+//! [`simd_iter`]: iters/trait.IntoSIMDIterator.html#tymethod.into_simd_iter
+//! [`simd_iter_mut`]: iters/trait.IntoSIMDRefIterator.html#tymethod.simd_iter
+//! [`into_simd_iter`]: iters/trait.IntoSIMDRefMutIterator.html#tymethod.simd_iter_mut
+//! [`simd_map`]: iters/trait.SIMDIterator.html#tymethod.simd_map
+//! [`simd_reduce`]: iters/trait.SIMDIterator.html#tymethod.simd_reduce
 //!
 //! # SIMD Polyfills
 //!
@@ -102,7 +102,7 @@
 //! Faster supports vectorized lockstep iteration over multiple collections.
 //! Simply [`zip`] them up, and proceed as normal.
 //!
-//! [`zip`]: zip/trait.IntoPackedZip.html
+//! [`zip`]: zip/trait.IntoSIMDZip.html
 //!
 //! ```
 //! extern crate faster;
@@ -121,8 +121,8 @@
 //! machines. Simply call [`stripe`], or one of the slightly-faster tuple-based
 //! functions, such as [`stripe_two`].
 //!
-//! [`stripe`]: iters/struct.PackedIter.html#method.stripe
-//! [`stripe_two`]: iters/struct.PackedIter.html#method.stripe_two
+//! [`stripe`]: iters/struct.SIMDIter.html#method.stripe
+//! [`stripe_two`]: iters/struct.SIMDIter.html#method.stripe_two
 //!
 //! ```
 //! extern crate faster;

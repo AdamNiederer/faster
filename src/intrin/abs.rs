@@ -9,7 +9,7 @@ use stdsimd::vendor::*;
 use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2};
 use core_or_std::mem::transmute;
 
-pub trait PackedAbs {
+pub trait Abs {
     type Out;
     /// Return a vector the absolute value of the elements of `self`.
     ///
@@ -27,7 +27,7 @@ pub trait PackedAbs {
     fn abs(&self) -> Self::Out;
 }
 
-impl PackedAbs for f32x4 {
+impl Abs for f32x4 {
     type Out = f32x4;
 
     #[inline(always)]
@@ -46,7 +46,7 @@ impl PackedAbs for f32x4 {
     }
 }
 
-impl PackedAbs for f64x2 {
+impl Abs for f64x2 {
     type Out = f64x2;
 
     #[inline(always)]
@@ -63,7 +63,7 @@ impl PackedAbs for f64x2 {
     }
 }
 
-impl PackedAbs for f32x8 {
+impl Abs for f32x8 {
     type Out = f32x8;
 
     #[inline(always)]
@@ -86,7 +86,7 @@ impl PackedAbs for f32x8 {
     }
 }
 
-impl PackedAbs for f64x4 {
+impl Abs for f64x4 {
     type Out = f64x4;
 
     #[inline(always)]
@@ -105,7 +105,7 @@ impl PackedAbs for f64x4 {
     }
 }
 
-impl PackedAbs for i8x16 {
+impl Abs for i8x16 {
     type Out = u8x16;
 
     #[inline(always)]
@@ -136,7 +136,7 @@ impl PackedAbs for i8x16 {
     }
 }
 
-impl PackedAbs for i16x8 {
+impl Abs for i16x8 {
     type Out = u16x8;
 
     #[inline(always)]
@@ -159,7 +159,7 @@ impl PackedAbs for i16x8 {
     }
 }
 
-impl PackedAbs for i32x4 {
+impl Abs for i32x4 {
     type Out = u32x4;
 
     #[inline(always)]
@@ -178,7 +178,7 @@ impl PackedAbs for i32x4 {
     }
 }
 
-impl PackedAbs for i8x32 {
+impl Abs for i8x32 {
     type Out = u8x32;
 
     #[inline(always)]
@@ -226,7 +226,7 @@ impl PackedAbs for i8x32 {
 }
 
 
-impl PackedAbs for i16x16 {
+impl Abs for i16x16 {
     type Out = u16x16;
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
@@ -256,7 +256,7 @@ impl PackedAbs for i16x16 {
     }
 }
 
-impl PackedAbs for i32x8 {
+impl Abs for i32x8 {
     type Out = u32x8;
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
@@ -278,7 +278,7 @@ impl PackedAbs for i32x8 {
     }
 }
 
-impl PackedAbs for i64x2 {
+impl Abs for i64x2 {
     type Out = u64x2;
 
     #[inline(always)]
@@ -288,7 +288,7 @@ impl PackedAbs for i64x2 {
     }
 }
 
-impl PackedAbs for i64x4 {
+impl Abs for i64x4 {
     type Out = u64x4;
 
     #[inline(always)]
@@ -300,7 +300,7 @@ impl PackedAbs for i64x4 {
     }
 }
 
-impl PackedAbs for i64x8 {
+impl Abs for i64x8 {
     type Out = u64x8;
 
     #[inline(always)]

@@ -3,7 +3,7 @@ use stdsimd::vendor::*;
 use intrin::transmute::*;
 use core_or_std::mem::transmute;
 
-pub trait PackedSwizzle {
+pub trait Swizzle {
     /// Return a vector containing elements of self, but with even and odd
     /// elements swapped in-place. For (n = 0, 2, ... Self::WIDTH), elements at
     /// indices n and n + 1 are swapped.
@@ -22,7 +22,7 @@ pub trait PackedSwizzle {
 
 macro_rules! impl_packed_swizzle {
     ($vec:tt, $uvec:tt, $feat:expr, $mmfn:tt, ($($c:expr),*), ($($a:expr, $b:expr),*)) => {
-        impl PackedSwizzle for $vec {
+        impl Swizzle for $vec {
             #[cfg(not(target_feature = $feat))]
             #[inline(always)]
             fn flip(&self) -> Self {

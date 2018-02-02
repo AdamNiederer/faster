@@ -10,7 +10,7 @@ use vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x
 
 // TODO: Guards and non-simd
 
-pub trait PackedRsqrt {
+pub trait Rsqrt {
     /// Return a vector containing an approximation of the reciprocals of the
     /// square-roots of elements in `self`. May contain significant float error
     /// past 10^-3.
@@ -27,25 +27,25 @@ pub trait PackedRsqrt {
 }
 
 rust_fallback_impl! {
-    impl PackedRsqrt for f32x8 where "avx" {
+    impl Rsqrt for f32x8 where "avx" {
         rsqrt => _mm256_rsqrt_ps(), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
 
 rust_fallback_impl! {
-    impl PackedRsqrt for f32x4 where "sse" {
+    impl Rsqrt for f32x4 where "sse" {
         rsqrt => _mm_rsqrt_ps(), [0, 1, 2, 3];
     }
 }
 
-impl PackedRsqrt for f32 {
+impl Rsqrt for f32 {
     #[inline(always)]
     fn rsqrt(&self) -> Self {
         self.sqrt().recip()
     }
 }
 
-impl PackedRsqrt for f64 {
+impl Rsqrt for f64 {
     #[inline(always)]
     fn rsqrt(&self) -> Self {
         self.sqrt().recip()

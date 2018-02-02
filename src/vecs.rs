@@ -9,12 +9,13 @@
 pub use stdsimd::simd::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2};
 #[cfg(not(target_feature = "sse"))]
 pub use shimvecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2};
-pub use vec_patterns::PackedPattern;
-use iters::{IntoPackedRefIterator, IntoPackedRefMutIterator, PackedIter};
+pub use vec_patterns::Pattern;
+use iters::{IntoSIMDRefIterator, IntoSIMDRefMutIterator, SIMDIter};
 use core_or_std::fmt::Debug;
 use intrin::*;
+
 /// A SIMD vector of some type.
-pub trait Packed : Sized + Copy + Debug + PackedMerge {
+pub trait Packed : Sized + Copy + Debug + Merge {
     /// The type which fits into this SIMD vector
     type Scalar : Packable;
 
@@ -162,12 +163,12 @@ macro_rules! impl_packed {
         }
 
         #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
-        impl<'a> IntoPackedRefIterator<'a> for &'a [$el] {
-            type Iter = PackedIter<'a, $el>;
+        impl<'a> IntoSIMDRefIterator<'a> for &'a [$el] {
+            type Iter = SIMDIter<'a, $el>;
 
             #[inline(always)]
             fn simd_iter(&'a self) -> Self::Iter {
-                PackedIter {
+                SIMDIter {
                     data: self,
                     position: 0,
                 }
@@ -175,12 +176,12 @@ macro_rules! impl_packed {
         }
 
         #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
-        impl<'a> IntoPackedRefMutIterator<'a> for &'a mut [$el] {
-            type Iter = PackedIter<'a, $el>;
+        impl<'a> IntoSIMDRefMutIterator<'a> for &'a mut [$el] {
+            type Iter = SIMDIter<'a, $el>;
 
             #[inline(always)]
             fn simd_iter_mut(&'a mut self) -> Self::Iter {
-                PackedIter {
+                SIMDIter {
                     data: self,
                     position: 0,
                 }
