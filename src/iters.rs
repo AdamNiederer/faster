@@ -7,6 +7,7 @@
 
 use vecs::{Packable, Packed};
 use intrin::Merge;
+use core_or_std::slice::from_raw_parts;
 
 /// An iterator which automatically packs the values it iterates over into SIMD
 /// vectors.
@@ -131,6 +132,14 @@ pub trait SIMDIterator : Sized + ExactSizeIterator {
             start
         }
     }
+
+    /// Create a PackedIter over the remaining elements in this iterator
+    #[inline(always)]
+    fn pack(self) -> PackedIter<Self> {
+        PackedIter {
+            iter: self,
+        }
+    }
 }
 
 /// A slice-backed iterator which can automatically pack its constituent
@@ -141,12 +150,76 @@ pub struct SIMDIter<'a, T : 'a + Packable> {
     pub data: &'a [T],
 }
 
+/// A slice-backed iterator which yields packed elements using the Iterator API.
+#[derive(Debug)]
+pub struct PackedIter<T : SIMDIterator> {
+    pub iter: T
+}
+
+/// An iterator which yields multiple elements of a PackedIter
+#[derive(Debug)]
+pub struct Unroll<'a, T : 'a + SIMDIterator> {
+    iter: &'a mut PackedIter<T>,
+    amt: usize,
+    scratch: [T::Vector; 8]
+}
+
 /// A lazy mapping iterator which applies its function to a stream of vectors.
 #[derive(Debug)]
 pub struct SIMDMap<I, F> where I : SIMDIterator {
     pub iter: I,
     pub func: F,
     pub default: I::Vector,
+}
+
+impl<T> PackedIter<T> where T : SIMDIterator, T::Vector : Packed {
+    #[inline(always)]
+    pub fn unpack(self) -> T {
+        self.iter
+    }
+
+    #[inline(always)]
+    pub fn unroll<'a>(&'a mut self, amt: usize) -> Unroll<'a, T> {
+        assert!(amt <= 8);
+        Unroll {
+            iter: self,
+            amt: amt,
+            scratch: [T::Vector::default(); 8]
+        }
+    }
+}
+
+impl<T> Iterator for PackedIter<T> where T : SIMDIterator {
+    type Item = T::Vector;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(self.iter.next_vector()?)
+    }
+}
+
+impl<'a, T> Iterator for Unroll<'a, T> where T : 'a + SIMDIterator {
+    type Item = &'a [T::Vector];
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut i = 0;
+        while i < self.amt {
+            if let Some(vec) = self.iter.next() {
+                self.scratch[i] = vec;
+                i += 1;
+            } else {
+                break;
+            }
+        }
+        if i > 0 {
+            unsafe {
+                Some(from_raw_parts((&mut self.scratch).as_mut_ptr(), i))
+            }
+        } else {
+            None
+        }
+    }
 }
 
 impl<'a, T> SIMDIter<'a, T> where T : Packable {

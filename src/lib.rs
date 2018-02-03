@@ -49,7 +49,7 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let lots_of_10s = (&[-10i8; 3000][..]).simd_iter()
+//! let lots_of_10s = [-10i8; 3000].simd_iter()
 //!    .simd_map(i8s(0), |v| v.abs())
 //!    .scalar_collect();
 //! assert_eq!(lots_of_10s, vec![10u8; 3000]);
@@ -78,7 +78,7 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let two_hundred = (&[2.0f32; 100][..]).simd_iter()
+//! let two_hundred = [2.0f32; 100].simd_iter()
 //!    .simd_reduce(f32s(0.0), f32s(0.0), |acc, v| acc + v)
 //!    .sum();
 //! assert_eq!(two_hundred, 200.0f32);
@@ -109,7 +109,7 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let sevens = ((&[4i32; 200][..]).simd_iter(), (&[3i32; 200][..]).simd_iter()).zip()
+//! let sevens = ([4i32; 200].simd_iter(), [3i32; 200].simd_iter()).zip()
 //!     .simd_map(tuplify!(2, i32s(0)), |(a, b)| a + b)
 //!     .scalar_collect();
 //! # }
@@ -131,7 +131,7 @@
 //!
 //! fn main() {
 //!     // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
-//!     let slice: &[f32] = &[1.0f32; 1024][..];
+//!     let slice: &[f32] = &[1.0f32; 1024];
 //!     let simd_iter = slice.simd_iter();
 //!     let determinant = simd_iter.stripe_four().zip().simd_map(tuplify!(4, f32s(0.0)), |(a, b, c, d)| {
 //!         a * d - b * c
@@ -154,7 +154,7 @@
 //!
 //! # fn main() {
 //! let mut flip = true;
-//! let impure = (&[1i8; 3000][..]).simd_iter()
+//! let impure = [1i8; 3000].simd_iter()
 //!    .simd_map(i8s(0), |v| { flip = !flip; if flip { v + i8s(1) } else { v } })
 //!    .scalar_collect();
 //! // Depending on the width of your target's SIMD vectors, `impure` could be
@@ -168,7 +168,7 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let length_dependent = (&[0i8; 10][..]).simd_iter()
+//! let length_dependent = [0i8; 10].simd_iter()
 //!    .simd_reduce(i8s(0), i8s(0), |acc, v| acc + v + i8s(1)).sum();
 //! // `length_dependent` could be a different number on a different target!
 //! # }
@@ -216,28 +216,28 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_nop_simd(b: &mut Bencher) {
+    fn nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[0u8; 1024][..]).simd_iter().simd_map(u8s(0), |v| v).scalar_collect())
+                [0u8; 1024].simd_iter().simd_map(u8s(0), |v| v).scalar_collect())
         });
     }
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_nop_scalar(b: &mut Bencher) {
+    fn nop_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[0u8; 1024][..]).iter().map(|e| *e).collect::<Vec<u8>>())
+                [0u8; 1024].iter().map(|e| *e).collect::<Vec<u8>>())
         });
     }
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_map_simd(b: &mut Bencher) {
+    fn map_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).simd_iter()
+                [-123.456f32; 1024].simd_iter()
                     .simd_map(f32s(0.0), |v| {
                         f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
                             - f32s(4.0) - f32s(2.0) })
@@ -246,11 +246,101 @@ mod tests {
     }
 
     #[bench]
-    fn bench_map_eager_simd(b: &mut Bencher) {
+    fn for_fill_simd(b: &mut Bencher) {
+        let mut out = [0f32; 1024];
+        b.iter(|| {
+            for (i, v) in [-123.456f32; 1024].simd_iter().pack().enumerate() {
+                let ans = f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0);
+                ans.store(&mut out, i * ans.width());
+            }
+            out
+        })
+    }
+
+    #[bench]
+    fn for_unrolled_simd(b: &mut Bencher) {
+        let mut out = [0f32; 1024];
+        b.iter(|| {
+            for (i, v) in [-123.456f32; 1024].simd_iter().pack().unroll(8).enumerate() {
+                macro_rules! compute {
+                    ($($idx:expr),*) => {
+                        $(
+                            let a = f32s(9.0) * v[$idx].abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0);
+                            a.store(&mut out, (i + $idx) * a.width());
+                        )*
+                    }
+                }
+                compute!(0, 1, 2, 3, 4, 5, 6, 7);
+            }
+            out
+        })
+    }
+
+    #[bench]
+    fn high_latency(b: &mut Bencher) {
+        let mut out = [0f32; 1024];
+        b.iter(|| {
+            [-123.456f32; 1024].simd_iter().simd_map(f32s(0.0), |v| {
+                let (a, b) = (v * f32s(1.20)).upcast();
+                (a.sqrt() * f64s(3.141592653589793)).saturating_downcast(
+                    b.sqrt() * f64s(3.141592653589793))
+            }).scalar_fill(&mut out);
+        });
+    }
+
+    #[bench]
+    fn high_latency_for(b: &mut Bencher) {
+        let mut out = [0f32; 1024];
+        b.iter(|| {
+            for (i, v) in [-123.456f32; 1024].simd_iter().pack().enumerate() {
+                let (a, b) = (v * f32s(1.20)).upcast();
+                let ans = (a.sqrt() * f64s(3.141592653589793)).saturating_downcast(
+                    b.sqrt() * f64s(3.141592653589793));
+                ans.store(&mut out, i * ans.width());
+            }
+        })
+    }
+
+    #[bench]
+    fn high_latency_unrolled(b: &mut Bencher) {
+        let mut out = [0f32; 1024];
+        b.iter(|| {
+            for (i, v) in [-123.456f32; 1024].simd_iter().pack().unroll(8).enumerate() {
+                macro_rules! compute {
+                    ($($idx:expr),*) => {
+                        $(
+                            let (a, b) = (v[$idx] * f32s(1.20)).upcast();
+                            let ans = (a.sqrt() * f64s(3.141592653589793)).saturating_downcast(
+                                b.sqrt() * f64s(3.141592653589793));
+                            ans.store(&mut out, (i + $idx) * ans.width());
+                        )*
+                    }
+                }
+                compute!(0, 1, 2, 3, 4, 5, 6, 7);
+            }
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn for_simd(b: &mut Bencher) {
+        b.iter(|| {
+            let mut out = vec![0f32; 1024];
+            for (i, v) in [-123.456f32; 1024].simd_iter().pack().enumerate() {
+                let ans = f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0);
+                ans.store(&mut out, i * ans.width());
+            }
+            out
+        })
+    }
+
+
+    #[bench]
+    fn map_eager_simd(b: &mut Bencher) {
         let mut into = [0f32; 1024];
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).simd_iter()
+                [-123.456f32; 1024].simd_iter()
                     .simd_map_into(&mut into, f32s(0.0), |v| {
                         f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
                             - f32s(4.0) - f32s(2.0)
@@ -259,11 +349,11 @@ mod tests {
     }
 
     #[bench]
-    fn bench_map_fill_simd(b: &mut Bencher) {
+    fn map_fill_simd(b: &mut Bencher) {
         let mut into = [0f32; 1024];
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).simd_iter()
+                [-123.456f32; 1024].simd_iter()
                     .simd_map(f32s(0.0), |v| {
                         f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
                             - f32s(4.0) - f32s(2.0)
@@ -274,10 +364,10 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_map_uneven_simd(b: &mut Bencher) {
+    fn map_uneven_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1025][..]).simd_iter()
+                [-123.456f32; 1025].simd_iter()
                     .simd_map(f32s(0.0), |v| {
                         f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()
                             - f32s(4.0) - f32s(2.0) })
@@ -287,10 +377,10 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_map_scalar(b: &mut Bencher) {
+    fn map_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).iter()
+                [-123.456f32; 1024].iter()
                     .map(|v| { 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt() -
                                4.0 - 2.0 })
                     .collect::<Vec<f32>>())
@@ -298,39 +388,39 @@ mod tests {
     }
 
     #[bench]
-    fn bench_reduce_simd(b: &mut Bencher) {
+    fn reduce_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).simd_iter()
+                [-123.456f32; 1024].simd_iter()
                     .simd_reduce(f32s(0.0), f32s(0.0), |a, v| a + f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
     #[bench]
-    fn bench_reduce_uneven_simd(b: &mut Bencher) {
+    fn reduce_uneven_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1025][..]).simd_iter()
+                [-123.456f32; 1025].simd_iter()
                     .simd_reduce(f32s(0.0), f32s(0.0), |a, v| a + f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt()).sum())
         })
     }
 
     #[bench]
-    fn bench_reduce_scalar(b: &mut Bencher) {
+    fn reduce_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).iter()
+                [-123.456f32; 1024].iter()
                     .fold(0.0, |a, v| a + 9.0 * v.abs().sqrt().sqrt().recip().ceil().sqrt()))
         })
     }
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_determinant3_simd(b: &mut Bencher) {
+    fn determinant3_simd(b: &mut Bencher) {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1026][..]).simd_iter().stripe_nine().zip()
+                [-123.456f32; 1026].simd_iter().stripe_nine().zip()
                     .simd_map(tuplify!(9, f32s(0.0)), |(a, b, c, d, e, f, g, h, i)| {
                         (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
                     })
@@ -340,10 +430,10 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_determinant3_scalar(b: &mut Bencher) {
+    fn determinant3_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1026][..]).chunks(9).map(|m| {
+                [-123.456f32; 1026].chunks(9).map(|m| {
                     (m[0] * m[4] * m[8]) + (m[1] * m[5] * m[6]) + (m[2] * m[3] * m[7]) - (m[2] * m[4] * m[6]) - (m[1] * m[3] * m[8]) - (m[0] * m[5] * m[7])
                 }).collect::<Vec<f32>>())
         })
@@ -351,24 +441,23 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_determinant2_simd(b: &mut Bencher) {
+    fn determinant2_simd(b: &mut Bencher) {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).simd_iter().stripe_four().zip()
+                [-123.456f32; 1024].simd_iter().stripe_four().zip()
                     .simd_map(tuplify!(4, f32s(0.0)), |(a, b, c, d)| {
                         a * d - b * c
-                    })
-                    .scalar_collect())
+                    }).scalar_collect())
         })
     }
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_determinant2_scalar(b: &mut Bencher) {
+    fn determinant2_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).chunks(4).map(|m| {
+                [-123.456f32; 1024].chunks(4).map(|m| {
                     m[0] * m[3] - m[1] * m[2]
                 }).collect::<Vec<f32>>())
         })
@@ -376,25 +465,24 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_zip_simd(b: &mut Bencher) {
+    fn zip_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123i32; 1024][..]).simd_iter().stripe_two().zip()
+                [-123i32; 1024].simd_iter().stripe_two().zip()
                     .simd_map(tuplify!(2, i32s(0)), |(a, b)| {
                         let (aa, ab): (i64s, i64s) = a.upcast();
                         let (ba, bb): (i64s, i64s) = b.upcast();
                         (aa.abs() + ba.abs()).saturating_downcast(ab.abs() + bb.abs())
-                    })
-                    .scalar_collect())
+                    }).scalar_collect())
         })
     }
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_zip_scalar(b: &mut Bencher) {
+    fn zip_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123i32; 1024][..]).chunks(2).map(|a| {
+                [-123i32; 1024].chunks(2).map(|a| {
                     ((a[0] as f64).abs() + (a[1] as f64).abs()) as f32
                 }).collect::<Vec<f32>>())
         })
@@ -402,10 +490,10 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_zip_nop_simd(b: &mut Bencher) {
+    fn zip_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).simd_iter().stripe_two().zip()
+                [-123.456f32; 1024].simd_iter().stripe_two().zip()
                     .simd_map(tuplify!(2, f32s(0.0)), |(a, b)| {
                         a + b
                     })
@@ -415,21 +503,21 @@ mod tests {
 
     #[bench]
     #[cfg(not(feature = "no-std"))]
-    fn bench_zip_nop_scalar(b: &mut Bencher) {
+    fn zip_nop_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).chunks(2).map(|a| {
+                [-123.456f32; 1024].chunks(2).map(|a| {
                     a[0] + a[1]
                 }).collect::<Vec<f32>>())
         })
     }
 
     #[bench]
-    fn bench_base100_enc_simd(b: &mut Bencher) {
+    fn base100_enc_simd(b: &mut Bencher) {
         let mut out = [0u8; 4096];
         b.iter(|| {
             let mut i = 0;
-            (&[123u8; 1024][..]).simd_iter().simd_for_each(u8s(0), |v| {
+            [123u8; 1024].simd_iter().simd_for_each(u8s(0), |v| {
                 let (a, b): (u16s, u16s) = v.upcast();
                 let third = ((a + u16s(55)) / u16s(64) + u16s(143)).saturating_downcast((b + u16s(55)) / u16s(64) + u16s(143));
                 let fourth = ((v + u8s(55)) & u8s(0x3f)) + u8s(128);
@@ -459,10 +547,10 @@ mod tests {
     }
 
     #[bench]
-    fn bench_base100_enc_scalar(b: &mut Bencher) {
+    fn base100_enc_scalar(b: &mut Bencher) {
         let mut out = [0u8; 4096];
         b.iter(|| {
-            for (i, ch) in (&[123u8; 1024][..]).iter().enumerate() {
+            for (i, ch) in [123u8; 1024].iter().enumerate() {
                 out[4 * i + 0] = 0xf0;
                 out[4 * i + 1] = 0x9f;
                 out[4 * i + 2] = ((((*ch as u16).wrapping_add(55)) >> 6) + 143) as u8;

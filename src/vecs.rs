@@ -40,6 +40,10 @@ pub trait Packed : Sized + Copy + Debug + Merge {
     /// `offset`.
     fn store(self, data: &mut [Self::Scalar], offset: usize);
 
+    /// Create a new vector with `Self::WIDTH` elements from `data`, beginning
+    /// at `offset`, without asserting length of data.
+    unsafe fn store_unchecked(self, data: &mut [Self::Scalar], offset: usize);
+
     /// Assert all elements of the vector are equal, then return the
     /// element. Opposite operation of `Self::splat`.
     fn coalesce(self) -> Self::Scalar;
@@ -64,7 +68,7 @@ pub trait Packed : Sized + Copy + Debug + Merge {
 
     /// Return the result of a scalar reduction over this vector
     fn scalar_reduce<T, F>(&self, acc: T, func: F) -> T
-        where F: FnMut(T, Self::Scalar) -> T;
+    where F: FnMut(T, Self::Scalar) -> T;
 }
 
 /// A type that may be packed into a SIMD vector.
@@ -116,6 +120,11 @@ macro_rules! impl_packed {
             }
 
             #[inline(always)]
+            unsafe fn store_unchecked(self, data: &mut [$el], offset: usize) {
+                $vec::store_unchecked(self, data, offset);
+            }
+
+            #[inline(always)]
             fn coalesce(self) -> Self::Scalar {
                 for i in 1..(Self::WIDTH as u32) {
                     debug_assert!(self.extract(i - 1) == self.extract(i));
@@ -154,7 +163,7 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             fn scalar_reduce<T, F>(&self, mut acc: T, mut func: F) -> T
-                where F: FnMut(T, Self::Scalar) -> T {
+            where F: FnMut(T, Self::Scalar) -> T {
                 for i in 0..Self::WIDTH {
                     acc = func(acc, self.extract(i))
                 }
@@ -220,6 +229,38 @@ impl_packed!(i64, i64s, i64x2, 8, 2, [], ["avx2"]);
 impl_packed!(f64, f64s, f64x8, 8, 8, ["avx512"], ["avx1024"]);
 impl_packed!(f64, f64s, f64x4, 8, 4, ["avx2"], ["avx512"]);
 impl_packed!(f64, f64s, f64x2, 8, 2, [], ["avx2"]);
+
+macro_rules! impl_array_intos {
+    ($($el:ty),*) => {
+        $(
+            impl<'a> IntoSIMDRefIterator<'a> for [$el] {
+                type Iter = SIMDIter<'a, $el>;
+
+                #[inline(always)]
+                fn simd_iter(&'a self) -> Self::Iter {
+                    SIMDIter {
+                        data: self,
+                        position: 0,
+                    }
+                }
+            }
+
+            impl<'a> IntoSIMDRefMutIterator<'a> for [$el] {
+                type Iter = SIMDIter<'a, $el>;
+
+                #[inline(always)]
+                fn simd_iter_mut(&'a mut self) -> Self::Iter {
+                    SIMDIter {
+                        data: self,
+                        position: 0,
+                    }
+                }
+            }
+        )*
+    }
+}
+
+impl_array_intos!(u8, i8, u16, i16, u32, i32, f32, u64, i64, f64);
 
 #[cfg(test)]
 mod tests {
