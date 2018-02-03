@@ -142,6 +142,20 @@ pub trait SIMDIterator : Sized + ExactSizeIterator {
     }
 }
 
+pub trait SIMDArray : SIMDIterator {
+    fn load(&self, offset: usize) -> Self::Vector;
+    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector;
+    fn load_scalar(&self, offset: usize) -> Self::Scalar;
+    unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar;
+}
+
+pub trait SIMDArrayMut : SIMDArray {
+    fn store(&mut self, value: Self::Vector, offset: usize);
+    unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize);
+    fn store_scalar(&mut self, value: Self::Scalar, offset: usize);
+    unsafe fn store_scalar_unchecked(&mut self, value: Self::Scalar, offset: usize);
+}
+
 /// A slice-backed iterator which can automatically pack its constituent
 /// elements into vectors.
 #[derive(Debug)]
@@ -172,6 +186,79 @@ pub struct SIMDMap<I, F> where I : SIMDIterator {
     pub iter: I,
     pub func: F,
     pub default: I::Vector,
+}
+
+impl<T> SIMDArray for SIMDIter<T> where T : Packable {
+    fn load(&self, offset: usize) -> Self::Vector {
+        Self::Vector::load(&self.data, offset)
+    }
+
+    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
+        Self::Vector::load_unchecked(&self.data, offset)
+    }
+
+    fn load_scalar(&self, offset: usize) -> Self::Scalar {
+        self.data[offset]
+    }
+
+    unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
+        *self.data.get_unchecked(offset)
+    }
+}
+
+impl<'a, T> SIMDArray for SIMDRefIter<'a, T> where T : 'a + Packable {
+    fn load(&self, offset: usize) -> Self::Vector {
+        Self::Vector::load(&self.data, offset)
+    }
+
+    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
+        Self::Vector::load_unchecked(&self.data, offset)
+    }
+
+    fn load_scalar(&self, offset: usize) -> Self::Scalar {
+        self.data[offset]
+    }
+
+    unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
+        *self.data.get_unchecked(offset)
+    }
+}
+
+impl<'a, T> SIMDArray for SIMDRefMutIter<'a, T> where T : 'a + Packable {
+    fn load(&self, offset: usize) -> Self::Vector {
+        Self::Vector::load(&self.data, offset)
+    }
+
+    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
+        Self::Vector::load_unchecked(&self.data, offset)
+    }
+
+    fn load_scalar(&self, offset: usize) -> Self::Scalar {
+        self.data[offset]
+    }
+
+    unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
+        *self.data.get_unchecked(offset)
+    }
+}
+
+impl<'a, T> SIMDArrayMut for SIMDRefMutIter<'a, T> where T : 'a + Packable {
+    fn store(&mut self, value: Self::Vector, offset: usize) {
+        value.store(&mut self.data, offset)
+    }
+
+    unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize) {
+        value.store_unchecked(&mut self.data, offset)
+    }
+
+    fn store_scalar(&mut self, value: Self::Scalar, offset: usize) {
+        self.data[offset] = value;
+    }
+
+    unsafe fn store_scalar_unchecked(&mut self, value: Self::Scalar, offset: usize) {
+        use std::ptr::write;
+        write(self.data[offset..].as_mut_ptr(), value);
+    }
 }
 
 /// A slice-backed iterator which yields packed elements using the Iterator API.

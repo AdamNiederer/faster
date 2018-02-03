@@ -8,7 +8,7 @@
 #![allow(unused_imports)]
 
 use vecs::*;
-use iters::{SIMDRefIter, SIMDIterator};
+use iters::{SIMDRefIter, SIMDIterator, SIMDArray};
 use core_or_std::iter::{Iterator, ExactSizeIterator};
 
 // For AVX2 gathers
@@ -19,18 +19,23 @@ use intrin::Transmute;
 
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.
-pub struct PackedStripe<'a, T> where T : Packable + 'a {
-    iter: &'a SIMDRefIter<'a, T>,
+pub struct PackedStripe<'a, A> where A : 'a + SIMDArray {
+    iter: &'a A,
     base: usize,
     stride: usize
 }
 
-impl<'a, T> Iterator for PackedStripe<'a, T> where T : 'a + Packable {
-    type Item = T;
+impl<'a, A, S, V> Iterator for PackedStripe<'a, A> where A : SIMDArray<Vector = V, Scalar = S>, S : Packable, V : Packed<Scalar = S> {
+    type Item = S;
 
-    #[inline(never)]
+    #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.data.get(self.base).map(|v| { self.base += self.stride; *v })
+        if self.base < self.iter.scalar_len() {
+            self.base += self.stride;
+            Some(unsafe { self.iter.load_scalar_unchecked(self.base) })
+        } else {
+            None
+        }
     }
 
     #[inline(always)]
@@ -40,8 +45,7 @@ impl<'a, T> Iterator for PackedStripe<'a, T> where T : 'a + Packable {
     }
 }
 
-impl<'a, T> ExactSizeIterator for PackedStripe<'a, T>
-    where T : Packable {
+impl<'a, A> ExactSizeIterator for PackedStripe<'a, A> where A : SIMDArray {
 
     #[inline(always)]
     fn len(&self) -> usize {
@@ -49,28 +53,57 @@ impl<'a, T> ExactSizeIterator for PackedStripe<'a, T>
     }
 }
 
-impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
+pub trait Stripe<A : SIMDArray> {
+
     /// Return a vec of iterators which pack every `count`th element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, `count`th, `count * 2`th...
     /// elements, while the 2nd iterator will pack the 1st, `count + 1`th,
     /// `count * 2 + 1`th... elements.
     #[cfg(not(feature = "no-std"))]
-    pub fn stripe(&'a self, count: usize) -> Vec<PackedStripe<'a, T>> {
+    fn stripe(&self, count: usize) -> Vec<PackedStripe<A>>;
+
+    /// Return a tuple of iterators which pack every 2nd element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 2nd, 4th... elements, while the 2nd
+    /// iterator will pack the 1st, 3rd, 5th... elements.
+    fn stripe_two(&self) -> (PackedStripe<A>, PackedStripe<A>);
+
+    /// Return a tuple of iterators which pack every 3rd element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 3rd, 6th... elements, while the 2nd
+    /// iterator will pack the 1st, 4th, 7th... elements.
+    fn stripe_three(&self) -> (PackedStripe<A>, PackedStripe<A> , PackedStripe<A>);
+
+    /// Return a tuple of iterators which pack every 4th element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 4th, 8th... elements, while the 2nd
+    /// iterator will pack the 1st, 5th, 9th... elements.
+    fn stripe_four(&self) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>);
+
+    /// Return a tuple of iterators which pack every 9th element into an
+    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
+    /// the 1st iterator will pack the 0th, 9th, 18th... elements, while the 2nd
+    /// iterator will pack the 1st, 10th, 19th... elements.
+    fn stripe_nine(&self) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>);
+}
+
+impl<A> Stripe<A> for A where A : SIMDArray {
+
+    #[inline(always)]
+    #[cfg(not(feature = "no-std"))]
+    fn stripe(&self, count: usize) -> Vec<PackedStripe<A>> {
         (0..count).map(move |offset| {
             PackedStripe {
                 iter: self,
                 base: offset,
                 stride: count
             }
-        }).collect::<Vec<PackedStripe<T>>>()
+        }).collect::<Vec<PackedStripe<A>>>()
     }
 
-    /// Return a tuple of iterators which pack every 2nd element into an
-    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
-    /// the 1st iterator will pack the 0th, 2nd, 4th... elements, while the 2nd
-    /// iterator will pack the 1st, 3rd, 5th... elements.
-    pub fn stripe_two(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>) {
+    #[inline(always)]
+    fn stripe_two(&self) -> (PackedStripe<A>, PackedStripe<A>) {
         (
             PackedStripe {
                 iter: self,
@@ -85,11 +118,8 @@ impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
         )
     }
 
-    /// Return a tuple of iterators which pack every 3rd element into an
-    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
-    /// the 1st iterator will pack the 0th, 3rd, 6th... elements, while the 2nd
-    /// iterator will pack the 1st, 4th, 7th... elements.
-    pub fn stripe_three(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T> , PackedStripe<'a, T>) {
+    #[inline(always)]
+    fn stripe_three(&self) -> (PackedStripe<A>, PackedStripe<A> , PackedStripe<A>) {
         (
             PackedStripe {
                 iter: self,
@@ -109,11 +139,8 @@ impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
         )
     }
 
-    /// Return a tuple of iterators which pack every 4th element into an
-    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
-    /// the 1st iterator will pack the 0th, 4th, 8th... elements, while the 2nd
-    /// iterator will pack the 1st, 5th, 9th... elements.
-    pub fn stripe_four(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>) {
+    #[inline(always)]
+    fn stripe_four(&self) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>) {
         (
             PackedStripe {
                 iter: self,
@@ -138,11 +165,8 @@ impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
         )
     }
 
-    /// Return a tuple of iterators which pack every 9th element into an
-    /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
-    /// the 1st iterator will pack the 0th, 9th, 18th... elements, while the 2nd
-    /// iterator will pack the 1st, 10th, 19th... elements.
-    pub fn stripe_nine(&'a self) -> (PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>, PackedStripe<'a, T>) {
+    #[inline(always)]
+    fn stripe_nine(&self) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>) {
         (
             PackedStripe {
                 iter: self,
@@ -193,9 +217,9 @@ impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
     }
 }
 
-impl<'a, T> SIMDIterator for PackedStripe<'a, T> where T : Packable {
-    type Scalar = T;
-    type Vector = <T as Packable>::Vector;
+impl<'a, A, S> SIMDIterator for PackedStripe<'a, A> where A : SIMDArray<Scalar = S>, S : Packable {
+    type Scalar = S;
+    type Vector = <S as Packable>::Vector;
 
     #[inline(always)]
     fn width(&self) -> usize {
@@ -217,7 +241,7 @@ impl<'a, T> SIMDIterator for PackedStripe<'a, T> where T : Packable {
         if self.base + self.stride * self.width() < self.iter.len() {
             let mut ret = Self::Vector::default();
             for i in 0..self.width() {
-                ret = ret.replace(i, self.iter.data[self.base + self.stride * i]);
+                ret = ret.replace(i, self.iter.load_scalar(self.base + self.stride * i));
             }
             self.base += self.stride * self.width();
             Some(ret)
@@ -233,7 +257,9 @@ impl<'a, T> SIMDIterator for PackedStripe<'a, T> where T : Packable {
             let fill_amt = (self.iter.len() - self.base) / self.stride;
             // Right-align the partial vector to maintain compat with SIMDRefIter
             for i in (self.width() - fill_amt)..self.width() {
-                ret = ret.replace(i, self.iter.data[self.base + self.stride * i]);
+                unsafe {
+                    ret = ret.replace(i, self.iter.load_scalar_unchecked(self.base + self.stride * i));
+                }
             }
             Some((ret, self.width() - fill_amt))
         } else {
