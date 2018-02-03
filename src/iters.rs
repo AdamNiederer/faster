@@ -48,9 +48,9 @@ pub trait SIMDIterator : Sized + ExactSizeIterator {
     }
 
     #[inline(always)]
-    /// Pack and consume the iterator, running `func` once on each packed
-    /// vector.
-    fn simd_for_each<F>(&mut self, default: Self::Vector, mut func: F)
+    /// Pack and run `func` over the iterator, returning no value and not
+    /// modifying the iterator.
+    fn simd_do_each<F>(&mut self, default: Self::Vector, mut func: F)
         where F : FnMut(Self::Vector) -> () {
         while let Some(v) = self.next_vector() {
             func(v);
@@ -145,9 +145,33 @@ pub trait SIMDIterator : Sized + ExactSizeIterator {
 /// A slice-backed iterator which can automatically pack its constituent
 /// elements into vectors.
 #[derive(Debug)]
-pub struct SIMDIter<'a, T : 'a + Packable> {
+pub struct SIMDRefIter<'a, T : 'a + Packable> {
     pub position: usize,
     pub data: &'a [T],
+}
+
+/// A slice-backed iterator which can automatically pack its constituent
+/// elements into vectors.
+#[derive(Debug)]
+pub struct SIMDRefMutIter<'a, T : 'a + Packable> {
+    pub position: usize,
+    pub data: &'a mut [T],
+}
+
+/// A slice-backed iterator which can automatically pack its constituent
+/// elements into vectors.
+#[derive(Debug)]
+pub struct SIMDIter<T : Packable> {
+    pub position: usize,
+    pub data: Vec<T>,
+}
+
+/// A lazy mapping iterator which applies its function to a stream of vectors.
+#[derive(Debug)]
+pub struct SIMDMap<I, F> where I : SIMDIterator {
+    pub iter: I,
+    pub func: F,
+    pub default: I::Vector,
 }
 
 /// A slice-backed iterator which yields packed elements using the Iterator API.
@@ -162,14 +186,6 @@ pub struct Unroll<'a, T : 'a + SIMDIterator> {
     iter: &'a mut PackedIter<T>,
     amt: usize,
     scratch: [T::Vector; 8]
-}
-
-/// A lazy mapping iterator which applies its function to a stream of vectors.
-#[derive(Debug)]
-pub struct SIMDMap<I, F> where I : SIMDIterator {
-    pub iter: I,
-    pub func: F,
-    pub default: I::Vector,
 }
 
 impl<T> PackedIter<T> where T : SIMDIterator, T::Vector : Packed {
@@ -222,8 +238,39 @@ impl<'a, T> Iterator for Unroll<'a, T> where T : 'a + SIMDIterator {
     }
 }
 
-impl<'a, T> SIMDIter<'a, T> where T : Packable {
+impl<'a, T> SIMDRefMutIter<'a, T> where T : Packable {
+    #[inline(always)]
+    /// Pack and mutate the iterator in place, running `func` once on each packed
+    /// vector and storing the results at the same location as the inputs.
+    pub fn simd_for_each<F>(&mut self, default: <Self as SIMDIterator>::Vector, mut func: F)
+        where F : FnMut(<Self as SIMDIterator>::Vector) -> () {
+        let mut lastvec = default;
+        let mut offset = 0;
 
+        while let Some(v) = self.next_vector() {
+            func(v);
+            v.store(self.data, self.position - v.width());
+            offset += v.width();
+            lastvec = v;
+        }
+
+        if let Some((p, n)) = self.next_partial(default) {
+            func(p);
+            if offset > 0 {
+                // We stored a vector in this buffer; overwrite the unused elements
+                p.store(self.data, offset - n);
+                lastvec.store(self.data, offset - lastvec.width());
+            } else {
+                // The buffer won't fit one vector; store elementwise
+                for i in 0..(self.width() - n) {
+                    self.data[offset + i] = p.extract(i + n);
+                }
+            }
+        }
+    }
+}
+
+impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
     #[inline(always)]
     pub fn simd_map_into<'b, A, B, F>(&'a mut self, into: &'b mut [B], default: <Self as SIMDIterator>::Vector, mut func: F) -> &'b [B]
     where F : FnMut(<Self as SIMDIterator>::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
@@ -234,8 +281,8 @@ impl<'a, T> SIMDIter<'a, T> where T : Packable {
 
         while i < even_elements {
             let vec = <Self as SIMDIterator>::Vector::load(self.data, i);
-                func(vec).store(into, i);
-                i += self.width()
+            func(vec).store(into, i);
+            i += self.width()
         }
 
         if even_elements < self.scalar_len() {
@@ -248,13 +295,14 @@ impl<'a, T> SIMDIter<'a, T> where T : Packable {
     }
 }
 
-
-impl<'a, T> Iterator for SIMDIter<'a, T> where T : Packable {
-    type Item = <SIMDIter<'a, T> as SIMDIterator>::Scalar;
+impl<T> Iterator for SIMDIter<T> where T : Packable {
+    type Item = <SIMDIter<T> as SIMDIterator>::Scalar;
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        self.data.get(self.position).map(|v| { self.position += 1; *v })
+        let data = self.data.get(self.position);
+        self.position += 1;
+        data.map(|d| *d)
     }
 
     #[inline(always)]
@@ -264,8 +312,41 @@ impl<'a, T> Iterator for SIMDIter<'a, T> where T : Packable {
     }
 }
 
-impl<'a, T> ExactSizeIterator for SIMDIter<'a, T>
-    where T : Packable {
+impl<'a, T> Iterator for SIMDRefIter<'a, T> where T : Packable {
+    type Item = <SIMDRefIter<'a, T> as SIMDIterator>::Scalar;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Item> {
+        let data = self.data.get(self.position);
+        self.position += 1;
+        data.map(|d| *d)
+    }
+
+    #[inline(always)]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.data.len() - self.position;
+        (remaining, Some(remaining))
+    }
+}
+
+impl<'a, T> Iterator for SIMDRefMutIter<'a, T> where T : Packable {
+    type Item = <SIMDRefMutIter<'a, T> as SIMDIterator>::Scalar;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Item> {
+        let data = self.data.get(self.position);
+        self.position += 1;
+        data.map(|d| *d)
+    }
+
+    #[inline(always)]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = self.data.len() - self.position;
+        (remaining, Some(remaining))
+    }
+}
+
+impl<T> ExactSizeIterator for SIMDIter<T> where T : Packable {
 
     #[inline(always)]
     fn len(&self) -> usize {
@@ -273,7 +354,71 @@ impl<'a, T> ExactSizeIterator for SIMDIter<'a, T>
     }
 }
 
-impl<'a, T> SIMDIterator for SIMDIter<'a, T> where T : Packable {
+impl<'a, T> ExactSizeIterator for SIMDRefIter<'a, T> where T : Packable {
+
+
+    #[inline(always)]
+    fn len(&self) -> usize {
+        self.data.len()
+    }
+}
+
+impl<'a, T> ExactSizeIterator for SIMDRefMutIter<'a, T> where T : Packable {
+
+    #[inline(always)]
+    fn len(&self) -> usize {
+        self.data.len()
+    }
+}
+
+impl<T> SIMDIterator for SIMDIter<T> where T : Packable {
+    type Vector = <T as Packable>::Vector;
+    type Scalar = T;
+
+    #[inline(always)]
+    fn scalar_len(&self) -> usize {
+        self.data.len()
+    }
+
+    #[inline(always)]
+    fn scalar_position(&self) -> usize {
+        self.position
+    }
+
+    #[inline(always)]
+    fn next_vector(&mut self) -> Option<Self::Vector> {
+        if self.position + self.width() <= self.scalar_len() {
+            let ret = unsafe{ Some(Self::Vector::load_unchecked(&self.data, self.position))};
+            self.position += Self::Vector::WIDTH;
+            ret
+        } else {
+            None
+        }
+    }
+
+    #[inline(always)]
+    fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> where T : Packable {
+        if self.position < self.scalar_len() {
+            let mut ret = default.clone();
+            let empty_amt = Self::Vector::WIDTH - (self.scalar_len() - self.position);
+            // Right-align the partial vector to ensure the load is vectorized
+            if (Self::Vector::WIDTH) < self.scalar_len() {
+                ret = Self::Vector::load(&self.data, self.scalar_len() - Self::Vector::WIDTH);
+                ret = default.merge_partitioned(ret, empty_amt);
+            } else {
+                for i in empty_amt..Self::Vector::WIDTH {
+                    ret = ret.replace(i, self.data[self.position + i - empty_amt].clone());
+                }
+            }
+            self.position = self.scalar_len();
+            Some((ret, empty_amt))
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a, T> SIMDIterator for SIMDRefIter<'a, T> where T : Packable {
     type Vector = <T as Packable>::Vector;
     type Scalar = T;
 
@@ -320,65 +465,50 @@ impl<'a, T> SIMDIterator for SIMDIter<'a, T> where T : Packable {
     }
 }
 
-impl<T: SIMDIterator> IntoSIMDIterator for T {
-    type Iter = T;
+impl<'a, T> SIMDIterator for SIMDRefMutIter<'a, T> where T : Packable {
+    type Vector = <T as Packable>::Vector;
+    type Scalar = T;
 
     #[inline(always)]
-    fn into_simd_iter(self) -> T {
-        self
+    fn scalar_len(&self) -> usize {
+        self.data.len()
     }
-}
-
-/// A trait which transforms a contiguous collection into an owned stream of
-/// vectors.
-pub trait IntoSIMDIterator {
-    type Iter: SIMDIterator;
-
-    /// Return an iterator over this data which will automatically pack
-    /// values into SIMD vectors. See `SIMDIterator::simd_map` and
-    /// `SIMDIterator::simd_reduce` for more information.
-    fn into_simd_iter(self) -> Self::Iter;
-}
-
-/// A trait which transforms a contiguous collection into a slice-backed stream
-/// of vectors.
-pub trait IntoSIMDRefIterator<'a> {
-    type Iter: SIMDIterator;
-
-    /// Return an iterator over this data which will automatically pack
-    /// values into SIMD vectors. See `SIMDIterator::simd_map` and
-    /// `SIMDIterator::simd_reduce` for more information.
-    fn simd_iter(&'a self) -> Self::Iter;
-}
-
-/// A trait which transforms a contiguous collection into a mutable slice-backed
-/// stream of vectors.
-pub trait IntoSIMDRefMutIterator<'a> {
-    type Iter: SIMDIterator;
-
-    /// Return an iterator over this data which will automatically pack
-    /// values into SIMD vectors. See `SIMDIterator::simd_map` and
-    /// `SIMDIterator::simd_reduce` for more information.
-    fn simd_iter_mut(&'a mut self) -> Self::Iter;
-}
-
-impl<'a, I: 'a + ?Sized> IntoSIMDRefIterator<'a> for I
-    where &'a I: IntoSIMDIterator {
-    type Iter = <&'a I as IntoSIMDIterator>::Iter;
 
     #[inline(always)]
-    fn simd_iter(&'a self) -> Self::Iter {
-        self.into_simd_iter()
+    fn scalar_position(&self) -> usize {
+        self.position
     }
-}
-
-impl<'a, I: 'a + ?Sized> IntoSIMDRefMutIterator<'a> for I
-    where &'a mut I: IntoSIMDIterator {
-    type Iter = <&'a mut I as IntoSIMDIterator>::Iter;
 
     #[inline(always)]
-    fn simd_iter_mut(&'a mut self) -> Self::Iter {
-        self.into_simd_iter()
+    fn next_vector(&mut self) -> Option<Self::Vector> {
+        if self.position + self.width() <= self.scalar_len() {
+            let ret = unsafe{ Some(Self::Vector::load_unchecked(self.data, self.position))};
+            self.position += Self::Vector::WIDTH;
+            ret
+        } else {
+            None
+        }
+    }
+
+    #[inline(always)]
+    fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> where T : Packable {
+        if self.position < self.scalar_len() {
+            let mut ret = default.clone();
+            let empty_amt = Self::Vector::WIDTH - (self.scalar_len() - self.position);
+            // Right-align the partial vector to ensure the load is vectorized
+            if (Self::Vector::WIDTH) < self.scalar_len() {
+                ret = Self::Vector::load(self.data, self.scalar_len() - Self::Vector::WIDTH);
+                ret = default.merge_partitioned(ret, empty_amt);
+            } else {
+                for i in empty_amt..Self::Vector::WIDTH {
+                    ret = ret.replace(i, self.data[self.position + i - empty_amt].clone());
+                }
+            }
+            self.position = self.scalar_len();
+            Some((ret, empty_amt))
+        } else {
+            None
+        }
     }
 }
 

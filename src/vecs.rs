@@ -10,7 +10,6 @@ pub use stdsimd::simd::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16
 #[cfg(not(target_feature = "sse"))]
 pub use shimvecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2};
 pub use vec_patterns::Pattern;
-use iters::{IntoSIMDRefIterator, IntoSIMDRefMutIterator, SIMDIter};
 use core_or_std::fmt::Debug;
 use intrin::*;
 
@@ -170,32 +169,6 @@ macro_rules! impl_packed {
                 acc
             }
         }
-
-        #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
-        impl<'a> IntoSIMDRefIterator<'a> for &'a [$el] {
-            type Iter = SIMDIter<'a, $el>;
-
-            #[inline(always)]
-            fn simd_iter(&'a self) -> Self::Iter {
-                SIMDIter {
-                    data: self,
-                    position: 0,
-                }
-            }
-        }
-
-        #[cfg(all($(target_feature = $feat,)* not($(target_feature = $nfeat)*)))]
-        impl<'a> IntoSIMDRefMutIterator<'a> for &'a mut [$el] {
-            type Iter = SIMDIter<'a, $el>;
-
-            #[inline(always)]
-            fn simd_iter_mut(&'a mut self) -> Self::Iter {
-                SIMDIter {
-                    data: self,
-                    position: 0,
-                }
-            }
-        }
     );
 }
 
@@ -229,38 +202,6 @@ impl_packed!(i64, i64s, i64x2, 8, 2, [], ["avx2"]);
 impl_packed!(f64, f64s, f64x8, 8, 8, ["avx512"], ["avx1024"]);
 impl_packed!(f64, f64s, f64x4, 8, 4, ["avx2"], ["avx512"]);
 impl_packed!(f64, f64s, f64x2, 8, 2, [], ["avx2"]);
-
-macro_rules! impl_array_intos {
-    ($($el:ty),*) => {
-        $(
-            impl<'a> IntoSIMDRefIterator<'a> for [$el] {
-                type Iter = SIMDIter<'a, $el>;
-
-                #[inline(always)]
-                fn simd_iter(&'a self) -> Self::Iter {
-                    SIMDIter {
-                        data: self,
-                        position: 0,
-                    }
-                }
-            }
-
-            impl<'a> IntoSIMDRefMutIterator<'a> for [$el] {
-                type Iter = SIMDIter<'a, $el>;
-
-                #[inline(always)]
-                fn simd_iter_mut(&'a mut self) -> Self::Iter {
-                    SIMDIter {
-                        data: self,
-                        position: 0,
-                    }
-                }
-            }
-        )*
-    }
-}
-
-impl_array_intos!(u8, i8, u16, i16, u32, i32, f32, u64, i64, f64);
 
 #[cfg(test)]
 mod tests {

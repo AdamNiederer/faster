@@ -8,7 +8,7 @@
 #![allow(unused_imports)]
 
 use vecs::*;
-use iters::{SIMDIter, SIMDIterator};
+use iters::{SIMDRefIter, SIMDIterator};
 use core_or_std::iter::{Iterator, ExactSizeIterator};
 
 // For AVX2 gathers
@@ -20,7 +20,7 @@ use intrin::Transmute;
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.
 pub struct PackedStripe<'a, T> where T : Packable + 'a {
-    iter: &'a SIMDIter<'a, T>,
+    iter: &'a SIMDRefIter<'a, T>,
     base: usize,
     stride: usize
 }
@@ -49,7 +49,7 @@ impl<'a, T> ExactSizeIterator for PackedStripe<'a, T>
     }
 }
 
-impl<'a, T> SIMDIter<'a, T> where T : Packable {
+impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
     /// Return a vec of iterators which pack every `count`th element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, `count`th, `count * 2`th...
@@ -231,7 +231,7 @@ impl<'a, T> SIMDIterator for PackedStripe<'a, T> where T : Packable {
         if self.base < self.iter.len() {
             let mut ret = default.clone();
             let fill_amt = (self.iter.len() - self.base) / self.stride;
-            // Right-align the partial vector to maintain compat with SIMDIter
+            // Right-align the partial vector to maintain compat with SIMDRefIter
             for i in (self.width() - fill_amt)..self.width() {
                 ret = ret.replace(i, self.iter.data[self.base + self.stride * i]);
             }

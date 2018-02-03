@@ -20,7 +20,7 @@
 //! operate on them in a closure.
 //!
 //! [`simd_iter`]: iters/trait.IntoSIMDIterator.html#tymethod.into_simd_iter
-//! [`simd_iter_mut`]: iters/trait.IntoSIMDRefIterator.html#tymethod.simd_iter
+//! [`simd_iter_mut`]: iters/trait.IntoSIMDIterator.html#tymethod.simd_iter
 //! [`into_simd_iter`]: iters/trait.IntoSIMDRefMutIterator.html#tymethod.simd_iter_mut
 //! [`simd_map`]: iters/trait.SIMDIterator.html#tymethod.simd_map
 //! [`simd_reduce`]: iters/trait.SIMDIterator.html#tymethod.simd_reduce
@@ -121,8 +121,8 @@
 //! machines. Simply call [`stripe`], or one of the slightly-faster tuple-based
 //! functions, such as [`stripe_two`].
 //!
-//! [`stripe`]: iters/struct.SIMDIter.html#method.stripe
-//! [`stripe_two`]: iters/struct.SIMDIter.html#method.stripe_two
+//! [`stripe`]: iters/struct.SIMDRefIter.html#method.stripe
+//! [`stripe_two`]: iters/struct.SIMDRefIter.html#method.stripe_two
 //!
 //! ```
 //! extern crate faster;
@@ -203,6 +203,7 @@ pub mod intrin;
 pub mod prelude;
 
 mod shimvecs;
+mod into_iters;
 
 pub use prelude::*;
 
@@ -517,7 +518,7 @@ mod tests {
         let mut out = [0u8; 4096];
         b.iter(|| {
             let mut i = 0;
-            [123u8; 1024].simd_iter().simd_for_each(u8s(0), |v| {
+            [123u8; 1024].simd_iter().simd_do_each(u8s(0), |v| {
                 let (a, b): (u16s, u16s) = v.upcast();
                 let third = ((a + u16s(55)) / u16s(64) + u16s(143)).saturating_downcast((b + u16s(55)) / u16s(64) + u16s(143));
                 let fourth = ((v + u8s(55)) & u8s(0x3f)) + u8s(128);
