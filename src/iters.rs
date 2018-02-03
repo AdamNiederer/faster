@@ -589,6 +589,7 @@ impl<'a, T, I> IntoScalar<T> for I
     #[cfg(not(feature = "no-std"))]
     fn scalar_collect(&mut self) -> Vec<Self::Scalar> {
         let mut offset = 0;
+        let mut lastvec = Self::Vector::default();
         let mut ret = Vec::with_capacity(self.len());
 
         unsafe {
@@ -596,10 +597,20 @@ impl<'a, T, I> IntoScalar<T> for I
             while let Some(vec) = self.next_vector() {
                 vec.store(ret.as_mut_slice(), offset);
                 offset += Self::Vector::WIDTH;
+                lastvec = vec;
             }
-            while let Some(scl) = self.next() {
-                ret[offset] = scl;
-                offset += 1;
+
+            if let Some((p, n)) = self.next_partial(Self::Vector::default()) {
+                if offset > 0 {
+                    // We stored a vector in this buffer; overwrite the unused elements
+                    p.store(&mut ret, offset - n);
+                    lastvec.store(&mut ret, offset - Self::Vector::WIDTH);
+                } else {
+                    // The buffer won't fit one vector; store elementwise
+                    for i in 0..(Self::Vector::WIDTH - n) {
+                        ret[offset + i] = p.extract(i + n);
+                    }
+                }
             }
         }
         ret
