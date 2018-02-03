@@ -189,72 +189,88 @@ pub struct SIMDMap<I, F> where I : SIMDIterator {
 }
 
 impl<T> SIMDArray for SIMDIter<T> where T : Packable {
+    #[inline(always)]
     fn load(&self, offset: usize) -> Self::Vector {
         Self::Vector::load(&self.data, offset)
     }
 
+    #[inline(always)]
     unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
         Self::Vector::load_unchecked(&self.data, offset)
     }
 
+    #[inline(always)]
     fn load_scalar(&self, offset: usize) -> Self::Scalar {
         self.data[offset]
     }
 
+    #[inline(always)]
     unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
         *self.data.get_unchecked(offset)
     }
 }
 
 impl<'a, T> SIMDArray for SIMDRefIter<'a, T> where T : 'a + Packable {
+    #[inline(always)]
     fn load(&self, offset: usize) -> Self::Vector {
         Self::Vector::load(&self.data, offset)
     }
 
+    #[inline(always)]
     unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
         Self::Vector::load_unchecked(&self.data, offset)
     }
 
+    #[inline(always)]
     fn load_scalar(&self, offset: usize) -> Self::Scalar {
         self.data[offset]
     }
 
+    #[inline(always)]
     unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
         *self.data.get_unchecked(offset)
     }
 }
 
 impl<'a, T> SIMDArray for SIMDRefMutIter<'a, T> where T : 'a + Packable {
+    #[inline(always)]
     fn load(&self, offset: usize) -> Self::Vector {
         Self::Vector::load(&self.data, offset)
     }
 
+    #[inline(always)]
     unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
         Self::Vector::load_unchecked(&self.data, offset)
     }
 
+    #[inline(always)]
     fn load_scalar(&self, offset: usize) -> Self::Scalar {
         self.data[offset]
     }
 
+    #[inline(always)]
     unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
         *self.data.get_unchecked(offset)
     }
 }
 
 impl<'a, T> SIMDArrayMut for SIMDRefMutIter<'a, T> where T : 'a + Packable {
+    #[inline(always)]
     fn store(&mut self, value: Self::Vector, offset: usize) {
         value.store(&mut self.data, offset)
     }
 
+    #[inline(always)]
     unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize) {
         value.store_unchecked(&mut self.data, offset)
     }
 
+    #[inline(always)]
     fn store_scalar(&mut self, value: Self::Scalar, offset: usize) {
         self.data[offset] = value;
     }
 
+    #[inline(always)]
     unsafe fn store_scalar_unchecked(&mut self, value: Self::Scalar, offset: usize) {
         use std::ptr::write;
         write(self.data[offset..].as_mut_ptr(), value);
