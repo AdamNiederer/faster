@@ -194,7 +194,7 @@ impl<T> Iterator for PackedIter<T> where T : SIMDIterator {
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        Some(self.iter.next_vector()?)
+        self.iter.next_vector()
     }
 }
 
