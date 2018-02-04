@@ -175,6 +175,7 @@ pub struct SIMDRefMutIter<'a, T : 'a + Packable> {
 /// A slice-backed iterator which can automatically pack its constituent
 /// elements into vectors.
 #[derive(Debug)]
+#[cfg(not(feature = "no-std"))]
 pub struct SIMDIter<T : Packable> {
     pub position: usize,
     pub data: Vec<T>,
@@ -188,6 +189,7 @@ pub struct SIMDMap<I, F> where I : SIMDIterator {
     pub default: I::Vector,
 }
 
+#[cfg(not(feature = "no-std"))]
 impl<T> SIMDArray for SIMDIter<T> where T : Packable {
     #[inline(always)]
     fn load(&self, offset: usize) -> Self::Vector {
@@ -272,8 +274,7 @@ impl<'a, T> SIMDArrayMut for SIMDRefMutIter<'a, T> where T : 'a + Packable {
 
     #[inline(always)]
     unsafe fn store_scalar_unchecked(&mut self, value: Self::Scalar, offset: usize) {
-        use std::ptr::write;
-        write(self.data[offset..].as_mut_ptr(), value);
+        *self.data.get_unchecked_mut(offset) = value;
     }
 }
 
@@ -398,6 +399,7 @@ impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
     }
 }
 
+#[cfg(not(feature = "no-std"))]
 impl<T> Iterator for SIMDIter<T> where T : Packable {
     type Item = <SIMDIter<T> as SIMDIterator>::Scalar;
 
@@ -449,6 +451,7 @@ impl<'a, T> Iterator for SIMDRefMutIter<'a, T> where T : Packable {
     }
 }
 
+#[cfg(not(feature = "no-std"))]
 impl<T> ExactSizeIterator for SIMDIter<T> where T : Packable {
 
     #[inline(always)]
@@ -474,6 +477,7 @@ impl<'a, T> ExactSizeIterator for SIMDRefMutIter<'a, T> where T : Packable {
     }
 }
 
+#[cfg(not(feature = "no-std"))]
 impl<T> SIMDIterator for SIMDIter<T> where T : Packable {
     type Vector = <T as Packable>::Vector;
     type Scalar = T;
