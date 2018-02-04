@@ -254,7 +254,8 @@ impl<'a, A, S> SIMDIterator for PackedStripe<'a, A> where A : SIMDArray<Scalar =
     fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> {
         if self.base < self.iter.len() {
             let mut ret = default.clone();
-            let fill_amt = (self.iter.len() - self.base) / self.stride;
+            // Crappy integer division equivalent to ceil(self.iter.len() - self.base / self.stride)
+            let fill_amt = (self.iter.len() - self.base - 1) / self.stride + 1;
             // Right-align the partial vector to maintain compat with SIMDRefIter
             for i in (self.width() - fill_amt)..self.width() {
                 unsafe {
