@@ -5,7 +5,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{SIMDIter, SIMDRefIter, SIMDRefMutIter, SIMDIterator};
+use iters::{SIMDRefIter, SIMDRefMutIter, SIMDIterator};
+#[cfg(not(feature = "no-std"))]
+use iters::SIMDIter;
 
 /// A trait which transforms a contiguous collection into an owned stream of
 /// vectors.
@@ -52,6 +54,7 @@ impl<T : SIMDIterator> IntoSIMDIterator for T {
 macro_rules! impl_array_intos {
     ($($el:ty),*) => {
         $(
+            #[cfg(not(feature = "no-std"))]
             impl IntoSIMDIterator for Vec<$el> {
                 type Iter = SIMDIter<$el>;
 
