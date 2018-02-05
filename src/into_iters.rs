@@ -5,88 +5,83 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{SIMDRefIter, SIMDRefMutIter, SIMDIterator};
+use iters::{SIMDRefIter, SIMDRefMutIter, SIMDIterator, SIMDObject};
 #[cfg(not(feature = "no-std"))]
 use iters::SIMDIter;
+use vecs::*;
 
 /// A trait which transforms a contiguous collection into an owned stream of
 /// vectors.
 pub trait IntoSIMDIterator {
-    type Iter: SIMDIterator;
+    type Iter : SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
     /// values into SIMD vectors. See `SIMDIterator::simd_map` and
     /// `SIMDIterator::simd_reduce` for more information.
-    fn into_simd_iter(self) -> Self::Iter;
+    fn into_simd_iter(self, default: <Self::Iter as SIMDObject>::Vector) -> Self::Iter;
 }
 
 /// A trait which transforms a contiguous collection into a slice-backed stream
 /// of vectors.
 pub trait IntoSIMDRefIterator<'a> {
-    type Iter: SIMDIterator;
+    type Iter : SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
     /// values into SIMD vectors. See `SIMDIterator::simd_map` and
     /// `SIMDIterator::simd_reduce` for more information.
-    fn simd_iter(&'a self) -> Self::Iter;
+    fn simd_iter(&'a self, default: <Self::Iter as SIMDObject>::Vector) -> Self::Iter;
 }
 
 /// A trait which transforms a contiguous collection into a mutable slice-backed
 /// stream of vectors.
 pub trait IntoSIMDRefMutIterator<'a> {
-    type Iter: SIMDIterator;
+    type Iter : SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
     /// values into SIMD vectors. See `SIMDIterator::simd_map` and
     /// `SIMDIterator::simd_reduce` for more information.
-    fn simd_iter_mut(&'a mut self) -> Self::Iter;
-}
-
-impl<T : SIMDIterator> IntoSIMDIterator for T {
-    type Iter = T;
-
-    #[inline(always)]
-    default fn into_simd_iter(self) -> T {
-        self
-    }
+    fn simd_iter_mut(&'a mut self, default: <Self::Iter as SIMDObject>::Vector) -> Self::Iter;
 }
 
 macro_rules! impl_array_intos {
-    ($($el:ty),*) => {
+    ($($el:ty, $vec:ty),*) => {
         $(
             #[cfg(not(feature = "no-std"))]
             impl IntoSIMDIterator for Vec<$el> {
-                type Iter = SIMDIter<$el>;
+                type Iter = SIMDIter<$el, $vec>;
 
                 #[inline(always)]
-                fn into_simd_iter(self) -> Self::Iter {
+                fn into_simd_iter(self, default: $vec) -> Self::Iter {
                     SIMDIter {
                         data: self,
                         position: 0,
+                        default: default,
                     }
                 }
             }
 
             impl<'a> IntoSIMDRefIterator<'a> for [$el] {
-                type Iter = SIMDRefIter<'a, $el>;
+                type Iter = SIMDRefIter<'a, $el, $vec>;
 
                 #[inline(always)]
-                fn simd_iter(&'a self) -> Self::Iter {
+                fn simd_iter(&'a self, default: $vec) -> Self::Iter {
                     SIMDRefIter {
                         data: self,
                         position: 0,
+                        default: default,
                     }
                 }
             }
 
             impl<'a> IntoSIMDRefMutIterator<'a> for [$el] {
-                type Iter = SIMDRefMutIter<'a, $el>;
+                type Iter = SIMDRefMutIter<'a, $el, $vec>;
 
                 #[inline(always)]
-                fn simd_iter_mut(&'a mut self) -> Self::Iter {
+                fn simd_iter_mut(&'a mut self, default: $vec) -> Self::Iter {
                     SIMDRefMutIter {
                         data: self,
                         position: 0,
+                        default: default,
                     }
                 }
             }
@@ -94,4 +89,13 @@ macro_rules! impl_array_intos {
     }
 }
 
-impl_array_intos!(u8, i8, u16, i16, u32, i32, f32, u64, i64, f64);
+impl_array_intos!(u8, u8s,
+                  i8, i8s,
+                  u16, u16s,
+                  i16, i16s,
+                  u32, u32s,
+                  i32, i32s,
+                  f32, f32s,
+                  u64, u64s,
+                  i64, i64s,
+                  f64, f64s);

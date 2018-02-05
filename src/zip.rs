@@ -5,28 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{SIMDIterator};
+use iters::{SIMDIterator, SIMDIterable, SIMDObject};
 use vecs::{Packed, Packable};
-
-/// A lazy iterator which returns tuples of the elements of its contained
-/// iterators.
-pub struct PackedZip<T> {
-    iters: T
-}
-
-/// A lazy mapping iterator which applies its function to a stream of tuples of
-/// vectors.
-pub struct PackedZipMap<I, F> where I : PackedZippedIterator {
-    iter: I,
-    func: F,
-    defaults: I::Vectors
-}
-
-/// A trait which can transform a collection of iterators into a `PackedZip`
-pub trait IntoSIMDZip : Sized {
-    /// Return an iterator which may iterate over `self` in lockstep.
-    fn zip(self) -> PackedZip<Self>;
-}
 
 /// A macro which takes a number n and an expression, and returns a tuple
 /// containing n copies of the expression. Only works for numbers less than or
@@ -57,43 +37,108 @@ pub trait IntoSIMDZip : Sized {
     (12, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i) };
 }
 
-/// A collection of packed iterators of the same scalar length and vector width,
-/// which may be iterated over in lockstep.
-pub trait PackedZippedIterator : ExactSizeIterator + Sized {
-    type Scalars : Copy + Sized;
-    type Vectors : Copy + Sized;
+/// A lazy iterator which returns tuples of the elements of its contained
+/// iterators.
+pub struct Zip<T> {
+    iters: T
+}
 
-    /// Return the width of this iterator's constitutent vectors.
+/// A lazy mapping iterator which applies its function to a stream of tuples of
+/// vectors.
+pub struct SIMDZipMap<I, F> where I : SIMDZippedIterator {
+    iter: I,
+    func: F,
+}
+
+/// A trait which can transform a collection of iterators into a `Zip`
+pub trait IntoSIMDZip : Sized {
+    /// Return an iterator which may iterate over `self` in lockstep.
+    fn zip(self) -> Zip<Self>;
+}
+
+pub trait SIMDZippedObject : Sized {
+    type Scalars;
+    type Vectors;
+
+    /// Return the vector length of this object.
+    #[inline(always)]
     fn width(&self) -> usize;
 
-    /// Return the length of this iterator, measured in scalar elements.
-    fn scalar_len(&self) -> usize;
+    /// Return the scalar length of this object.
+    #[inline(always)]
+    fn size(&self) -> usize;
+}
 
-    /// Return the current position of this iterator, measured in scalar
-    /// elements.
-    fn scalar_position(&self) -> usize;
+/// An iterator which automatically packs the values it iterates over into SIMD
+/// vectors.
+pub trait SIMDZippedIterable : SIMDZippedObject + ExactSizeIterator<Item = <Self as SIMDZippedObject>::Vectors> {
+    /// Return the current position of this iterator, measured in scalars
+    fn scalar_pos(&self) -> usize;
 
-    /// Pack and return a vector containing the next `self.width()` elements
-    /// of the iterator, or return None if there aren't enough elements left
-    fn next_vectors(&mut self) -> Option<Self::Vectors>;
+    /// Return the current position of this iterator, measured in vectors.
+    fn vector_pos(&self) -> usize;
 
-    /// Pack and return a partially full vector containing upto the next
+    /// Advance the iterable by one vector.
+    fn vector_inc(&mut self);
+
+    /// Advance the iterable by one scalar.
+    fn scalar_inc(&mut self);
+
+    /// Return the default vector for this iterable.
+    fn default(&self) -> Self::Vectors;
+
+    /// Advance the iterable such that it procudes no more items.
+    fn finalize(&mut self);
+
+    // #[inline(always)]
+    // /// Create a an iterator over the remaining scalar elements in this iterator
+    // fn unpack(self) -> Unpacked<Self> {
+    //     Unpacked {
+    //         iter: self,
+    //     }
+    // }
+
+    // #[inline(always)]
+    // /// Create an iterator which returns `amt` vectors at a time.
+    // fn unroll<'a>(&'a mut self, amt: usize) -> Unrolled<'a, Self> {
+    //     assert!(amt <= 8);
+    //     Unrolled {
+    //         iter: self,
+    //         amt: amt,
+    //         scratch: [<Self as SIMDZippedObject>::Vectors::default(); 8]
+    //     }
+    // }
+}
+
+/// An iterator which automatically packs the values it iterates over into SIMD
+/// vectors, and can handle collections which do not fit into the system's
+/// vectors natively.
+pub trait SIMDZippedIterator : SIMDZippedIterable {
+    /// Pack and return a partially full vector containing up to the next
     /// `self.width()` of the iterator, or None if no elements are left.
     /// Elements which are not filled are instead initialized to default.
-    fn next_partials(&mut self, default: Self::Vectors) -> Option<(Self::Vectors, usize)>;
-
-    /// Pack and return a splatted vector containing the next element
-    /// of the iterator, or None if no elements are left.
-    fn next_splats(&mut self) -> Option<Self::Vectors>;
+    fn end(&mut self) -> Option<(Self::Vectors, usize)>;
 
     #[inline(always)]
     /// Return an iterator which calls `func` on vectors of elements.
-    fn simd_map<B, F>(self, defaults: Self::Vectors, func: F) -> PackedZipMap<Self, F>
-        where F : FnMut(Self::Vectors) -> B {
-        PackedZipMap {
+    fn simd_map<A, B, F>(self, func: F) -> SIMDZipMap<Self, F>
+        where F : FnMut(Self::Vectors) -> A, A : Packed<Scalar = B>, B : Packable {
+        SIMDZipMap {
             iter: self,
             func: func,
-            defaults: defaults
+        }
+    }
+
+    #[inline(always)]
+    /// Pack and run `func` over the iterator, returning no value and not
+    /// modifying the iterator.
+    fn simd_do_each<F>(&mut self, mut func: F)
+        where F : FnMut(Self::Vectors) -> () {
+        while let Some(v) = self.next() {
+            func(v);
+        }
+        if let Some((v, _)) = self.end() {
+            func(v);
         }
     }
 
@@ -142,28 +187,29 @@ pub trait PackedZippedIterator : ExactSizeIterator + Sized {
     /// # Footgun Warning
     ///
     /// The results of `simd_reduce` are not portable, and it is your
-    /// responsibility to interepret the result in such a way that the it is
+    /// responsibility to interpret the result in such a way that the it is
     /// consistent across different architectures. See [`Packed::sum`] and
     /// [`Packed::product`] for built-in functions which may be helpful.
     ///
     /// [`Packed::sum`]: vecs/trait.Packed.html#tymethod.sum
     /// [`Packed::product`]: vecs/trait.Packed.html#tymethod.product
-    fn simd_reduce<A, F>(&mut self, start: A, default: Self::Vectors, mut func: F) -> A
-        where F : FnMut(A, Self::Vectors) -> A {
+    fn simd_reduce<A, F>(&mut self, start: A, mut func: F) -> A
+    where F : FnMut(A, Self::Vectors) -> A {
         let mut acc: A;
-        if let Some(v) = self.next_vectors() {
+
+        if let Some(v) = self.next() {
             acc = func(start, v);
-            while let Some(mut v) = self.next_vectors() {
+            while let Some(mut v) = self.next() {
                 acc = func(acc, v);
             }
-            if let Some((v, _)) = self.next_partials(default) {
+            if let Some((v, _)) = self.end() {
                 acc = func(acc, v);
             }
-            debug_assert!(self.next_partials(default).is_none());
+            debug_assert!(self.end().is_none());
             acc
-        } else if let Some((v, _)) = self.next_partials(default) {
+        } else if let Some((v, _)) = self.end() {
             acc = func(start, v);
-            debug_assert!(self.next_partials(default).is_none());
+            debug_assert!(self.end().is_none());
             acc
         } else {
             start
@@ -171,27 +217,18 @@ pub trait PackedZippedIterator : ExactSizeIterator + Sized {
     }
 }
 
+
 macro_rules! impl_iter_zip {
     (($($a:tt),*), ($($b:tt),*), ($($n:tt),*)) => (
         impl<$($a),*> IntoSIMDZip for ($($a),*) where $($a : SIMDIterator),* {
-
             #[inline(always)]
-            fn zip(self) -> PackedZip<Self> {
-                PackedZip { iters: self }
+            fn zip(self) -> Zip<Self> {
+                Zip { iters: self }
             }
         }
 
-        // impl<'a, $($a),*> IntoSIMDRefMutIterator<'a> for ($(&'a mut $a),*) where $(&'a mut $a : SIMDIterator),* {
-        //     type Iter = PackedZip<($(&'a mut $a),*)>;
-
-        //     fn simd_iter_mut(&mut self) -> Self::Iter {
-        //         PackedZip { iters: self }
-        //     }
-        // }
-
-        impl<Z, $($a),*> ExactSizeIterator for PackedZip<($($a),*)>
-            where $($a : SIMDIterator<Scalar = Z, Item = Z>),*, Z : Packable {
-
+        impl<$($a),*> ExactSizeIterator for Zip<($($a),*)>
+            where $($a : SIMDIterator),* {
             #[inline(always)]
             fn len(&self) -> usize {
                 debug_assert!($(self.iters.$n.len() == self.iters.0.len())&&*);
@@ -199,113 +236,155 @@ macro_rules! impl_iter_zip {
             }
         }
 
-        impl<Z, $($a),*> Iterator for PackedZip<($($a),*)>
-            where $($a : SIMDIterator<Scalar = Z, Item = Z>),*, Z : Packable {
+        impl<$($a),*> Iterator for Zip<($($a),*)>
+            where $($a : SIMDIterator),* {
             type Item = ($(<$a as Iterator>::Item),*);
 
-            fn next(&mut self) -> Option<Self::Item> {
-                Some(($(self.iters.$n.next()?),*))
+            #[inline(always)]
+            fn next(&mut self) -> Option<<Self as SIMDZippedObject>::Vectors> {
+                let ret = ($(self.iters.$n.next()),*);
+
+                debug_assert!($(ret.$n.is_none() == ret.$n.is_none())&&*);
+                Some(($(ret.$n?),*))
             }
         }
 
-        impl<Z, $($a),*> PackedZippedIterator for PackedZip<($($a),*)>
-            where $($a : SIMDIterator<Scalar = Z, Item = Z>),*, Z : Packable {
+        impl<$($a),*> SIMDZippedObject for Zip<($($a),*)>
+            where $($a : SIMDIterator),* {
             type Vectors = ($($a::Vector),*);
             type Scalars = ($($a::Scalar),*);
 
-            #[inline(always)]
             fn width(&self) -> usize {
-                debug_assert!($(self.iters.$n.width() == self.iters.0.width())&&*);
                 self.iters.0.width()
             }
 
-            #[inline(always)]
-            fn scalar_len(&self) -> usize {
-                debug_assert!($(self.iters.$n.scalar_len() == self.iters.0.scalar_len())&&*);
-                self.iters.0.scalar_len()
+            fn size(&self) -> usize {
+                self.iters.0.size()
             }
+        }
+
+        impl<$($a),*> SIMDZippedIterator for Zip<($($a),*)>
+            where $($a : SIMDIterator),* {
 
             #[inline(always)]
-            fn scalar_position(&self) -> usize {
-                debug_assert!($(self.iters.$n.scalar_position() == self.iters.0.scalar_position())&&*);
-                self.iters.0.scalar_position()
-            }
+            fn end(&mut self) -> Option<(Self::Vectors, usize)> {
+                let a = ($(self.iters.$n.end()),*);
 
-            #[inline(always)]
-            fn next_vectors(&mut self) -> Option<Self::Vectors> {
-                Some(($(self.iters.$n.next_vector()?),*))
-            }
-
-            #[inline(always)]
-            fn next_splats(&mut self) -> Option<Self::Vectors> {
-                Some(($($a::Vector::splat(self.iters.$n.next()?)),*))
-            }
-
-            #[inline(always)]
-            fn next_partials(&mut self, default: Self::Vectors) -> Option<(Self::Vectors, usize)> {
-                let a = ($(self.iters.$n.next_partial(default.$n)),*);
                 // Ensure everything is None, Or nothing is None and all vectors
                 // are the same size.
                 debug_assert!($((!a.$n.is_none() && a.$n.unwrap().1 == a.0.unwrap().1))&&*
                               || $(a.$n.is_none())&&*);
                 if !a.0.is_none() {
-                    Some((($(a.$n.unwrap().0),*), a.0.unwrap().1))
+                    Some((($(a.$n?.0),*), a.0?.1))
                 } else {
                     None
                 }
             }
         }
+
+        impl<$($a),*> SIMDZippedIterable for Zip<($($a),*)>
+            where $($a : SIMDIterator),* {
+
+            #[inline(always)]
+            fn scalar_pos(&self) -> usize {
+                debug_assert!($(self.iters.$n.scalar_pos() == self.iters.$n.scalar_pos())&&*);
+                self.iters.0.scalar_pos()
+            }
+
+            #[inline(always)]
+            fn vector_pos(&self) -> usize {
+                debug_assert!($(self.iters.$n.vector_pos() == self.iters.$n.vector_pos())&&*);
+                self.iters.0.vector_pos()
+            }
+
+            #[inline(always)]
+            fn vector_inc(&mut self) {
+                $(self.iters.$n.vector_inc();)*
+            }
+
+            #[inline(always)]
+            fn scalar_inc(&mut self) {
+                $(self.iters.$n.scalar_inc();)*
+            }
+
+            #[inline(always)]
+            fn default(&self) -> Self::Vectors {
+                ($(self.iters.$n.default()),*)
+            }
+
+            #[inline(always)]
+            fn finalize(&mut self) {
+                $(self.iters.$n.finalize();)*
+            }
+        }
     );
 }
 
-impl<I, F, A> Iterator for PackedZipMap<I, F>
-    where I : PackedZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
-    type Item = A::Scalar;
+impl<I, F, A> Iterator for SIMDZipMap<I, F>
+    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+    type Item = A;
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        self.iter.next_splats().map(&mut self.func).map(A::coalesce)
+        self.iter.next().map(&mut self.func)
     }
 }
 
-impl<I, F, A> ExactSizeIterator for PackedZipMap<I, F>
-    where I : PackedZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
-
+impl<I, F, A> ExactSizeIterator for SIMDZipMap<I, F>
+    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
     #[inline(always)]
     fn len(&self) -> usize {
         self.iter.len()
     }
 }
 
-impl<I, F, A> SIMDIterator for PackedZipMap<I, F>
-    where I : PackedZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+impl<I, F, A> SIMDObject for SIMDZipMap<I, F>
+    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
     type Vector = A;
     type Scalar = A::Scalar;
+}
 
+impl<I, F, A> SIMDIterable for SIMDZipMap<I, F>
+    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
     #[inline(always)]
-    fn width(&self) -> usize {
-        self.iter.width()
+    fn scalar_pos(&self) -> usize {
+        self.iter.scalar_pos()
     }
 
     #[inline(always)]
-    fn scalar_len(&self) -> usize {
-        self.iter.scalar_len()
+    fn vector_pos(&self) -> usize {
+        self.iter.vector_pos()
     }
 
     #[inline(always)]
-    fn scalar_position(&self) -> usize {
-        self.iter.scalar_position()
+    fn vector_inc(&mut self) {
+        self.iter.vector_inc()
     }
 
     #[inline(always)]
-    fn next_vector(&mut self) -> Option<Self::Vector> {
-        self.iter.next_vectors().map(&mut self.func)
+    fn scalar_inc(&mut self) {
+        self.iter.scalar_inc()
     }
 
     #[inline(always)]
-    fn next_partial(&mut self, default: Self::Vector) -> Option<(Self::Vector, usize)> {
-        let (v, n) = self.iter.next_partials(self.defaults)?;
-        Some((default.merge_partitioned((&mut self.func)(v), n), n))
+    fn default(&self) -> Self::Vector {
+        // TODO: Is there a more sane return value (without invoking the closure)?
+        <Self::Vector as Packed>::default()
+    }
+
+    #[inline(always)]
+    fn finalize(&mut self) {
+        self.iter.finalize()
+    }
+}
+
+impl<I, F, A> SIMDIterator for SIMDZipMap<I, F>
+where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+    #[inline(always)]
+    fn end(&mut self) -> Option<(Self::Vector, usize)> {
+        let (v, n) = self.iter.end()?;
+        let nr = n * self.iter.size() / self.size();
+        Some(((self.func)(v), nr))
     }
 }
 
