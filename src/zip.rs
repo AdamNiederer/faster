@@ -5,7 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{SIMDIterator, SIMDIterable, SIMDObject};
+use iters::{SIMDIterator, SIMDIterable, SIMDObject, UnsafeIterator};
 use vecs::{Packed, Packable};
 
 /// A macro which takes a number n and an expression, and returns a tuple
@@ -220,100 +220,104 @@ pub trait SIMDZippedIterator : SIMDZippedIterable {
 
 macro_rules! impl_iter_zip {
     (($($a:tt),*), ($($b:tt),*), ($($n:tt),*)) => (
-        impl<$($a),*> IntoSIMDZip for ($($a),*) where $($a : SIMDIterator),* {
+        impl<$($a),*> IntoSIMDZip for ($($a),*) where $($a : SIMDIterator + UnsafeIterator),* {
             #[inline(always)]
             fn zip(self) -> Zip<Self> {
+                if $(self.0.len() != self.$n.len())||* {
+                    panic!("You can only zip iterator of the same size.");
+                }
                 Zip { iters: self }
             }
         }
 
         impl<$($a),*> ExactSizeIterator for Zip<($($a),*)>
-            where $($a : SIMDIterator),* {
+            where $($a : SIMDIterator + UnsafeIterator),* {
             #[inline(always)]
             fn len(&self) -> usize {
-                debug_assert!($(self.iters.$n.len() == self.iters.0.len())&&*);
                 self.iters.0.len()
             }
         }
 
         impl<$($a),*> Iterator for Zip<($($a),*)>
-            where $($a : SIMDIterator),* {
+            where $($a : SIMDIterator + UnsafeIterator),* {
             type Item = ($(<$a as Iterator>::Item),*);
 
             #[inline(always)]
             fn next(&mut self) -> Option<<Self as SIMDZippedObject>::Vectors> {
-                let ret = ($(self.iters.$n.next()),*);
-
-                debug_assert!($(ret.$n.is_none() == ret.$n.is_none())&&*);
-                Some(($(ret.$n?),*))
+                if let Some(v) = self.iters.0.next() {
+                    unsafe { Some((v, $(self.iters.$n.next_unchecked()),*)) }
+                } else {
+                    debug_assert!($(self.iters.$n.next().is_none())&&*);
+                    None
+                }
             }
         }
 
         impl<$($a),*> SIMDZippedObject for Zip<($($a),*)>
-            where $($a : SIMDIterator),* {
+            where $($a : SIMDIterator + UnsafeIterator),* {
             type Vectors = ($($a::Vector),*);
             type Scalars = ($($a::Scalar),*);
 
+            #[inline(always)]
             fn width(&self) -> usize {
                 self.iters.0.width()
             }
 
+            #[inline(always)]
             fn size(&self) -> usize {
                 self.iters.0.size()
             }
         }
 
         impl<$($a),*> SIMDZippedIterator for Zip<($($a),*)>
-            where $($a : SIMDIterator),* {
+            where $($a : SIMDIterator + UnsafeIterator),* {
 
             #[inline(always)]
             fn end(&mut self) -> Option<(Self::Vectors, usize)> {
-                let a = ($(self.iters.$n.end()),*);
-
-                // Ensure everything is None, Or nothing is None and all vectors
-                // are the same size.
-                debug_assert!($((!a.$n.is_none() && a.$n.unwrap().1 == a.0.unwrap().1))&&*
-                              || $(a.$n.is_none())&&*);
-                if !a.0.is_none() {
-                    Some((($(a.$n?.0),*), a.0?.1))
+                if let Some((v, n)) = self.iters.0.end() {
+                    unsafe { Some(((v, $(self.iters.$n.end_unchecked(n)),*), n)) }
                 } else {
+                    debug_assert!($(self.iters.$n.end().is_none())&&*);
                     None
                 }
             }
         }
 
         impl<$($a),*> SIMDZippedIterable for Zip<($($a),*)>
-            where $($a : SIMDIterator),* {
+            where $($a : SIMDIterator + UnsafeIterator),* {
 
             #[inline(always)]
             fn scalar_pos(&self) -> usize {
-                debug_assert!($(self.iters.$n.scalar_pos() == self.iters.$n.scalar_pos())&&*);
+                debug_assert!($(self.iters.$n.scalar_pos() == self.iters.0.scalar_pos())&&*);
                 self.iters.0.scalar_pos()
             }
 
             #[inline(always)]
             fn vector_pos(&self) -> usize {
-                debug_assert!($(self.iters.$n.vector_pos() == self.iters.$n.vector_pos())&&*);
+                debug_assert!($(self.iters.$n.vector_pos() == self.iters.0.vector_pos())&&*);
                 self.iters.0.vector_pos()
             }
 
             #[inline(always)]
             fn vector_inc(&mut self) {
+                self.iters.0.vector_inc();
                 $(self.iters.$n.vector_inc();)*
             }
 
             #[inline(always)]
             fn scalar_inc(&mut self) {
+                self.iters.0.scalar_inc();
                 $(self.iters.$n.scalar_inc();)*
             }
 
             #[inline(always)]
             fn default(&self) -> Self::Vectors {
-                ($(self.iters.$n.default()),*)
+                (self.iters.0.default(), $(self.iters.$n.default()),*)
             }
 
             #[inline(always)]
             fn finalize(&mut self) {
+                self.iters.0.finalize();
                 $(self.iters.$n.finalize();)*
             }
         }
@@ -391,37 +395,37 @@ where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
 
 impl_iter_zip!((A, B),
                (AA, BB),
-               (0, 1));
+               (1));
 impl_iter_zip!((A, B, C),
                (AA, BB, CC),
-               (0, 1, 2));
+               (1, 2));
 impl_iter_zip!((A, B, C, D),
                (AA, BB, CC, DD),
-               (0, 1, 2, 3));
+               (1, 2, 3));
 impl_iter_zip!((A, B, C, D, E),
                (AA, BB, CC, DD, EE),
-               (0, 1, 2, 3, 4));
+               (1, 2, 3, 4));
 impl_iter_zip!((A, B, C, D, E, F),
                (AA, BB, CC, DD, EE, FF),
-               (0, 1, 2, 3, 4, 5));
+               (1, 2, 3, 4, 5));
 impl_iter_zip!((A, B, C, D, E, F, G),
                (AA, BB, CC, DD, EE, FF, GG),
-               (0, 1, 2, 3, 4, 5, 6));
+               (1, 2, 3, 4, 5, 6));
 impl_iter_zip!((A, B, C, D, E, F, G, H),
                (AA, BB, CC, DD, EE, FF, GG, HH),
-               (0, 1, 2, 3, 4, 5, 6, 7));
+               (1, 2, 3, 4, 5, 6, 7));
 impl_iter_zip!((A, B, C, D, E, F, G, H, I),
                (AA, BB, CC, DD, EE, FF, GG, HH, II),
-               (0, 1, 2, 3, 4, 5, 6, 7, 8));
+               (1, 2, 3, 4, 5, 6, 7, 8));
 impl_iter_zip!((A, B, C, D, E, F, G, H, I, J),
                (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ),
-               (0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
+               (1, 2, 3, 4, 5, 6, 7, 8, 9));
 impl_iter_zip!((A, B, C, D, E, F, G, H, I, J, K),
                (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK),
-               (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+               (1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
 impl_iter_zip!((A, B, C, D, E, F, G, H, I, J, K, L),
                (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK, LL),
-               (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
+               (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
 impl_iter_zip!((A, B, C, D, E, F, G, H, I, J, K, L, M),
                (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK, LL, MM),
-               (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+               (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
