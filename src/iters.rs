@@ -491,36 +491,39 @@ impl<T, S, V> SIMDIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, 
 }
 
 #[doc(hidden)]
-pub trait UnsafeIterator: Iterator + SIMDIterable {
-    unsafe fn next_unchecked(&mut self) -> Self::Item;
-    unsafe fn end_unchecked(&mut self, empty_amt: usize) -> Self::Vector;
+pub trait UnsafeIterator : Iterator + SIMDIterable {
+    fn pos(&self) -> usize;
+    unsafe fn next_unchecked(&mut self, offset: usize) -> Self::Item;
+    unsafe fn end_unchecked(&mut self, offset: usize, empty_amt: usize) -> Self::Vector;
 }
 
 impl<T, S, V> UnsafeIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, Vector = V>, S : Packable, V : Packed<Scalar = S> {
 
     #[inline(always)]
-    unsafe fn next_unchecked(&mut self) -> Self::Item {
-        debug_assert!(self.scalar_pos() + self.width() <= self.scalar_len());
-        let ret = self.load_unchecked(self.scalar_pos());
-        self.vector_inc();
-        ret
+    fn pos(&self) -> usize {
+        self.scalar_pos()
     }
 
     #[inline(always)]
-    unsafe fn end_unchecked(&mut self, empty_amt: usize) -> Self::Vector {
-        debug_assert!(self.scalar_pos() < self.scalar_len());
+    unsafe fn next_unchecked(&mut self, offset: usize) -> Self::Item {
+        debug_assert!(offset + self.width() <= self.scalar_len());
+        self.load_unchecked(offset)
+    }
+
+    #[inline(always)]
+    unsafe fn end_unchecked(&mut self, offset: usize, empty_amt: usize) -> Self::Vector {
+        debug_assert!(offset < self.scalar_len());
         let mut ret = self.default().clone();
-        debug_assert_eq!(empty_amt, self.width() - (self.scalar_len() - self.scalar_pos()));
+        debug_assert_eq!(empty_amt, self.width() - (self.scalar_len() - offset));
         // Right-align the partial vector to ensure the load is vectorized
         if self.width() < self.scalar_len() {
             ret = self.load_unchecked(self.scalar_len() - self.width());
             ret = self.default().merge_partitioned(ret, empty_amt);
         } else {
-            for i in self.scalar_pos()..self.scalar_len() {
+            for i in offset..self.scalar_len() {
                 ret = ret.replace_unchecked(i + empty_amt, self.load_scalar_unchecked(i));
             }
         }
-        self.finalize();
         ret
     }
 

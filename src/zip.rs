@@ -224,7 +224,7 @@ macro_rules! impl_iter_zip {
             #[inline(always)]
             fn zip(self) -> Zip<Self> {
                 if $(self.0.len() != self.$n.len())||* {
-                    panic!("You can only zip iterator of the same size.");
+                    panic!("You can only zip iterators of the same length.");
                 }
                 Zip { iters: self }
             }
@@ -244,10 +244,10 @@ macro_rules! impl_iter_zip {
 
             #[inline(always)]
             fn next(&mut self) -> Option<<Self as SIMDZippedObject>::Vectors> {
+                let pos = self.iters.0.pos();
                 if let Some(v) = self.iters.0.next() {
-                    unsafe { Some((v, $(self.iters.$n.next_unchecked()),*)) }
+                    unsafe { Some((v, $(self.iters.$n.next_unchecked(pos)),*)) }
                 } else {
-                    debug_assert!($(self.iters.$n.next().is_none())&&*);
                     None
                 }
             }
@@ -274,10 +274,10 @@ macro_rules! impl_iter_zip {
 
             #[inline(always)]
             fn end(&mut self) -> Option<(Self::Vectors, usize)> {
+                let pos = self.iters.0.pos();
                 if let Some((v, n)) = self.iters.0.end() {
-                    unsafe { Some(((v, $(self.iters.$n.end_unchecked(n)),*), n)) }
+                    unsafe { Some(((v, $(self.iters.$n.end_unchecked(pos, n)),*), n)) }
                 } else {
-                    debug_assert!($(self.iters.$n.end().is_none())&&*);
                     None
                 }
             }
@@ -301,13 +301,11 @@ macro_rules! impl_iter_zip {
             #[inline(always)]
             fn vector_inc(&mut self) {
                 self.iters.0.vector_inc();
-                $(self.iters.$n.vector_inc();)*
             }
 
             #[inline(always)]
             fn scalar_inc(&mut self) {
                 self.iters.0.scalar_inc();
-                $(self.iters.$n.scalar_inc();)*
             }
 
             #[inline(always)]
@@ -318,7 +316,6 @@ macro_rules! impl_iter_zip {
             #[inline(always)]
             fn finalize(&mut self) {
                 self.iters.0.finalize();
-                $(self.iters.$n.finalize();)*
             }
         }
     );
