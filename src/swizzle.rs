@@ -8,7 +8,7 @@
 #![allow(unused_imports)]
 
 use vecs::*;
-use iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject};
+use iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator};
 use core_or_std::iter::{Iterator, ExactSizeIterator};
 
 // For AVX2 gathers
@@ -46,6 +46,33 @@ impl<'a, A> Iterator for PackedStripe<'a, A> where A : 'a + SIMDArray {
         } else {
             None
         }
+    }
+}
+
+impl<'a, A> UnsafeIterator for PackedStripe<'a, A> where A : 'a + SIMDArray {
+    #[inline(always)]
+    unsafe fn next_unchecked(&mut self) -> Self::Item {
+        debug_assert!(self.pos + self.stride * self.width() < self.iter.scalar_len());
+        let mut ret = <Self as SIMDObject>::Vector::default();
+        for i in 0..self.width() {
+            ret = ret.replace(i, self.iter.load_scalar_unchecked(self.pos + self.stride * i));
+        }
+        self.pos += self.stride * self.width();
+        ret
+    }
+
+    #[inline(always)]
+    unsafe fn end_unchecked(&mut self, empty_amt: usize) -> Self::Vector {
+        debug_assert!(self.pos < self.iter.scalar_len());
+        // TODO: Can we simplify this math?
+        let mut ret = self.default().clone();
+        // Crappy integer division equivalent to ceil(self.iter.len() - self.pos / self.stride)
+        debug_assert_eq!(empty_amt, self.width() - ((self.iter.scalar_len() - self.pos - 1) / self.stride + 1));
+        // Right-align the partial vector to maintain compat with SIMDRefIter
+        for i in empty_amt..self.width() {
+            ret = ret.replace(i, self.iter.load_scalar_unchecked(self.pos + self.stride * (i - empty_amt)));
+        }
+        ret
     }
 }
 
