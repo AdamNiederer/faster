@@ -58,8 +58,14 @@ pub trait Packed : Sized + Copy + Debug + Merge {
     /// Return the `idx`th element of this vector.
     fn extract(&self, idx: usize) -> Self::Scalar;
 
+    /// Return the `idx`th element of this vector.
+    unsafe fn extract_unchecked(&self, idx: usize) -> Self::Scalar;
+
     /// Replace the `idx`th element of this vector with `data`.
     fn replace(&mut self, idx: usize, data: Self::Scalar) -> Self;
+
+    /// Replace the `idx`th element of this vector with `data`.
+    unsafe fn replace_unchecked(&mut self, idx: usize, data: Self::Scalar) -> Self;
 
     /// Return a scalar equivalent to the product of all elements of this
     /// vector.
@@ -137,8 +143,18 @@ macro_rules! impl_packed {
             }
 
             #[inline(always)]
+            unsafe fn extract_unchecked(&self, idx: usize) -> Self::Scalar {
+                $vec::extract_unchecked(*self, idx as u32)
+            }
+
+            #[inline(always)]
             fn replace(&mut self, idx: usize, data: Self::Scalar) -> Self {
                 $vec::replace(*self, idx as u32, data)
+            }
+
+            #[inline(always)]
+            unsafe fn replace_unchecked(&mut self, idx: usize, data: Self::Scalar) -> Self {
+                $vec::replace_unchecked(*self, idx as u32, data)
             }
 
             #[inline(always)]

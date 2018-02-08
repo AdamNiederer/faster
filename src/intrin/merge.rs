@@ -52,13 +52,17 @@ macro_rules! impl_packed_merge {
 
             #[inline(always)]
             fn merge_halves(&self, other: Self) -> Self {
-                Self::new($(self.extract($a)),*,
-                          $(other.extract($b)),*)
+                unsafe {
+                    Self::new($(self.extract_unchecked($a)),*,
+                              $(other.extract_unchecked($b)),*)
+                }
             }
 
             #[inline(always)]
             fn merge_interleaved(&self, other: Self) -> Self {
-                Self::new($(self.extract($na), other.extract($nb)),*)
+                unsafe {
+                    Self::new($(self.extract_unchecked($na), other.extract_unchecked($nb)),*)
+                }
             }
 
             #[inline(always)]
@@ -66,7 +70,9 @@ macro_rules! impl_packed_merge {
                 assert!(offset < Self::WIDTH);
                 let mut ret = self.clone();
                 for i in (offset as u32)..(Self::WIDTH as u32) {
-                    ret = ret.replace(i, other.extract(i));
+                    unsafe {
+                        ret = ret.replace_unchecked(i, other.extract_unchecked(i));
+                    }
                 }
                 ret
             }

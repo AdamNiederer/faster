@@ -323,63 +323,6 @@ impl<'a, T> Iterator for Unrolled<'a, T> where T : 'a + SIMDIterator {
     }
 }
 
-// impl<'a, T> SIMDRefMutIter<'a, T> where T : Packable {
-//     #[inline(always)]
-//     /// Pack and mutate the iterator in place, running `func` once on each packed
-//     /// vector and storing the results at the same location as the inputs.
-//     pub fn simd_for_each<F>(&mut self, default: <Self as SIMDIterator>::Vector, mut func: F)
-//         where F : FnMut(<Self as SIMDIterator>::Vector) -> () {
-//         let mut lastvec = default;
-//         let mut offset = 0;
-
-//         while let Some(v) = self.next_vector() {
-//             func(v);
-//             v.store(self.data, self.position - v.width());
-//             offset += v.width();
-//             lastvec = v;
-//         }
-
-//         if let Some((p, n)) = self.end(default) {
-//             func(p);
-//             if offset > 0 {
-//                 // We stored a vector in this buffer; overwrite the unused elements
-//                 p.store(self.data, offset - n);
-//                 lastvec.store(self.data, offset - lastvec.width());
-//             } else {
-//                 // The buffer won't fit one vector; store elementwise
-//                 for i in 0..(self.width() - n) {
-//                     self.data[offset + i] = p.extract(i + n);
-//                 }
-//             }
-//         }
-//     }
-// }
-
-// impl<'a, T> SIMDRefIter<'a, T> where T : Packable {
-//     #[inline(always)]
-//     pub fn simd_map_into<'b, A, B, F>(&'a mut self, into: &'b mut [B], default: <Self as SIMDIterator>::Vector, mut func: F) -> &'b [B]
-//     where F : FnMut(<Self as SIMDIterator>::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
-//         debug_assert!(into.len() >= self.scalar_len());
-
-//         let even_elements = self.data.len() - (self.data.len() % self.width());
-//         let mut i = 0;
-
-//         while i < even_elements {
-//             let vec = <Self as SIMDIterator>::Vector::load(self.data, i);
-//             func(vec).store(into, i);
-//             i += self.width()
-//         }
-
-//         if even_elements < self.scalar_len() {
-//             let empty_elements = self.scalar_len() - even_elements;
-//             let uneven_vec = <Self as SIMDIterator>::Vector::load(self.data, self.scalar_len() - self.width());
-//             func(default.merge_partitioned(uneven_vec, empty_elements)).store(into, self.scalar_len() - self.width());
-//         }
-
-//         into
-//     }
-// }
-
 macro_rules! impl_iter {
     ($name:tt < $($genera:tt),* > $($pred:tt)*) => {
         impl< $($genera),* > SIMDObject for $name < $($genera),* > $($pred )* {
@@ -533,9 +476,9 @@ impl<T, S, V> SIMDIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, 
                 ret = self.default().merge_partitioned(ret, empty_amt);
             } else {
                 for i in self.scalar_pos()..self.scalar_len() {
-                    ret = ret.replace(i + empty_amt, unsafe {
-                        self.load_scalar(i)
-                    });
+                    unsafe {
+                        ret = ret.replace_unchecked(i + empty_amt, self.load_scalar_unchecked(i));
+                    }
                 }
             }
             self.finalize();
@@ -574,7 +517,7 @@ impl<T, S, V> UnsafeIterator for T where T : SIMDIterable + SIMDArray<Scalar = S
             ret = self.default().merge_partitioned(ret, empty_amt);
         } else {
             for i in self.scalar_pos()..self.scalar_len() {
-                ret = ret.replace(i + empty_amt, self.load_scalar_unchecked(i));
+                ret = ret.replace_unchecked(i + empty_amt, self.load_scalar_unchecked(i));
             }
         }
         self.finalize();
@@ -701,7 +644,7 @@ impl<'a, T, I> IntoScalar<T> for I
                 } else {
                     // The buffer won't fit one vector; store elementwise
                     for i in 0..(self.width() - n) {
-                        ret[offset + i] = p.extract(i + n);
+                        ret[offset + i] = p.extract_unchecked(i + n);
                     }
                 }
                 ret.set_len(self.width() + offset - n);
@@ -733,7 +676,9 @@ impl<'a, T, I> IntoScalar<T> for I
             } else {
                 // The buffer won't fit one vector; store elementwise
                 for i in 0..(self.width() - n) {
-                    fill[offset + i] = p.extract(i + n);
+                    unsafe {
+                        fill[offset + i] = p.extract_unchecked(i + n);
+                    }
                 }
             }
         }
