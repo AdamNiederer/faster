@@ -48,6 +48,10 @@
 //! extern crate faster;
 //! use faster::*;
 //!
+//! # #[cfg(feature = "no-std")]
+//! # fn main() { }
+//!
+//! # #[cfg(not(feature = "no-std"))]
 //! # fn main() {
 //! let lots_of_10s = [-10i8; 3000].simd_iter(i8s(0))
 //!    .simd_map(|v| v.abs())
@@ -108,6 +112,10 @@
 //! extern crate faster;
 //! use faster::*;
 //!
+//! # #[cfg(feature = "no-std")]
+//! # fn main() { }
+//!
+//! # #[cfg(not(feature = "no-std"))]
 //! # fn main() {
 //! let sevens = ([4i32; 200].simd_iter(i32s(0)), [3i32; 200].simd_iter(i32s(0)))
 //!     .zip()
@@ -129,14 +137,17 @@
 //! extern crate faster;
 //! use faster::*;
 //!
+//! # #[cfg(feature = "no-std")]
+//! # fn main() { }
 //!
-//! fn main() {
+//! # #[cfg(not(feature = "no-std"))]
+//! # fn main() {
 //!     // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
 //!     let slice: &[f32] = &[1.0f32; 1024];
 //!     let determinant = slice.stripe_four(tuplify!(4, f32s(0.0))).zip()
 //!         .simd_map(|(a, b, c, d)| a * d - b * c)
 //!         .scalar_collect();
-//! }
+//! # }
 //! ```
 //!
 //! # Portability
@@ -152,6 +163,10 @@
 //! extern crate faster;
 //! use faster::*;
 //!
+//! # #[cfg(feature = "no-std")]
+//! # fn main() { }
+//!
+//! # #[cfg(not(feature = "no-std"))]
 //! # fn main() {
 //! let mut flip = true;
 //! let impure = [1i8; 3000].simd_iter(i8s(0))
