@@ -9,8 +9,8 @@ mod tests {
     #[test]
     #[cfg(not(feature = "no-std"))]
     fn zipped_stride_iters() {
-        let matrices = [1i8, 2, 3, 4, 5, 6, 7, 8, 9][..].iter().cycle().take(9 * 100).map(|i| i.clone()).collect::<Vec<_>>();
-        let determinants = (&matrices[..]).stripe_nine(tuplify!(9, i8s(0))).zip()
+        let matrices = [1i16, 2, 3, 4, 5, 6, 7, 8, 9][..].iter().cycle().take(9 * 100).map(|i| i.clone()).collect::<Vec<_>>();
+        let determinants = (&matrices[..]).stripe_nine(tuplify!(9, i16s(0))).zip()
             .simd_map(|(a, b, c, d, e, f, g, h, i)| {
                 assert_eq!(a.extract((a.width() - 1) as u32), 1);
                 assert_eq!(b.extract((b.width() - 1) as u32), 2);
@@ -25,8 +25,8 @@ mod tests {
             }).scalar_collect();
         assert!(determinants.iter().fold(true, |acc, x| acc && x == &0));
 
-        let matrices = [1i16, 0, 0, 0, 5, 4, 2, 3, 0][..].iter().cycle().take(9 * 100).map(|i| i.clone()).collect::<Vec<_>>();
-        let determinants = (&matrices[..]).stripe_nine(tuplify!(9, i16s(0))).zip()
+        let matrices = [1i64, 0, 0, 0, 5, 4, 2, 3, 0][..].iter().cycle().take(9 * 100).map(|i| i.clone()).collect::<Vec<_>>();
+        let determinants = (&matrices[..]).stripe_nine(tuplify!(9, i64s(0))).zip()
             .simd_map(|(a, b, c, d, e, f, g, h, i)| {
                 (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
             }).scalar_collect();

@@ -20,7 +20,8 @@ pub trait Rsqrt {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(f32s(9.0).rsqrt(), f32s(0.33325195));
+    /// assert!(0.33333333 - 0.01 < f32s(9.0).rsqrt().coalesce() &&
+    ///         0.33333333 + 0.01 > f32s(9.0).rsqrt().coalesce());
     /// # }
     /// ```
     fn rsqrt(&self) -> Self;

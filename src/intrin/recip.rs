@@ -19,7 +19,8 @@ pub trait Recip {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// assert_eq!(f32s(4.0).recip(), f32s(0.24993896));
+    /// assert!(0.25 - 0.01 < f32s(4.0).recip().coalesce() &&
+    ///         0.25 + 0.01 > f32s(4.0).recip().coalesce());
     /// # }
     /// ```
     fn recip(&self) -> Self;
