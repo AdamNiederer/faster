@@ -8,6 +8,7 @@
 use vecs::*;
 use stdsimd::vendor::*;
 use intrin::transmute::*;
+use core_or_std::mem::transmute;
 
 pub trait Downcast<T> {
     /// Return a vector containing elements of the same value as `self` and
@@ -112,15 +113,14 @@ impl Downcast<i8x16> for i16x8 {
 }
 
 impl Downcast<u16x8> for u32x4 {
-    // Blocked by stdsimd
-    // #[inline(always)]
-    // #[cfg(target_feature = "sse4.1")]
-    // fn saturating_downcast(self, other: Self) -> u16x8 {
-    //     unsafe { _mm_packus_epi32(self, other) }
-    // }
+    #[inline(always)]
+    #[cfg(target_feature = "sse4.1")]
+    fn saturating_downcast(self, other: Self) -> u16x8 {
+        unsafe { transmute(_mm_packus_epi32(transmute(self), transmute(other))) }
+    }
 
     #[inline(always)]
-    // #[cfg(not(target_feature = "sse4.1"))]
+    #[cfg(not(target_feature = "sse4.1"))]
     fn saturating_downcast(self, other: Self) -> u16x8 {
         u16x8::new(self.extract(0).min(0x0000FFFF) as u16,
                    self.extract(1).min(0x0000FFFF) as u16,
@@ -163,15 +163,14 @@ impl Downcast<u8x16> for u16x8 {
 }
 
 impl Downcast<i16x16> for i32x8 {
-    // Blocked by LLVM
-    // #[inline(always)]
-    // #[cfg(target_feature = "sse2")]
-    // fn saturating_downcast(self, other: Self) -> i16x16 {
-    //     unsafe { _mm256_packs_epi32(self, other) }
-    // }
+    #[inline(always)]
+    #[cfg(target_feature = "avx2")]
+    fn saturating_downcast(self, other: Self) -> i16x16 {
+        unsafe { _mm256_packs_epi32(self, other) }
+    }
 
     #[inline(always)]
-    // #[cfg(not(target_feature = "sse2"))]
+    #[cfg(not(target_feature = "avx2"))]
     fn saturating_downcast(self, other: Self) -> i16x16 {
         i16x16::new(self.extract(0).min(0x00007FFF).max(-0x00008000) as i16,
                     self.extract(1).min(0x00007FFF).max(-0x00008000) as i16,
@@ -193,15 +192,14 @@ impl Downcast<i16x16> for i32x8 {
 }
 
 impl Downcast<i8x32> for i16x16 {
-    // Blocked by LLVM
-    // #[inline(always)]
-    // #[cfg(target_feature = "sse2")]
-    // fn saturating_downcast(self, other: Self) -> i8x32 {
-    //     unsafe { _mm256_packs_epi16(self, other) }
-    // }
+    #[inline(always)]
+    #[cfg(target_feature = "avx2")]
+    fn saturating_downcast(self, other: Self) -> i8x32 {
+        unsafe { _mm256_packs_epi16(self, other) }
+    }
 
     #[inline(always)]
-    // #[cfg(not(target_feature = "sse2"))]
+    #[cfg(not(target_feature = "avx2"))]
     fn saturating_downcast(self, other: Self) -> i8x32 {
         i8x32::new(self.extract(0).min(0x007F).max(-0x0080) as i8,
                    self.extract(1).min(0x007F).max(-0x0080) as i8,
@@ -239,15 +237,14 @@ impl Downcast<i8x32> for i16x16 {
 }
 
 impl Downcast<u16x16> for u32x8 {
-    // Blocked by stdsimd
-    // #[inline(always)]
-    // #[cfg(target_feature = "sse4.1")]
-    // fn saturating_downcast(self, other: Self) -> u16x16 {
-    //     unsafe { _mm256_packus_epi32(self, other) }
-    // }
+    #[inline(always)]
+    #[cfg(target_feature = "avx2")]
+    fn saturating_downcast(self, other: Self) -> u16x16 {
+        unsafe { transmute(_mm256_packus_epi32(transmute(self), transmute(other))) }
+    }
 
     #[inline(always)]
-    // #[cfg(not(target_feature = "sse4.1"))]
+    #[cfg(not(target_feature = "avx2"))]
     fn saturating_downcast(self, other: Self) -> u16x16 {
         u16x16::new(self.extract(0).min(0x0000FFFF) as u16,
                     self.extract(1).min(0x0000FFFF) as u16,
