@@ -110,8 +110,8 @@ pub trait SIMDIterator : SIMDIterable {
     /// use faster::*;
     ///
     /// # fn main() {
-    /// let reduced = (&[2.0f32; 100][..]).simd_iter()
-    ///    .simd_reduce(f32s::splat(0.0), f32s::splat(0.0), |acc, v| acc + v);
+    /// let reduced = (&[2.0f32; 100][..]).simd_iter(f32s(0.0))
+    ///     .simd_reduce(f32s(0.0), |acc, v| acc + v);
     /// # }
     /// ```
     ///

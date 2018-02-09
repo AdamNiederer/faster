@@ -49,8 +49,8 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let lots_of_10s = [-10i8; 3000].simd_iter()
-//!    .simd_map(i8s(0), |v| v.abs())
+//! let lots_of_10s = [-10i8; 3000].simd_iter(i8s(0))
+//!    .simd_map(|v| v.abs())
 //!    .scalar_collect();
 //! assert_eq!(lots_of_10s, vec![10u8; 3000]);
 //! # }
@@ -78,8 +78,8 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let two_hundred = [2.0f32; 100].simd_iter()
-//!    .simd_reduce(f32s(0.0), f32s(0.0), |acc, v| acc + v)
+//! let two_hundred = [2.0f32; 100].simd_iter(f32s(0.0))
+//!    .simd_reduce(f32s(0.0), |acc, v| acc + v)
 //!    .sum();
 //! assert_eq!(two_hundred, 200.0f32);
 //! # }
@@ -109,8 +109,9 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let sevens = ([4i32; 200].simd_iter(), [3i32; 200].simd_iter()).zip()
-//!     .simd_map(tuplify!(2, i32s(0)), |(a, b)| a + b)
+//! let sevens = ([4i32; 200].simd_iter(i32s(0)), [3i32; 200].simd_iter(i32s(0)))
+//!     .zip()
+//!     .simd_map(|(a, b)| a + b)
 //!     .scalar_collect();
 //! # }
 //! ```
@@ -132,10 +133,9 @@
 //! fn main() {
 //!     // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
 //!     let slice: &[f32] = &[1.0f32; 1024];
-//!     let simd_iter = slice.simd_iter();
-//!     let determinant = simd_iter.stripe_four().zip().simd_map(tuplify!(4, f32s(0.0)), |(a, b, c, d)| {
-//!         a * d - b * c
-//!     });
+//!     let determinant = slice.stripe_four(tuplify!(4, f32s(0.0))).zip()
+//!         .simd_map(|(a, b, c, d)| a * d - b * c)
+//!         .scalar_collect();
 //! }
 //! ```
 //!
@@ -154,8 +154,8 @@
 //!
 //! # fn main() {
 //! let mut flip = true;
-//! let impure = [1i8; 3000].simd_iter()
-//!    .simd_map(i8s(0), |v| { flip = !flip; if flip { v + i8s(1) } else { v } })
+//! let impure = [1i8; 3000].simd_iter(i8s(0))
+//!    .simd_map(|v| { flip = !flip; if flip { v + i8s(1) } else { v } })
 //!    .scalar_collect();
 //! // Depending on the width of your target's SIMD vectors, `impure` could be
 //! // [1, 1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, ...] or
@@ -168,8 +168,8 @@
 //! use faster::*;
 //!
 //! # fn main() {
-//! let length_dependent = [0i8; 10].simd_iter()
-//!    .simd_reduce(i8s(0), i8s(0), |acc, v| acc + v + i8s(1)).sum();
+//! let length_dependent = [0i8; 10].simd_iter(i8s(0))
+//!    .simd_reduce(i8s(0), |acc, v| acc + v + i8s(1)).sum();
 //! // `length_dependent` could be a different number on a different target!
 //! # }
 //! ```
