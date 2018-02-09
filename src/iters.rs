@@ -195,29 +195,11 @@ pub trait SIMDArrayMut : SIMDArray {
 /// A slice-backed iterator which can automatically pack its constituent
 /// elements into vectors.
 #[derive(Debug)]
-pub struct SIMDRefIter<'a, S : 'a + Packable, V : Packed<Scalar = S>> {
-    pub position: usize,
-    pub data: &'a [S],
-    pub default: V,
-}
-
-/// A slice-backed iterator which can automatically pack its constituent
-/// elements into vectors.
-#[derive(Debug)]
-pub struct SIMDRefMutIter<'a, S : 'a + Packable, V : Packed<Scalar = S>> {
-    pub position: usize,
-    pub data: &'a mut [S],
-    pub default: V,
-}
-
-/// A slice-backed iterator which can automatically pack its constituent
-/// elements into vectors.
-#[derive(Debug)]
 #[cfg(not(feature = "no-std"))]
-pub struct SIMDIter<S : Packable, V : Packed<Scalar = S>> {
+pub struct SIMDIter<A : SIMDArray> {
     pub position: usize,
-    pub data: Vec<S>,
-    pub default: V,
+    pub data: A,
+    pub default: A::Vector,
 }
 
 /// A lazy mapping iterator which applies its function to a stream of vectors.
@@ -227,27 +209,27 @@ pub struct SIMDMap<I, F> where I : SIMDIterable {
     pub func: F,
 }
 
-impl<'a, S, V> SIMDArrayMut for SIMDRefMutIter<'a, S, V> where S : 'a + Packable, V : Packed<Scalar = S> {
+impl<'a, S, V> SIMDArrayMut for &'a mut [S] where S : 'a + Packable<Vector = V>, V : Packed<Scalar = S> {
     #[inline(always)]
     fn store(&mut self, value: Self::Vector, offset: usize) {
-        value.store(&mut self.data, offset)
+        value.store(self, offset)
     }
 
     #[inline(always)]
     unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize) {
-        debug_assert!(self.data[offset..].len() >= Self::Vector::WIDTH);
-        value.store_unchecked(&mut self.data, offset)
+        debug_assert!(self[offset..].len() >= Self::Vector::WIDTH);
+        value.store_unchecked(self, offset)
     }
 
     #[inline(always)]
     fn store_scalar(&mut self, value: Self::Scalar, offset: usize) {
-        self.data[offset] = value;
+        self[offset] = value;
     }
 
     #[inline(always)]
     unsafe fn store_scalar_unchecked(&mut self, value: Self::Scalar, offset: usize) {
-        debug_assert!(offset < self.data.len());
-        *self.data.get_unchecked_mut(offset) = value;
+        debug_assert!(offset < self.len());
+        *self.get_unchecked_mut(offset) = value;
     }
 }
 
@@ -324,147 +306,145 @@ impl<'a, T> Iterator for Unrolled<'a, T> where T : 'a + SIMDIterator {
 }
 
 macro_rules! impl_iter {
-    ($name:tt < $($genera:tt),* > $($pred:tt)*) => {
-        impl< $($genera),* > SIMDObject for $name < $($genera),* > $($pred )* {
+    ($name:ty, ($($genera:tt),*) $($pred:tt)*) => {
+        impl< $($genera),* > SIMDObject for $name $($pred )* {
             type Vector = V;
             type Scalar = S;
         }
 
-        impl< $($genera),* > ExactSizeIterator for $name < $($genera),* > $($pred )* {
-            #[inline(always)]
-            fn len(&self) -> usize {
-                self.data.len() / self.width()
-            }
-        }
-
-        impl< $($genera),* > Iterator for $name < $($genera),* > $($pred )* {
-            type Item = <Self as SIMDObject>::Vector; // TODO: Kill this anaphora
-            #[inline(always)]
-            fn next(&mut self) -> Option<Self::Item> {
-                if self.position + self.width() <= self.scalar_len() {
-                    let ret = unsafe { self.load_unchecked(self.position) };
-                    self.vector_inc();
-                    Some(ret)
-                } else {
-                    None
-                }
-            }
-        }
-
-        impl< $($genera),* > SIMDArray for $name < $($genera),* > $($pred )* {
+        impl< $($genera),* > SIMDArray for $name $($pred )* {
             #[inline(always)]
             fn load(&self, offset: usize) -> Self::Vector {
-                Self::Vector::load(&self.data, offset)
+                <Self::Vector as Packed>::load(&self, offset)
             }
 
             #[inline(always)]
             unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
-                debug_assert!(self.data[offset..].len() >= Self::Vector::WIDTH);
-                Self::Vector::load_unchecked(&self.data, offset)
+                debug_assert!(self[offset..].len() >= Self::Vector::WIDTH);
+                <Self::Vector as Packed>::load_unchecked(&self, offset)
             }
 
             #[inline(always)]
             fn load_scalar(&self, offset: usize) -> Self::Scalar {
-                self.data[offset]
+                self[offset]
             }
 
             #[inline(always)]
             unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
-                debug_assert!(offset < self.data.len());
-                *self.data.get_unchecked(offset)
+                debug_assert!(offset < self.len());
+                *self.get_unchecked(offset)
             }
 
             #[inline(always)]
             fn scalar_len(&self) -> usize {
-                self.data.len()
+                self.len()
             }
 
             #[inline(always)]
             fn vector_len(&self) -> usize {
-                self.data.len() / self.width()
-            }
-        }
-
-        impl< $($genera),* > SIMDIterable for $name < $($genera),* > $($pred )* {
-            #[inline(always)]
-            fn scalar_pos(&self) -> usize {
-                self.position
-            }
-
-            #[inline(always)]
-            fn vector_pos(&self) -> usize {
-                self.scalar_pos() / self.width()
-            }
-
-            #[inline(always)]
-            fn vector_inc(&mut self) {
-                self.position += self.width()
-            }
-
-            #[inline(always)]
-            fn scalar_inc(&mut self) {
-                self.position += 1
-            }
-
-            #[inline(always)]
-            fn default(&self) -> Self::Vector {
-                self.default
-            }
-
-            #[inline(always)]
-            fn finalize(&mut self) {
-                self.position = self.scalar_len()
+                self.len() / self.width()
             }
         }
     }
 }
 
 #[cfg(not(feature = "no-std"))]
-impl_iter!(SIMDIter <S, V> where S : Packable, V : Packed<Scalar = S>);
-impl_iter!(SIMDRefIter <'a, S, V> where S : 'a + Packable, V : Packed<Scalar = S>);
-impl_iter!(SIMDRefMutIter <'a, S, V> where S : 'a + Packable, V : Packed<Scalar = S>);
+impl_iter!(Vec<S>, ('a, S, V) where S : Packable<Vector = V>, V : Packed<Scalar = S>);
+impl_iter!(&'a [S], ('a, S, V) where S : Packable<Vector = V>, V : Packed<Scalar = S>);
+impl_iter!(&'a mut [S], ('a, S, V) where S : Packable<Vector = V>, V : Packed<Scalar = S>);
 
-impl<'a, T> SIMDObject for &'a [T] where T : Packable {
-    type Vector = T::Vector;
-    type Scalar = T;
+impl<A> SIMDObject for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Scalar : Packable {
+    type Vector = A::Vector;
+    type Scalar = A::Scalar;
 }
 
-impl<'a, T> SIMDArray for &'a [T] where T : Packable {
+impl<A> ExactSizeIterator for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Scalar : Packable {
+    #[inline(always)]
+    fn len(&self) -> usize {
+        self.data.scalar_len() / self.width()
+    }
+}
+
+impl<A> Iterator for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Scalar : Packable {
+    type Item = <Self as SIMDObject>::Vector;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.position + self.width() <= self.scalar_len() {
+            let ret = unsafe { self.load_unchecked(self.position) };
+            self.vector_inc();
+            Some(ret)
+        } else {
+            None
+        }
+    }
+}
+
+impl<A> SIMDArray for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Scalar : Packable {
     #[inline(always)]
     fn load(&self, offset: usize) -> Self::Vector {
-        Self::Vector::load(&self, offset)
+        self.data.load(offset)
     }
 
     #[inline(always)]
     unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
-        debug_assert!(self[offset..].len() >= Self::Vector::WIDTH);
-        Self::Vector::load_unchecked(&self, offset)
+        self.data.load_unchecked(offset)
     }
 
     #[inline(always)]
     fn load_scalar(&self, offset: usize) -> Self::Scalar {
-        self[offset]
+        self.data.load_scalar(offset)
     }
 
     #[inline(always)]
     unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
-        debug_assert!(offset < self.scalar_len());
-        *self.get_unchecked(offset)
+        self.data.load_scalar_unchecked(offset)
     }
 
     #[inline(always)]
     fn scalar_len(&self) -> usize {
-        self.len()
+        self.data.scalar_len()
     }
 
     #[inline(always)]
-    fn vector_len(&self) -> usize {
-        self.len() / self.width()
+   fn vector_len(&self) -> usize {
+        self.data.vector_len()
+    }
+}
+
+impl<A> SIMDIterable for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Scalar : Packable {
+    #[inline(always)]
+    fn scalar_pos(&self) -> usize {
+        self.position
+    }
+
+    #[inline(always)]
+    fn vector_pos(&self) -> usize {
+        self.scalar_pos() / self.width()
+    }
+
+    #[inline(always)]
+    fn vector_inc(&mut self) {
+        self.position += self.width()
+    }
+
+    #[inline(always)]
+    fn scalar_inc(&mut self) {
+        self.position += 1
+    }
+
+    #[inline(always)]
+    fn default(&self) -> Self::Vector {
+        self.default
+    }
+
+    #[inline(always)]
+    fn finalize(&mut self) {
+        self.position = self.scalar_len()
     }
 }
 
 impl<T, S, V> SIMDIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, Vector = V>, S : Packable, V : Packed<Scalar = S> {
-
     #[inline(always)]
     fn end(&mut self) -> Option<(Self::Vector, usize)> {
         if self.scalar_pos() < self.scalar_len() {
@@ -492,18 +472,11 @@ impl<T, S, V> SIMDIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, 
 
 #[doc(hidden)]
 pub trait UnsafeIterator : Iterator + SIMDIterable {
-    fn pos(&self) -> usize;
     unsafe fn next_unchecked(&mut self, offset: usize) -> Self::Item;
     unsafe fn end_unchecked(&mut self, offset: usize, empty_amt: usize) -> Self::Vector;
 }
 
 impl<T, S, V> UnsafeIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, Vector = V>, S : Packable, V : Packed<Scalar = S> {
-
-    #[inline(always)]
-    fn pos(&self) -> usize {
-        self.scalar_pos()
-    }
-
     #[inline(always)]
     unsafe fn next_unchecked(&mut self, offset: usize) -> Self::Item {
         debug_assert!(offset + self.width() <= self.scalar_len());

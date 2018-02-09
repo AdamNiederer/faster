@@ -5,9 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{SIMDRefIter, SIMDRefMutIter, SIMDIterator, SIMDObject};
-#[cfg(not(feature = "no-std"))]
-use iters::SIMDIter;
+use iters::{SIMDIter, SIMDIterator, SIMDObject};
 use vecs::*;
 
 /// A trait which transforms a contiguous collection into an owned stream of
@@ -48,7 +46,7 @@ macro_rules! impl_array_intos {
         $(
             #[cfg(not(feature = "no-std"))]
             impl IntoSIMDIterator for Vec<$el> {
-                type Iter = SIMDIter<$el, $vec>;
+                type Iter = SIMDIter<Self>;
 
                 #[inline(always)]
                 fn into_simd_iter(self, default: $vec) -> Self::Iter {
@@ -60,12 +58,25 @@ macro_rules! impl_array_intos {
                 }
             }
 
-            impl<'a> IntoSIMDRefIterator<'a> for [$el] {
-                type Iter = SIMDRefIter<'a, $el, $vec>;
+            impl<'a> IntoSIMDRefIterator<'a> for &'a [$el] {
+                type Iter = SIMDIter<Self>;
 
                 #[inline(always)]
                 fn simd_iter(&'a self, default: $vec) -> Self::Iter {
-                    SIMDRefIter {
+                    SIMDIter {
+                        data: self,
+                        position: 0,
+                        default: default,
+                    }
+                }
+            }
+
+            impl<'a> IntoSIMDRefMutIterator<'a> for &'a mut [$el] {
+                type Iter = SIMDIter<Self>;
+
+                #[inline(always)]
+                fn simd_iter_mut(&'a mut self, default: $vec) -> Self::Iter {
+                    SIMDIter {
                         data: self,
                         position: 0,
                         default: default,
@@ -74,11 +85,24 @@ macro_rules! impl_array_intos {
             }
 
             impl<'a> IntoSIMDRefMutIterator<'a> for [$el] {
-                type Iter = SIMDRefMutIter<'a, $el, $vec>;
+                type Iter = SIMDIter<&'a mut Self>;
 
                 #[inline(always)]
                 fn simd_iter_mut(&'a mut self, default: $vec) -> Self::Iter {
-                    SIMDRefMutIter {
+                    SIMDIter {
+                        data: self,
+                        position: 0,
+                        default: default,
+                    }
+                }
+            }
+
+            impl<'a> IntoSIMDRefIterator<'a> for [$el] {
+                type Iter = SIMDIter<&'a Self>;
+
+                #[inline(always)]
+                fn simd_iter(&'a self, default: $vec) -> Self::Iter {
+                    SIMDIter {
                         data: self,
                         position: 0,
                         default: default,

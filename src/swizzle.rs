@@ -24,7 +24,7 @@ use intrin::Transmute;
 pub struct PackedStripe<'a, A> where A : 'a + SIMDArray {
     iter: &'a A,
     pos: usize,
-    base: usize,
+    base: usize, // TODO: Can we get rid of this?
     stride: usize,
     default: <A as SIMDObject>::Vector
 }
@@ -41,42 +41,11 @@ impl<'a, A> Iterator for PackedStripe<'a, A> where A : 'a + SIMDArray {
                     self.iter.load_scalar_unchecked(self.pos + self.stride * i)
                 });
             }
-            self.pos += self.stride * self.width();
+            self.vector_inc();
             Some(ret)
         } else {
             None
         }
-    }
-}
-
-impl<'a, A> UnsafeIterator for PackedStripe<'a, A> where A : 'a + SIMDArray {
-    #[inline(always)]
-    fn pos(&self) -> usize {
-        self.pos
-    }
-
-    #[inline(always)]
-    unsafe fn next_unchecked(&mut self, offset: usize) -> Self::Item {
-        debug_assert!(offset + self.stride * self.width() < self.iter.scalar_len());
-        let mut ret = <Self as SIMDObject>::Vector::default();
-        for i in 0..self.width() {
-            ret = ret.replace(i, self.iter.load_scalar_unchecked(offset + self.stride * i));
-        }
-        ret
-    }
-
-    #[inline(always)]
-    unsafe fn end_unchecked(&mut self, offset: usize, empty_amt: usize) -> Self::Vector {
-        debug_assert!(offset < self.iter.scalar_len());
-        // TODO: Can we simplify this math?
-        let mut ret = self.default().clone();
-        // Crappy integer division equivalent to ceil(self.iter.len() - self.pos / self.stride)
-        debug_assert_eq!(empty_amt, self.width() - ((self.iter.scalar_len() - offset - 1) / self.stride + 1));
-        // Right-align the partial vector to maintain compat with SIMDRefIter
-        for i in empty_amt..self.width() {
-            ret = ret.replace(i, self.iter.load_scalar_unchecked(offset + self.stride * (i - empty_amt)));
-        }
-        ret
     }
 }
 
@@ -122,7 +91,6 @@ pub trait Stripe<A> where A : SIMDArray {
 }
 
 impl<A> Stripe<A> for A where A : SIMDArray {
-
     #[inline(always)]
     #[cfg(not(feature = "no-std"))]
     fn stripe(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStripe<A>> {
@@ -299,15 +267,54 @@ impl<'a, A> SIMDObject for PackedStripe<'a, A> where A : SIMDArray {
     }
 }
 
+impl<'a, A> SIMDArray for PackedStripe<'a, A> where A : SIMDArray {
+    #[inline(always)]
+    fn load(&self, offset: usize) -> Self::Vector {
+        assert!(self.base + self.stride * (offset + (self.width() - 1)) < self.iter.scalar_len());
+        unsafe { self.load_unchecked(offset) }
+    }
+
+    #[inline(always)]
+    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
+        debug_assert!(offset + self.stride * (self.width() - 1) < self.iter.scalar_len());
+        let mut ret = <Self as SIMDObject>::Vector::default();
+
+        for i in 0..self.width() {
+            ret = ret.replace(i, self.iter.load_scalar_unchecked(self.base + self.stride * (offset + i)));
+        }
+        ret
+    }
+
+    #[inline(always)]
+    fn load_scalar(&self, offset: usize) -> Self::Scalar {
+        self.iter.load_scalar(self.base + offset * self.stride)
+    }
+
+    #[inline(always)]
+    unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
+        self.iter.load_scalar_unchecked(self.base + offset * self.stride)
+    }
+
+    #[inline(always)]
+    fn scalar_len(&self) -> usize {
+        self.iter.scalar_len() / self.stride
+    }
+
+    #[inline(always)]
+    fn vector_len(&self) -> usize {
+        self.iter.vector_len() / self.stride
+    }
+}
+
 impl<'a, A> SIMDIterable for PackedStripe<'a, A> where A : SIMDArray {
     #[inline(always)]
     fn scalar_pos(&self) -> usize {
-        self.pos / self.stride
+        (self.pos - self.base) / self.stride
     }
 
     #[inline(always)]
     fn vector_pos(&self) -> usize {
-        self.pos / (self.stride * self.width())
+        (self.pos - self.base) / (self.stride * self.width())
     }
 
     #[inline(always)]
@@ -331,23 +338,47 @@ impl<'a, A> SIMDIterable for PackedStripe<'a, A> where A : SIMDArray {
     }
 }
 
-impl<'a, A> SIMDIterator for PackedStripe<'a, A> where A : SIMDArray {
-    #[inline(always)]
-    fn end(&mut self) -> Option<(Self::Vector, usize)> {
-        if self.pos < self.iter.scalar_len() {
-            // TODO: Can we simplify this math?
-            let mut ret = self.default().clone();
-            // Crappy integer division equivalent to ceil(self.iter.len() - self.pos / self.stride)
-            let empty_amt = self.width() - ((self.iter.scalar_len() - self.pos - 1) / self.stride + 1);
-            // Right-align the partial vector to maintain compat with SIMDRefIter
-            for i in empty_amt..self.width() {
-                ret = ret.replace(i, unsafe {
-                    self.iter.load_scalar_unchecked(self.pos + self.stride * (i - empty_amt))
-                });
-            }
-            Some((ret, empty_amt))
-        } else {
-            None
+#[cfg(test)]
+mod tests {
+    use super::super::*;
+    use super::super::zip::*;
+
+    use super::*;
+
+    #[test]
+    fn scalar_load() {
+        let x = [1u8, 2, 3, 4];
+        let y = &x[..];
+        let (a, b) = y.stripe_two((u8s(0), u8s(0)));
+        assert_eq!(a.load_scalar(0), 1);
+        assert_eq!(a.load_scalar(1), 3);
+        assert_eq!(b.load_scalar(0), 2);
+        assert_eq!(b.load_scalar(1), 4);
+    }
+
+    #[test]
+    fn vector_load() {
+        let x = [1u64, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+        let y = &x[..];
+        let (a, b) = y.stripe_two((u64s(0), u64s(0)));
+        assert_eq!(a.load(0).extract(0), 1);
+        assert_eq!(a.load(1).extract(0), 3);
+        assert_eq!(b.load(0).extract(0), 2);
+        assert_eq!(b.load(1).extract(0), 4);
+    }
+
+    #[test]
+    fn vector_iter() {
+        let x = [1u64, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+        let y = &x[..];
+        let (a, b) = y.stripe_two((u64s(1), u64s(2)));
+
+        for vec in a {
+            assert!(vec.scalar_reduce(true, |acc, s| acc && s % 2 == 1));
+        }
+
+        for vec in b {
+            assert!(vec.scalar_reduce(true, |acc, s| acc && s % 2 == 0));
         }
     }
 }
