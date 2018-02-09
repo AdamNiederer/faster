@@ -7,6 +7,7 @@ mod tests {
     use faster::*;
 
     #[test]
+    #[cfg(not(feature = "no-std"))]
     fn zipped_stride_iters() {
         let matrices = [1i8, 2, 3, 4, 5, 6, 7, 8, 9][..].iter().cycle().take(9 * 100).map(|i| i.clone()).collect::<Vec<_>>();
         let determinants = (&matrices[..]).stripe_nine(tuplify!(9, i8s(0))).zip()
@@ -33,6 +34,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(feature = "no-std"))]
     fn zipped_heterogeneous_iters() {
         let to_stripe = [1i8, 2, 3, 4, 5, 6, 7, 8][..].iter().cycle().take(512).map(|i| i.clone()).collect::<Vec<_>>();
         let (a, b) = to_stripe.stripe_two(tuplify!(2, i8s(0)));
