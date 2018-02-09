@@ -17,8 +17,6 @@ use stdsimd::vendor::*;
 use stdsimd::simd::{__m256i, __m128i};
 use intrin::Transmute;
 
-// TODO: SIMDArray emulation for PackedStripe
-
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.
 pub struct PackedStripe<'a, A> where A : 'a + SIMDArray {

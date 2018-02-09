@@ -90,50 +90,50 @@ hardware acceleration is only enabled on machines with x86's vector extensions.
 ** Performance
 Here are some extremely unscientific benchmarks which, at least, prove that this
 isn't any worse than scalar iterators. Even on ancient CPUs, a lot of
-performance can be extracted out of SIMD. Surprisingly, using SIMD iterators
-performs better than scalar iterators even on the SSE-less Pentium.
-
-However, intentionally worsening your program's locality for SIMD (as seen in
-~tests::bench_determinmant2~ and ~tests::bench_determinant3~) is not a
-worthwhile tradeoff unless you are doing a significant amount of work per
-vector.
+performance can be extracted out of SIMD.
 
 #+BEGIN_SRC shell
   $ RUSTFLAGS="-C target-cpu=ivybridge" cargo bench # host is ivybridge; target has AVX
-  test tests::bench_determinant2_scalar ... bench:         391 ns/iter (+/- 2)
-  test tests::bench_determinant2_simd   ... bench:         375 ns/iter (+/- 1)
-  test tests::bench_determinant3_scalar ... bench:         350 ns/iter (+/- 1)
-  test tests::bench_determinant3_simd   ... bench:         470 ns/iter (+/- 2)
-  test tests::bench_map_scalar          ... bench:       6,952 ns/iter (+/- 26)
-  test tests::bench_map_simd            ... bench:         875 ns/iter (+/- 3)
-  test tests::bench_map_uneven_simd     ... bench:         880 ns/iter (+/- 3)
-  test tests::bench_nop_scalar          ... bench:          37 ns/iter (+/- 0)
-  test tests::bench_nop_simd            ... bench:          34 ns/iter (+/- 0)
-  test tests::bench_reduce_scalar       ... bench:       6,876 ns/iter (+/- 16)
-  test tests::bench_reduce_simd         ... bench:         835 ns/iter (+/- 2)
-  test tests::bench_reduce_uneven_simd  ... bench:         836 ns/iter (+/- 2)
-  test tests::bench_zip_nop_scalar      ... bench:         624 ns/iter (+/- 2)
-  test tests::bench_zip_nop_simd        ... bench:         361 ns/iter (+/- 1)
-  test tests::bench_zip_scalar          ... bench:         862 ns/iter (+/- 4)
-  test tests::bench_zip_simd            ... bench:         771 ns/iter (+/- 2)
+  test tests::base100_enc_scalar    ... bench:       1,307 ns/iter (+/- 45)
+  test tests::base100_enc_simd      ... bench:         332 ns/iter (+/- 10)
+  test tests::determinant2_scalar   ... bench:         486 ns/iter (+/- 8)
+  test tests::determinant2_simd     ... bench:         215 ns/iter (+/- 3)
+  test tests::determinant3_scalar   ... bench:         389 ns/iter (+/- 6)
+  test tests::determinant3_simd     ... bench:         209 ns/iter (+/- 3)
+  test tests::map_fill_simd         ... bench:         835 ns/iter (+/- 12)
+  test tests::map_scalar            ... bench:       6,963 ns/iter (+/- 117)
+  test tests::map_simd              ... bench:         879 ns/iter (+/- 18)
+  test tests::map_uneven_simd       ... bench:         884 ns/iter (+/- 10)
+  test tests::nop_scalar            ... bench:          49 ns/iter (+/- 0)
+  test tests::nop_simd              ... bench:          34 ns/iter (+/- 0)
+  test tests::reduce_scalar         ... bench:       6,905 ns/iter (+/- 107)
+  test tests::reduce_simd           ... bench:         839 ns/iter (+/- 13)
+  test tests::reduce_uneven_simd    ... bench:         838 ns/iter (+/- 11)
+  test tests::zip_nop_scalar        ... bench:         824 ns/iter (+/- 18)
+  test tests::zip_nop_simd          ... bench:         231 ns/iter (+/- 5)
+  test tests::zip_scalar            ... bench:         901 ns/iter (+/- 29)
+  test tests::zip_simd              ... bench:       1,128 ns/iter (+/- 12)
 
   RUSTFLAGS="-C target-cpu=x86-64" cargo bench # host is ivybridge; target has SSE2
-  test tests::bench_determinant2_scalar ... bench:         426 ns/iter (+/- 2)
-  test tests::bench_determinant2_simd   ... bench:         376 ns/iter (+/- 2)
-  test tests::bench_determinant3_scalar ... bench:         355 ns/iter (+/- 2)
-  test tests::bench_determinant3_simd   ... bench:         486 ns/iter (+/- 3)
-  test tests::bench_map_scalar          ... bench:       7,157 ns/iter (+/- 59)
-  test tests::bench_map_simd            ... bench:       1,886 ns/iter (+/- 10)
-  test tests::bench_map_uneven_simd     ... bench:       1,889 ns/iter (+/- 11)
-  test tests::bench_nop_scalar          ... bench:          38 ns/iter (+/- 0)
-  test tests::bench_nop_simd            ... bench:          34 ns/iter (+/- 0)
-  test tests::bench_reduce_scalar       ... bench:       7,002 ns/iter (+/- 29)
-  test tests::bench_reduce_simd         ... bench:       1,865 ns/iter (+/- 10)
-  test tests::bench_reduce_uneven_simd  ... bench:       1,937 ns/iter (+/- 7)
-  test tests::bench_zip_nop_scalar      ... bench:         623 ns/iter (+/- 1)
-  test tests::bench_zip_nop_simd        ... bench:         333 ns/iter (+/- 3)
-  test tests::bench_zip_scalar          ... bench:         971 ns/iter (+/- 5)
-  test tests::bench_zip_simd            ... bench:         525 ns/iter (+/- 3)
+  test tests::base100_enc_scalar    ... bench:         760 ns/iter (+/- 11)
+  test tests::base100_enc_simd      ... bench:         492 ns/iter (+/- 2)
+  test tests::determinant2_scalar   ... bench:         477 ns/iter (+/- 3)
+  test tests::determinant2_simd     ... bench:         277 ns/iter (+/- 1)
+  test tests::determinant3_scalar   ... bench:         380 ns/iter (+/- 3)
+  test tests::determinant3_simd     ... bench:         285 ns/iter (+/- 2)
+  test tests::map_fill_simd         ... bench:       1,797 ns/iter (+/- 8)
+  test tests::map_scalar            ... bench:       7,237 ns/iter (+/- 51)
+  test tests::map_simd              ... bench:       1,879 ns/iter (+/- 12)
+  test tests::map_uneven_simd       ... bench:       1,878 ns/iter (+/- 9)
+  test tests::nop_scalar            ... bench:          47 ns/iter (+/- 0)
+  test tests::nop_simd              ... bench:          34 ns/iter (+/- 0)
+  test tests::reduce_scalar         ... bench:       7,021 ns/iter (+/- 39)
+  test tests::reduce_simd           ... bench:       1,801 ns/iter (+/- 8)
+  test tests::reduce_uneven_simd    ... bench:       1,734 ns/iter (+/- 9)
+  test tests::zip_nop_scalar        ... bench:         803 ns/iter (+/- 9)
+  test tests::zip_nop_simd          ... bench:         257 ns/iter (+/- 1)
+  test tests::zip_scalar            ... bench:         988 ns/iter (+/- 6)
+  test tests::zip_simd              ... bench:         629 ns/iter (+/- 5)
 
   $ RUSTFLAGS="-C target-cpu=pentium" cargo bench # host is ivybridge; this only runs the polyfills!
   test tests::bench_determinant2_scalar ... bench:         427 ns/iter (+/- 2)
