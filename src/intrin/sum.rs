@@ -200,6 +200,52 @@ impl Sum for i32x8 {
     }
 }
 
+#[cfg(target_feature = "sse3")]
+impl Sum for f32x4 {
+    #[inline(always)]
+    fn sum(&self) -> Self::Scalar {
+        unsafe {
+            let x = _mm_hadd_ps(*self, *self);
+            let x = _mm_hadd_ps(x, x);
+            x.extract(0)
+        }
+    }
+}
+
+#[cfg(target_feature = "sse3")]
+impl Sum for f64x2 {
+    #[inline(always)]
+    fn sum(&self) -> Self::Scalar {
+        unsafe {
+            let x = _mm_hadd_pd(*self, *self);
+            x.extract(0)
+        }
+    }
+}
+
+#[cfg(target_feature = "avx")]
+impl Sum for f32x8 {
+    #[inline(always)]
+    fn sum(&self) -> Self::Scalar {
+        unsafe {
+            let x = _mm256_hadd_ps(*self, *self);
+            let x = _mm256_hadd_ps(x, x);
+            x.extract(0) + x.extract(4)
+        }
+    }
+}
+
+#[cfg(target_feature = "avx")]
+impl Sum for f64x4 {
+    #[inline(always)]
+    fn sum(&self) -> Self::Scalar {
+        unsafe {
+            let x = _mm256_hadd_pd(*self, *self);
+            x.extract(0) + x.extract(2)
+        }
+    }
+}
+
 macro_rules! impl_packed_sum {
     ($($vec:tt),*) => {
         $(
@@ -226,13 +272,19 @@ macro_rules! impl_packed_upcast_sum {
     }
 }
 
-impl_packed_sum!(u8x64, i8x64, u16x32, u16x8, i16x32, u32x16, u32x8, u32x4, i32x16, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2);
+impl_packed_sum!(u8x64, i8x64, u16x32, u16x8, i16x32, u32x16, u32x8, u32x4, i32x16, i32x4, f32x16, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8);
 impl_packed_upcast_sum!(u8x64, i8x64, u16x32, u16x8, i16x32, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2);
 
 #[cfg(not(target_feature = "avx2"))]
 impl_packed_sum!(i8x32, u8x32, i16x16, u16x16, i32x8);
 #[cfg(not(target_feature = "avx2"))]
 impl_packed_upcast_sum!(i8x32, u8x32, i16x16, u16x16);
+
+#[cfg(not(target_feature = "avx"))]
+impl_packed_sum!(f32x8, f64x4);
+
+#[cfg(not(target_feature = "sse3"))]
+impl_packed_sum!(f32x4, f64x2);
 
 #[cfg(not(target_feature = "sse2"))]
 impl_packed_sum!(i8x16, u8x16);
