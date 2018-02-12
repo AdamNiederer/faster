@@ -223,7 +223,6 @@ impl<'a, S, V> SIMDArrayMut for &'a mut [S] where S : 'a + Packable<Vector = V>,
 
     #[inline(always)]
     unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize) {
-        debug_assert!(self[offset..].len() >= Self::Vector::WIDTH);
         value.store_unchecked(self, offset)
     }
 
@@ -454,7 +453,7 @@ impl<T, S, V> SIMDIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, 
     #[inline(always)]
     fn end(&mut self) -> Option<(Self::Vector, usize)> {
         if self.scalar_pos() < self.scalar_len() {
-            let mut ret = self.default().clone();
+            let mut ret = self.default();
             let empty_amt = self.width() - (self.scalar_len() - self.scalar_pos());
             // Right-align the partial vector to ensure the load is vectorized
             if self.width() < self.scalar_len() {
@@ -487,11 +486,11 @@ impl<T> SIMDIteratorMut for SIMDIter<T> where T : SIMDArrayMut {
             let offset = self.scalar_pos() - self.width();
             unsafe { self.data.store_unchecked(v, offset); }
         }
+        let offset = self.scalar_pos();
         if let Some((mut p, n)) = self.end() {
             func(&mut p);
-            let offset = self.scalar_pos();
             let width = self.width();
-            if self.scalar_pos() > 0 {
+            if self.width() < self.scalar_len() {
                 // We stored a vector in this buffer; overwrite the unused elements
                 unsafe {
                     self.data.store_unchecked(p, offset - n);
@@ -523,7 +522,7 @@ impl<T, S, V> UnsafeIterator for T where T : SIMDIterable + SIMDArray<Scalar = S
     #[inline(always)]
     unsafe fn end_unchecked(&mut self, offset: usize, empty_amt: usize) -> Self::Vector {
         debug_assert!(offset < self.scalar_len());
-        let mut ret = self.default().clone();
+        let mut ret = self.default();
         debug_assert_eq!(empty_amt, self.width() - (self.scalar_len() - offset));
         // Right-align the partial vector to ensure the load is vectorized
         if self.width() < self.scalar_len() {

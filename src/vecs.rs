@@ -116,6 +116,7 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             unsafe fn load_unchecked(data: &[$el], offset: usize) -> $vec {
+                debug_assert!(data[offset..].len() >= Self::WIDTH);
                 $vec::load_unchecked(data, offset)
             }
 
@@ -126,6 +127,7 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             unsafe fn store_unchecked(self, data: &mut [$el], offset: usize) {
+                debug_assert!(data[offset..].len() >= Self::WIDTH);
                 $vec::store_unchecked(self, data, offset);
             }
 
@@ -144,6 +146,7 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             unsafe fn extract_unchecked(&self, idx: usize) -> Self::Scalar {
+                debug_assert!(idx < Self::WIDTH);
                 $vec::extract_unchecked(*self, idx as u32)
             }
 
@@ -154,6 +157,7 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             unsafe fn replace_unchecked(&mut self, idx: usize, data: Self::Scalar) -> Self {
+                debug_assert!(idx < Self::WIDTH);
                 $vec::replace_unchecked(*self, idx as u32, data)
             }
 
