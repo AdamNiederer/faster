@@ -172,6 +172,13 @@ pub trait SIMDIterator : SIMDIterable {
     }
 }
 
+pub trait SIMDIteratorMut : SIMDIterator {
+    #[inline(always)]
+    /// Pack and run `func` over the iterator, modifying each element in-place.
+    fn simd_for_each<F>(&mut self, func: F)
+        where F : FnMut(&mut Self::Vector) -> ();
+}
+
 pub trait SIMDArray : SIMDObject {
     fn load(&self, offset: usize) -> Self::Vector;
     unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector;
@@ -467,6 +474,37 @@ impl<T, S, V> SIMDIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, 
         }
     }
 
+}
+
+impl<T> SIMDIteratorMut for SIMDIter<T> where T : SIMDArrayMut {
+    fn simd_for_each<F>(&mut self, mut func: F)
+        where F : FnMut(&mut Self::Vector) -> () {
+        let mut lastvec = Self::Vector::default();
+
+        while let Some(mut v) = self.next() {
+            func(&mut v);
+            lastvec = v;
+            let offset = self.scalar_pos() - self.width();
+            unsafe { self.data.store_unchecked(v, offset); }
+        }
+        if let Some((mut p, n)) = self.end() {
+            func(&mut p);
+            let offset = self.scalar_pos();
+            let width = self.width();
+            if self.scalar_pos() > 0 {
+                // We stored a vector in this buffer; overwrite the unused elements
+                unsafe {
+                    self.data.store_unchecked(p, offset - n);
+                    self.data.store_unchecked(lastvec, offset - width);
+                }
+            } else {
+                // The buffer won't fit one vector; store elementwise
+                for i in 0..(width - n) {
+                    unsafe { self.data.store_scalar_unchecked(p.extract_unchecked(i + n), offset + i); }
+                }
+            }
+        }
+    }
 }
 
 #[doc(hidden)]
