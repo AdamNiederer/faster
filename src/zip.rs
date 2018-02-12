@@ -245,11 +245,9 @@ macro_rules! impl_iter_zip {
             #[inline(always)]
             fn next(&mut self) -> Option<<Self as SIMDZippedObject>::Vectors> {
                 let pos = self.iters.0.scalar_pos();
-                if let Some(v) = self.iters.0.next() {
-                    unsafe { Some((v, $(self.iters.$n.next_unchecked(pos)),*)) }
-                } else {
-                    None
-                }
+                self.iters.0.next().map(|v| unsafe {
+                    (v, $(self.iters.$n.next_unchecked(pos)),*)
+                })
             }
         }
 
@@ -275,11 +273,9 @@ macro_rules! impl_iter_zip {
             #[inline(always)]
             fn end(&mut self) -> Option<(Self::Vectors, usize)> {
                 let pos = self.iters.0.scalar_pos();
-                if let Some((v, n)) = self.iters.0.end() {
-                    unsafe { Some(((v, $(self.iters.$n.end_unchecked(pos, n)),*), n)) }
-                } else {
-                    None
-                }
+                self.iters.0.end().map(|(v, n)| unsafe {
+                    ((v, $(self.iters.$n.end_unchecked(pos, n)),*), n)
+                })
             }
         }
 
@@ -288,13 +284,11 @@ macro_rules! impl_iter_zip {
 
             #[inline(always)]
             fn scalar_pos(&self) -> usize {
-                debug_assert!($(self.iters.$n.scalar_pos() == self.iters.0.scalar_pos())&&*);
                 self.iters.0.scalar_pos()
             }
 
             #[inline(always)]
             fn vector_pos(&self) -> usize {
-                debug_assert!($(self.iters.$n.vector_pos() == self.iters.0.vector_pos())&&*);
                 self.iters.0.vector_pos()
             }
 
