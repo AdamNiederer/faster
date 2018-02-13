@@ -19,45 +19,47 @@ pub trait Popcnt : Packed {
 
 #[inline(always)]
 #[cfg(target_feature = "sse3")]
-fn popcnt128(v: u8x16) -> usize {
+#[target_feature(enable = "sse3")]
+unsafe fn popcnt128(v: u8x16) -> usize {
     // SSE3 popcnt algorithm by Wojciech Muła
     // http://wm.ite.pl/articles/sse-popcount.html
     let lookup = u8x16::new(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);
     let lo = v & u8x16::splat(0x0f);
     let hi = v >> 4 & u8x16::splat(0x0f);
-    unsafe {
-        _mm_shuffle_epi8(lookup, hi) + _mm_shuffle_epi8(lookup, lo)
-    }.sum_upcast() as usize
+    (_mm_shuffle_epi8(lookup, hi) + _mm_shuffle_epi8(lookup, lo))
+        .sum_upcast() as usize
 }
 
 #[inline(always)]
 #[cfg(not(target_feature = "sse3"))]
-fn popcnt128(v: u8x16) -> usize {
+#[allow(unused_unsafe)]
+unsafe fn popcnt128(v: u8x16) -> usize {
     v.be_u64s(). scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
 }
 
 #[inline(always)]
 #[cfg(target_feature = "avx2")]
-fn popcnt256(v: u8x32) -> usize {
+#[target_feature(enable = "avx2")]
+unsafe fn popcnt256(v: u8x32) -> usize {
     // AVX2 popcnt algorithm by Wojciech Muła, Nathan Kurz, and Daniel Lemire
     // https://arxiv.org/abs/1611.07612
     let lookup = u8x32::new(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);
     let lo = v.be_u8s() & u8x32::splat(0x0f);
     let hi = (v.be_u8s() >> 4) & u8x32::splat(0x0f);
-    unsafe {
-        _mm256_shuffle_epi8(lookup, hi) + _mm256_shuffle_epi8(lookup, lo)
-    }.sum_upcast() as usize
+    (_mm256_shuffle_epi8(lookup, hi) + _mm256_shuffle_epi8(lookup, lo))
+        .sum_upcast() as usize
 }
 
 #[inline(always)]
 #[cfg(not(target_feature = "avx2"))]
-fn popcnt256(v: u8x32) -> usize {
+#[allow(unused_unsafe)]
+unsafe fn popcnt256(v: u8x32) -> usize {
     v.be_u64s().scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
 }
 
 #[inline(always)]
 // #[cfg(not(target_feature = "avx512"))]
-fn popcnt512(v: u8x64) -> usize {
+unsafe fn popcnt512(v: u8x64) -> usize {
     v.be_u64s().scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
 }
 
@@ -66,8 +68,9 @@ macro_rules! impl_popcnt {
         $(
             impl Popcnt for $vec {
                 #[inline(always)]
+                #[allow(unused_unsafe)]
                 fn count_ones(&self) -> usize {
-                    $fn(self.be_u8s())
+                    unsafe { $fn(self.be_u8s()) }
                 }
             }
         )*
