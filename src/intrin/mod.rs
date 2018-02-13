@@ -54,3 +54,5 @@ mod endian;
 pub use self::endian::*;
 mod sum;
 pub use self::sum::*;
+mod popcnt;
+pub use self::popcnt::*;
