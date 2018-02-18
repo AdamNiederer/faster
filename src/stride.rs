@@ -19,7 +19,7 @@ use intrin::Transmute;
 
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.
-pub struct PackedStripe<'a, A> where A : 'a + SIMDArray {
+pub struct PackedStride<'a, A> where A : 'a + SIMDArray {
     iter: &'a A,
     pos: usize,
     base: usize, // TODO: Can we get rid of this?
@@ -27,7 +27,7 @@ pub struct PackedStripe<'a, A> where A : 'a + SIMDArray {
     default: <A as SIMDObject>::Vector
 }
 
-impl<'a, A> Iterator for PackedStripe<'a, A> where A : 'a + SIMDArray {
+impl<'a, A> Iterator for PackedStride<'a, A> where A : 'a + SIMDArray {
     type Item = <A as SIMDObject>::Vector;
 
     #[inline(always)]
@@ -47,74 +47,74 @@ impl<'a, A> Iterator for PackedStripe<'a, A> where A : 'a + SIMDArray {
     }
 }
 
-impl<'a, A> ExactSizeIterator for PackedStripe<'a, A> where A : SIMDArray {
+impl<'a, A> ExactSizeIterator for PackedStride<'a, A> where A : SIMDArray {
     #[inline(always)]
     fn len(&self) -> usize {
         self.iter.vector_len() / self.stride
     }
 }
 
-pub trait Stripe<A> where A : SIMDArray {
+pub trait Stride<A> where A : SIMDArray {
     /// Return a vec of iterators which pack every `count`th element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, `count`th, `count * 2`th...
     /// elements, while the 2nd iterator will pack the 1st, `count + 1`th,
     /// `count * 2 + 1`th... elements.
     #[cfg(not(feature = "no-std"))]
-    fn stripe(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStripe<A>>;
+    fn stride(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStride<A>>;
 
     /// Return a tuple of iterators which pack every 2nd element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, 2nd, 4th... elements, while the 2nd
     /// iterator will pack the 1st, 3rd, 5th... elements.
-    fn stripe_two(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A>);
+    fn stride_two(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A>);
 
     /// Return a tuple of iterators which pack every 3rd element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, 3rd, 6th... elements, while the 2nd
     /// iterator will pack the 1st, 4th, 7th... elements.
-    fn stripe_three(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector , <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A> , PackedStripe<A>);
+    fn stride_three(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector , <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A> , PackedStride<A>);
 
     /// Return a tuple of iterators which pack every 4th element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, 4th, 8th... elements, while the 2nd
     /// iterator will pack the 1st, 5th, 9th... elements.
-    fn stripe_four(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>);
+    fn stride_four(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>);
 
     /// Return a tuple of iterators which pack every 9th element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
     /// the 1st iterator will pack the 0th, 9th, 18th... elements, while the 2nd
     /// iterator will pack the 1st, 10th, 19th... elements.
-    fn stripe_nine(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>);
+    fn stride_nine(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>);
 }
 
-impl<A> Stripe<A> for A where A : SIMDArray {
+impl<A> Stride<A> for A where A : SIMDArray {
     #[inline(always)]
     #[cfg(not(feature = "no-std"))]
-    fn stripe(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStripe<A>> {
+    fn stride(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStride<A>> {
         assert!(default.len() == count);
         (0..count).map(move |offset| {
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: offset,
                 base: offset,
                 stride: count,
                 default: unsafe { *default.get_unchecked(offset) }
             }
-        }).collect::<Vec<PackedStripe<A>>>()
+        }).collect::<Vec<PackedStride<A>>>()
     }
 
     #[inline(always)]
-    fn stripe_two(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A>) {
+    fn stride_two(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A>) {
         (
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 0,
                 base: 0,
                 stride: 2,
                 default: default.0
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 1,
                 base: 1,
@@ -125,23 +125,23 @@ impl<A> Stripe<A> for A where A : SIMDArray {
     }
 
     #[inline(always)]
-    fn stripe_three(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector , <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A> , PackedStripe<A>) {
+    fn stride_three(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector , <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A> , PackedStride<A>) {
         (
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 0,
                 base: 0,
                 stride: 3,
                 default: default.0
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 1,
                 base: 1,
                 stride: 3,
                 default: default.1
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 2,
                 base: 2,
@@ -152,30 +152,30 @@ impl<A> Stripe<A> for A where A : SIMDArray {
     }
 
     #[inline(always)]
-    fn stripe_four(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>) {
+    fn stride_four(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>) {
         (
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 0,
                 base: 0,
                 stride: 4,
                 default: default.0
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 1,
                 base: 1,
                 stride: 4,
                 default: default.1
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 2,
                 base: 2,
                 stride: 4,
                 default: default.2
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 3,
                 base: 3,
@@ -186,65 +186,65 @@ impl<A> Stripe<A> for A where A : SIMDArray {
     }
 
     #[inline(always)]
-    fn stripe_nine(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>, PackedStripe<A>) {
+    fn stride_nine(&self, default: (<A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector, <A as SIMDObject>::Vector)) -> (PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>, PackedStride<A>) {
         (
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 0,
                 base: 0,
                 stride: 9,
                 default: default.0
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 1,
                 base: 1,
                 stride: 9,
                 default: default.1
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 2,
                 base: 2,
                 stride: 9,
                 default: default.2
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 3,
                 base: 3,
                 stride: 9,
                 default: default.3
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 4,
                 base: 4,
                 stride: 9,
                 default: default.4
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 5,
                 base: 5,
                 stride: 9,
                 default: default.5
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 6,
                 base: 6,
                 stride: 9,
                 default: default.6
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 7,
                 base: 7,
                 stride: 9,
                 default: default.7
             },
-            PackedStripe {
+            PackedStride {
                 iter: self,
                 pos: 8,
                 base: 8,
@@ -255,7 +255,7 @@ impl<A> Stripe<A> for A where A : SIMDArray {
     }
 }
 
-impl<'a, A> SIMDObject for PackedStripe<'a, A> where A : SIMDArray {
+impl<'a, A> SIMDObject for PackedStride<'a, A> where A : SIMDArray {
     type Scalar = <A as SIMDObject>::Scalar;
     type Vector = <A as SIMDObject>::Vector;
 
@@ -265,7 +265,7 @@ impl<'a, A> SIMDObject for PackedStripe<'a, A> where A : SIMDArray {
     }
 }
 
-impl<'a, A> SIMDArray for PackedStripe<'a, A> where A : SIMDArray {
+impl<'a, A> SIMDArray for PackedStride<'a, A> where A : SIMDArray {
     #[inline(always)]
     fn load(&self, offset: usize) -> Self::Vector {
         assert!(self.base + self.stride * (offset + (self.width() - 1)) < self.iter.scalar_len());
@@ -304,7 +304,7 @@ impl<'a, A> SIMDArray for PackedStripe<'a, A> where A : SIMDArray {
     }
 }
 
-impl<'a, A> SIMDIterable for PackedStripe<'a, A> where A : SIMDArray {
+impl<'a, A> SIMDIterable for PackedStride<'a, A> where A : SIMDArray {
     #[inline(always)]
     fn scalar_pos(&self) -> usize {
         (self.pos - self.base) / self.stride
@@ -347,7 +347,7 @@ mod tests {
     fn scalar_load() {
         let x = [1u8, 2, 3, 4];
         let y = &x[..];
-        let (a, b) = y.stripe_two((u8s(0), u8s(0)));
+        let (a, b) = y.stride_two((u8s(0), u8s(0)));
         assert_eq!(a.load_scalar(0), 1);
         assert_eq!(a.load_scalar(1), 3);
         assert_eq!(b.load_scalar(0), 2);
@@ -358,7 +358,7 @@ mod tests {
     fn vector_load() {
         let x = [1u64, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
         let y = &x[..];
-        let (a, b) = y.stripe_two((u64s(0), u64s(0)));
+        let (a, b) = y.stride_two((u64s(0), u64s(0)));
         assert_eq!(a.load(0).extract(0), 1);
         assert_eq!(a.load(1).extract(0), 3);
         assert_eq!(b.load(0).extract(0), 2);
@@ -369,7 +369,7 @@ mod tests {
     fn vector_iter() {
         let x = [1u64, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
         let y = &x[..];
-        let (a, b) = y.stripe_two((u64s(1), u64s(2)));
+        let (a, b) = y.stride_two((u64s(1), u64s(2)));
 
         for vec in a {
             assert!(vec.scalar_reduce(true, |acc, s| acc && s % 2 == 1));

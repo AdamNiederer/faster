@@ -127,11 +127,11 @@
 //! ## Striping Collections
 //!
 //! Reading every nth element of a collection can be vectorized on most
-//! machines. Simply call [`stripe`], or one of the slightly-faster tuple-based
-//! functions, such as [`stripe_two`].
+//! machines. Simply call [`stride`], or one of the slightly-faster tuple-based
+//! functions, such as [`stride_two`].
 //!
-//! [`stripe`]: iters/struct.SIMDRefIter.html#method.stripe
-//! [`stripe_two`]: iters/struct.SIMDRefIter.html#method.stripe_two
+//! [`stride`]: iters/struct.SIMDRefIter.html#method.stride
+//! [`stride_two`]: iters/struct.SIMDRefIter.html#method.stride_two
 //!
 //! ```
 //! extern crate faster;
@@ -144,7 +144,7 @@
 //! # fn main() {
 //!     // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
 //!     let slice: &[f32] = &[1.0f32; 1024];
-//!     let determinant = slice.stripe_four(tuplify!(4, f32s(0.0))).zip()
+//!     let determinant = slice.stride_four(tuplify!(4, f32s(0.0))).zip()
 //!         .simd_map(|(a, b, c, d)| a * d - b * c)
 //!         .scalar_collect();
 //! # }
@@ -220,8 +220,9 @@ pub mod iters;
 pub mod into_iters;
 pub mod intrin;
 pub mod prelude;
-pub mod swizzle;
 #[macro_use] pub mod zip;
+pub mod stride_zip;
+pub mod stride;
 
 pub use prelude::*;
 
@@ -430,7 +431,7 @@ mod tests {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1026][..]).stripe_nine(tuplify!(9, f32s(0.0))).zip()
+                (&[-123.456f32; 1026][..]).stride_nine(tuplify!(9, f32s(0.0))).zip()
                     .simd_map(|(a, b, c, d, e, f, g, h, i)| {
                         (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
                     })
@@ -455,7 +456,7 @@ mod tests {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).stripe_four(tuplify!(4, f32s(0.0))).zip()
+                (&[-123.456f32; 1024][..]).stride_four(tuplify!(4, f32s(0.0))).zip()
                     .simd_map(|(a, b, c, d)| {
                         a * d - b * c
                     }).scalar_collect())
@@ -478,7 +479,7 @@ mod tests {
     fn zip_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123i32; 1024][..]).stripe_two(tuplify!(2, i32s(0))).zip()
+                (&[-123i32; 1024][..]).stride_two(tuplify!(2, i32s(0))).zip()
                     .simd_map(|(a, b)| {
                         let (aa, ab): (i64s, i64s) = a.upcast();
                         let (ba, bb): (i64s, i64s) = b.upcast();
@@ -503,7 +504,7 @@ mod tests {
     fn zip_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
-                (&[-123.456f32; 1024][..]).stripe_two(tuplify!(2, f32s(0.0))).zip()
+                (&[-123.456f32; 1024][..]).stride_two(tuplify!(2, f32s(0.0))).zip()
                     .simd_map(|(a, b)| a + b)
                     .scalar_collect())
         })
@@ -565,6 +566,26 @@ mod tests {
                 out[4 * i + 3] = (ch.wrapping_add(55) & 0x3f).wrapping_add(128);
             }
             out
+        })
+    }
+
+    #[bench]
+    fn stride_zip_naive(b: &mut Bencher) {
+        let a = [0u8; 4096];
+        b.iter(|| {
+            (&a[..]).stride_two(tuplify!(2, u8s(0))).zip()
+                .simd_map(|(a, b)| a + b)
+                .scalar_collect()
+        })
+    }
+
+    #[bench]
+    fn stride_zip(b: &mut Bencher) {
+        let a = [0u8; 4096];
+        b.iter(|| {
+            (&a[..]).simd_iter(u8s(0)).stride_zip()
+                .simd_map(|(a, b)| a + b)
+                .scalar_collect()
         })
     }
 }

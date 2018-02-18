@@ -11,4 +11,5 @@ pub use vecs::{Packed, Pattern};
 pub use vecs::{u8s, i8s, u16s, i16s, u32s, i32s, f32s, u64s, i64s, f64s};
 pub use intrin::*;
 pub use zip::*;
-pub use swizzle::*;
+pub use stride_zip::*;
+pub use stride::*;
