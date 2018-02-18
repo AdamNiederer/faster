@@ -18,8 +18,7 @@ pub trait Popcnt : Packed {
 }
 
 #[inline(always)]
-#[cfg(target_feature = "sse3")]
-#[target_feature(enable = "sse3")]
+#[cfg(target_feature = "ssse3")]
 unsafe fn popcnt128(v: u8x16) -> usize {
     // SSE3 popcnt algorithm by Wojciech Muła
     // http://wm.ite.pl/articles/sse-popcount.html
@@ -31,7 +30,7 @@ unsafe fn popcnt128(v: u8x16) -> usize {
 }
 
 #[inline(always)]
-#[cfg(not(target_feature = "sse3"))]
+#[cfg(not(target_feature = "ssse3"))]
 #[allow(unused_unsafe)]
 unsafe fn popcnt128(v: u8x16) -> usize {
     v.be_u64s(). scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
@@ -39,7 +38,6 @@ unsafe fn popcnt128(v: u8x16) -> usize {
 
 #[inline(always)]
 #[cfg(target_feature = "avx2")]
-#[target_feature(enable = "avx2")]
 unsafe fn popcnt256(v: u8x32) -> usize {
     // AVX2 popcnt algorithm by Wojciech Muła, Nathan Kurz, and Daniel Lemire
     // https://arxiv.org/abs/1611.07612
