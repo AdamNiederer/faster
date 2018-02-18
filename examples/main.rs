@@ -34,11 +34,11 @@ fn main() {
     let reduced = (&[-1.0f32; 128][..]).simd_iter(f32s(0.0))
         .simd_reduce(f32s::splat(0.0), |a, v| a + v.abs().sqrt().sqrt().floor()).sum();
 
-    let striped = (0..20u32).collect::<Vec<u32>>().as_slice()
-        .stripe_two(tuplify!(2, u32s::splat(99))).zip().simd_map(|(a, b)| a + b)
+    let strided = (0..20u32).collect::<Vec<u32>>().as_slice()
+        .stride_two(tuplify!(2, u32s::splat(99))).zip().simd_map(|(a, b)| a + b)
         .scalar_collect();
 
-    println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced, striped);
+    println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced, strided);
 }
 
 #[cfg(feature = "no-std")]
