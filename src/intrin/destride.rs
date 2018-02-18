@@ -7,6 +7,15 @@ pub trait Destride : Sized {
     fn destride(self, other: Self) -> (Self, Self);
 }
 
+macro_rules! destride_polyfill {
+    ($self:expr, $other:expr, $($n:expr),*) => {
+        (Self::new($($self.extract($n)),*,
+                   $($other.extract($n)),*),
+         Self::new($($self.extract($n + 1)),*,
+                   $($other.extract($n + 1)),*))
+    }
+}
+
 impl Destride for u8x16 {
     #[cfg(target_feature = "ssse3")]
     fn destride(self, other: Self) -> (Self, Self) {
@@ -17,6 +26,11 @@ impl Destride for u8x16 {
             let c = _mm_shuffle_epi8(b.merge_halves(a), Self::new(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7));
             (a.merge_halves(b), c)
         }
+    }
+
+    #[cfg(not(target_feature = "ssse3"))]
+    fn destride(self, other: Self) -> (Self, Self) {
+        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14)
     }
 }
 
@@ -35,7 +49,11 @@ impl Destride for u8x32 {
             let c = _mm256_permute4x64_epi64(aa.merge_halves(bb).be_i64s(), 0x4E).be_u8s();
             (aa.merge_halves(bb), c)
         }
+    }
 
+    #[cfg(not(target_feature = "avx2"))]
+    fn destride(self, other: Self) -> (Self, Self) {
+        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
     }
 }
 
@@ -49,6 +67,11 @@ impl Destride for i8x16 {
             let c = _mm_shuffle_epi8(b.merge_halves(a), transmute(Self::new(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7)));
             (a.be_i8s().merge_halves(b.be_i8s()), c.be_i8s())
         }
+    }
+
+    #[cfg(not(target_feature = "ssse3"))]
+    fn destride(self, other: Self) -> (Self, Self) {
+        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14)
     }
 }
 
@@ -66,5 +89,10 @@ impl Destride for i8x32 {
             let c = _mm256_permute4x64_epi64(aa.merge_halves(bb).be_i64s(), 0x4E).be_i8s();
             (aa.merge_halves(bb), c)
         }
+    }
+
+    #[cfg(not(target_feature = "avx2"))]
+    fn destride(self, other: Self) -> (Self, Self) {
+        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
     }
 }
