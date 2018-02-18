@@ -570,6 +570,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn stride_zip_naive(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
@@ -580,6 +581,7 @@ mod tests {
     }
 
     #[bench]
+    #[cfg(not(feature = "no-std"))]
     fn stride_zip(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
