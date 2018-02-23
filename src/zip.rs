@@ -61,11 +61,9 @@ pub trait SIMDZippedObject : Sized {
     type Vectors;
 
     /// Return the vector length of this object.
-    #[inline(always)]
     fn width(&self) -> usize;
 
     /// Return the scalar length of this object.
-    #[inline(always)]
     fn size(&self) -> usize;
 }
 
