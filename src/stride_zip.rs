@@ -85,7 +85,7 @@ impl<T> Iterator for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
         let first = self.iter.next()?;
         let second = self.iter.next();
         if let Some(second) = second {
-            Some(first.destride(second))
+            Some(first.destride_two(second))
         } else {
             self.peek = Some(first);
             None
@@ -98,13 +98,13 @@ impl<T> SIMDZippedIterator for StrideZip<T> where T : SIMDIterator, T::Vector : 
         let first = self.iter.next();
         let (end, n) = self.iter.end().unwrap_or((self.iter.default(), 0));
         if let Some(first) = first {
-            Some((first.destride(end), (self.width() + n) / 2))
+            Some((first.destride_two(end), (self.width() + n) / 2))
         } else {
             if let Some(v) = self.peek {
                 self.peek = None;
-                Some((v.destride(end), (self.width() + n) / 2))
+                Some((v.destride_two(end), (self.width() + n) / 2))
             } else if n > 0 {
-                Some((end.destride(self.iter.default()), n / 2))
+                Some((end.destride_two(self.iter.default()), n / 2))
             } else {
                 None
             }

@@ -214,13 +214,13 @@ extern crate stdsimd;
 
 mod shimvecs;
 
+#[macro_use] pub mod zip;
 pub mod vecs;
 pub mod vec_patterns;
 pub mod iters;
 pub mod into_iters;
 pub mod intrin;
 pub mod prelude;
-#[macro_use] pub mod zip;
 pub mod stride_zip;
 pub mod stride;
 

@@ -4,10 +4,14 @@ use intrin::{Merge, Transmute};
 use core_or_std::mem::transmute;
 
 pub trait Destride : Sized {
-    fn destride(self, other: Self) -> (Self, Self);
+    fn destride_two(self, other: Self) -> (Self, Self);
+    fn destride_four(self, b: Self, c: Self, d: Self) -> (Self, Self, Self, Self);
 }
 
-macro_rules! destride_polyfill {
+// TODO: LLVM actually autovectorizes our polyfills, but we should still have an
+// explicit implementation for everything
+
+macro_rules! destride_two_polyfill {
     ($self:expr, $other:expr, $($n:expr),*) => {
         (Self::new($($self.extract($n)),*,
                    $($other.extract($n)),*),
@@ -16,9 +20,32 @@ macro_rules! destride_polyfill {
     }
 }
 
+macro_rules! destride_four_polyfill {
+    ($self:expr, $b:expr, $c:expr, $d:expr, $($n:expr),*) => {
+        (Self::new($($self.extract($n)),*,
+                   $($b.extract($n)),*,
+                   $($c.extract($n)),*,
+                   $($d.extract($n)),*),
+         Self::new($($self.extract($n + 1)),*,
+                   $($b.extract($n + 1)),*,
+                   $($c.extract($n + 1)),*,
+                   $($d.extract($n + 1)),*),
+         Self::new($($self.extract($n + 2)),*,
+                   $($b.extract($n + 2)),*,
+                   $($c.extract($n + 2)),*,
+                   $($d.extract($n + 2)),*),
+         Self::new($($self.extract($n + 3)),*,
+                   $($b.extract($n + 3)),*,
+                   $($c.extract($n + 3)),*,
+                   $($d.extract($n + 3)),*))
+    }
+}
+
+
 impl Destride for u8x16 {
+    #[inline(always)]
     #[cfg(target_feature = "ssse3")]
-    fn destride(self, other: Self) -> (Self, Self) {
+    fn destride_two(self, other: Self) -> (Self, Self) {
         unsafe {
             let a = _mm_shuffle_epi8(self, Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15));
             let b = _mm_shuffle_epi8(other, Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14));
@@ -28,16 +55,22 @@ impl Destride for u8x16 {
         }
     }
 
+    #[inline(always)]
     #[cfg(not(target_feature = "ssse3"))]
-    fn destride(self, other: Self) -> (Self, Self) {
-        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14)
+    fn destride_two(self, other: Self) -> (Self, Self) {
+        destride_two_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14)
+    }
+
+    #[inline(always)]
+    fn destride_four(self, b: Self, c: Self, d: Self) -> (Self, Self, Self, Self) {
+        destride_four_polyfill!(self, b, c, d, 0, 4, 8, 12)
     }
 }
 
-
 impl Destride for u8x32 {
+    #[inline(always)]
     #[cfg(target_feature = "avx2")]
-    fn destride(self, other: Self) -> (Self, Self) {
+    fn destride_two(self, other: Self) -> (Self, Self) {
         unsafe {
             // In-lane destrided vectors
             let a = _mm256_shuffle_epi8(self, Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15));
@@ -51,15 +84,22 @@ impl Destride for u8x32 {
         }
     }
 
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
-    fn destride(self, other: Self) -> (Self, Self) {
-        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
+    fn destride_two(self, other: Self) -> (Self, Self) {
+        destride_two_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
+    }
+
+    #[inline(always)]
+    fn destride_four(self, b: Self, c: Self, d: Self) -> (Self, Self, Self, Self) {
+        destride_four_polyfill!(self, b, c, d, 0, 4, 8, 12, 16, 20, 24, 28)
     }
 }
 
 impl Destride for i8x16 {
+    #[inline(always)]
     #[cfg(target_feature = "ssse3")]
-    fn destride(self, other: Self) -> (Self, Self) {
+    fn destride_two(self, other: Self) -> (Self, Self) {
         unsafe {
             let a = _mm_shuffle_epi8(transmute(self), transmute(Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15)));
             let b = _mm_shuffle_epi8(transmute(other), transmute(Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14)));
@@ -69,15 +109,22 @@ impl Destride for i8x16 {
         }
     }
 
+    #[inline(always)]
     #[cfg(not(target_feature = "ssse3"))]
-    fn destride(self, other: Self) -> (Self, Self) {
-        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14)
+    fn destride_two(self, other: Self) -> (Self, Self) {
+        destride_two_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14)
+    }
+
+    #[inline(always)]
+    fn destride_four(self, b: Self, c: Self, d: Self) -> (Self, Self, Self, Self) {
+        destride_four_polyfill!(self, b, c, d, 0, 4, 8, 12)
     }
 }
 
 impl Destride for i8x32 {
+    #[inline(always)]
     #[cfg(target_feature = "avx2")]
-    fn destride(self, other: Self) -> (Self, Self) {
+    fn destride_two(self, other: Self) -> (Self, Self) {
         unsafe {
             // In-lane destrided vectors
             let a = _mm256_shuffle_epi8(transmute(self), transmute(Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15)));
@@ -91,8 +138,172 @@ impl Destride for i8x32 {
         }
     }
 
+    #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
-    fn destride(self, other: Self) -> (Self, Self) {
-        destride_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
+    fn destride_two(self, other: Self) -> (Self, Self) {
+        destride_two_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
+    }
+
+    #[inline(always)]
+    fn destride_four(self, b: Self, c: Self, d: Self) -> (Self, Self, Self, Self) {
+        destride_four_polyfill!(self, b, c, d, 0, 4, 8, 12, 16, 20, 24, 28)
+    }
+}
+
+macro_rules! impl_destride {
+    ($t:ty, $($two:expr, $four:expr),*) => {
+        impl Destride for $t {
+            #[inline(always)]
+            fn destride_two(self, other: Self) -> (Self, Self) {
+                destride_two_polyfill!(self, other, $($two, $four),*)
+            }
+
+            #[inline(always)]
+            fn destride_four(self, b: Self, c: Self, d: Self) -> (Self, Self, Self, Self) {
+                destride_four_polyfill!(self, b, c, d, $($two),*)
+            }
+        }
+    }
+}
+
+impl_destride!(u16x16, 0, 2, 4, 6, 8, 10, 12, 14);
+impl_destride!(u16x8, 0, 2, 4, 6);
+impl_destride!(i16x16, 0, 2, 4, 6, 8, 10, 12, 14);
+impl_destride!(i16x8, 0, 2, 4, 6);
+
+impl_destride!(u32x8, 0, 2, 4, 6);
+impl_destride!(u32x4, 0, 2);
+impl_destride!(i32x8, 0, 2, 4, 6);
+impl_destride!(i32x4, 0, 2);
+
+#[cfg(test)]
+mod tests {
+    use super::super::super::*;
+    use test::{Bencher, black_box};
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_two(b: &mut Bencher) {
+        let a = [0u8; 4096];
+        b.iter(|| {
+            for v in a.simd_iter(u8s(0)).unroll(2) {
+                let x = black_box(v[0].destride_two(v[1]));
+            }
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_four(b: &mut Bencher) {
+        let a = [0u8; 4096];
+        b.iter(|| {
+            for v in a.simd_iter(u8s(0)).unroll(4) {
+                let x = black_box(v[0].destride_four(v[1], v[2], v[3]));
+            }
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_two_16(b: &mut Bencher) {
+        let a = [0u16; 4096];
+        b.iter(|| {
+            for v in a.simd_iter(u16s(0)).unroll(2) {
+                let x = black_box(v[0].destride_two(v[1]));
+            }
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_four_16(b: &mut Bencher) {
+        let a = [0u16; 4096];
+        b.iter(|| {
+            for v in a.simd_iter(u16s(0)).unroll(4) {
+                let x = v[0].destride_four(v[1], v[2], v[3]);
+            }
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_two_32(b: &mut Bencher) {
+        let a = [0u32; 4096];
+        b.iter(|| {
+            for v in a.simd_iter(u32s(0)).unroll(2) {
+                let x = black_box(v[0].destride_two(v[1]));
+            }
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_four_32(b: &mut Bencher) {
+        let a = [0u32; 4096];
+        b.iter(|| {
+            for v in a.simd_iter(u32s(0)).unroll(4) {
+                let x = v[0].destride_four(v[1], v[2], v[3]);
+            }
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_four_naiive(b: &mut Bencher) {
+        let a = [0u8; 4096];
+        b.iter(|| {
+             (&a[..]).stride_four(tuplify!(4, u8s(0))).zip()
+                .simd_do_each(|x| { black_box(x); });
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_two_naiive(b: &mut Bencher) {
+        let a = [0u8; 4096];
+        b.iter(|| {
+             (&a[..]).stride_two(tuplify!(2, u8s(0))).zip()
+                .simd_do_each(|x| { black_box(x); });
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_four_naiive_16(b: &mut Bencher) {
+        let a = [0u16; 4096];
+        b.iter(|| {
+             (&a[..]).stride_four(tuplify!(4, u16s(0))).zip()
+                .simd_do_each(|x| { black_box(x); });
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_two_naiive_16(b: &mut Bencher) {
+        let a = [0u16; 4096];
+        b.iter(|| {
+             (&a[..]).stride_two(tuplify!(2, u16s(0))).zip()
+                .simd_do_each(|x| { black_box(x); });
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_four_naiive_32(b: &mut Bencher) {
+        let a = [0u32; 4096];
+        b.iter(|| {
+             (&a[..]).stride_four(tuplify!(4, u32s(0))).zip()
+                .simd_do_each(|x| { black_box(x); });
+        })
+    }
+
+    #[bench]
+    #[cfg(not(feature = "no-std"))]
+    fn destride_two_naiive_32(b: &mut Bencher) {
+        let a = [0u32; 4096];
+        b.iter(|| {
+             (&a[..]).stride_two(tuplify!(2, u32s(0))).zip()
+                .simd_do_each(|x| { black_box(x); });
+        })
     }
 }
