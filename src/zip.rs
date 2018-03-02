@@ -191,27 +191,16 @@ pub trait SIMDZippedIterator : SIMDZippedIterable {
     ///
     /// [`Packed::sum`]: vecs/trait.Packed.html#tymethod.sum
     /// [`Packed::product`]: vecs/trait.Packed.html#tymethod.product
-    fn simd_reduce<A, F>(&mut self, start: A, mut func: F) -> A
-    where F : FnMut(A, Self::Vectors) -> A {
-        let mut acc: A;
+    fn simd_reduce<A, F>(&mut self, mut start: A, mut func: F) -> A
+        where F : FnMut(A, Self::Vectors) -> A {
 
-        if let Some(v) = self.next() {
-            acc = func(start, v);
-            while let Some(mut v) = self.next() {
-                acc = func(acc, v);
-            }
-            if let Some((v, _)) = self.end() {
-                acc = func(acc, v);
-            }
-            debug_assert!(self.end().is_none());
-            acc
-        } else if let Some((v, _)) = self.end() {
-            acc = func(start, v);
-            debug_assert!(self.end().is_none());
-            acc
-        } else {
-            start
+        while let Some(mut v) = self.next() {
+            start = func(start, v);
         }
+        if let Some((v, _)) = self.end() {
+            start = func(start, v);
+        }
+        start
     }
 }
 
