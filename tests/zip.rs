@@ -58,4 +58,13 @@ mod tests {
         assert!(b_times_three_check.zip(b_times_three)
                 .fold(true, |acc, (a, b)| acc && a == b));
     }
+
+    #[test]
+    fn zip_simd_reduce() {
+        let vec1 = [2u32; 129];
+        let vec2 = [3u32; 129];
+        let result = (vec1.simd_iter(u32s(0u32)), vec2.simd_iter(u32s(0u32))).zip().simd_reduce(u32s(0u32), |acc, (x, y)| acc + x * y).sum();
+        assert_eq!(result, 2 * 3 * 129);
+    }
+
 }
