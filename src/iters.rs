@@ -552,7 +552,7 @@ impl<A, B, I, F> SIMDObject for SIMDMap<I, F>
 
     #[inline(always)]
     fn width(&self) -> usize {
-        self.iter.width()
+        Self::Vector::WIDTH
     }
 }
 
