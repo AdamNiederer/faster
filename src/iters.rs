@@ -715,5 +715,42 @@ impl<'a, T, I> IntoScalar<T> for I
 
         fill
     }
+}
 
+mod tests {
+    use super::super::*;
+
+    #[test]
+    #[cfg(not(feature = "no-std"))]
+    fn bitcast_map_width_doubles() {
+        let y = [1, 2, 3, 4, 5i64].simd_iter(i64s(0))
+            .simd_map(|v| v.to_le().be_u32s())
+            .scalar_collect();
+
+        assert_eq!(y, [1, 0, 2, 0, 3, 0, 4, 0, 5, 0]);
+    }
+
+    #[test]
+    #[cfg(not(feature = "no-std"))]
+    fn bitcast_map_width_quadruples() {
+        let y = [1, 2, 3, 4, 5i64].simd_iter(i64s(0))
+            .simd_map(|v| v.to_le().be_u16s())
+            .scalar_collect();
+
+        assert_eq!(y, [1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0,
+                       4, 0, 0, 0, 5, 0, 0, 0]);
+    }
+
+    #[test]
+    #[cfg(not(feature = "no-std"))]
+    fn bitcast_map_width_octuples() {
+        let y = [1, 2, 3, 4, 5i64].simd_iter(i64s(0))
+            .simd_map(|v| v.to_le().be_u8s())
+            .scalar_collect();
+
+        assert_eq!(y.as_slice(),
+                   &[1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
+                     3, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
+                     5, 0, 0, 0, 0, 0, 0, 0u8][..]);
+    }
 }
