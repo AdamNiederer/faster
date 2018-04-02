@@ -12,7 +12,7 @@ repository = "https://github.com/AdamNiederer/faster"
 readme = "README.org"
 
 [dependencies]
-stdsimd = "0.0.4"
+stdsimd = {git = "https://github.com/AdamNiederer/stdsimd", branch="fix-bft-build"}
 
 [features]
 no-std = []
