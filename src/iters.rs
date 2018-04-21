@@ -191,7 +191,7 @@ pub trait SIMDArrayMut : SIMDArray {
 
 /// A slice-backed iterator which can automatically pack its constituent
 /// elements into vectors.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SIMDIter<A : SIMDArray> {
     pub position: usize,
     pub data: A,
