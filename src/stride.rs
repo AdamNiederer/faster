@@ -19,6 +19,7 @@ use intrin::Transmute;
 
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.
+#[derive(Clone)]
 pub struct PackedStride<'a, A> where A : 'a + SIMDArray {
     iter: &'a A,
     pos: usize,
