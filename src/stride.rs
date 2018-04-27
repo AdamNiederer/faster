@@ -9,7 +9,7 @@
 
 use vecs::*;
 use iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator};
-use core_or_std::iter::{Iterator, ExactSizeIterator};
+use core_or_std::iter::{Iterator, ExactSizeIterator, FromIterator};
 
 // For AVX2 gathers
 use core_or_std::mem::transmute;
@@ -61,8 +61,29 @@ pub trait Stride<A> where A : SIMDArray {
     /// the 1st iterator will pack the 0th, `count`th, `count * 2`th...
     /// elements, while the 2nd iterator will pack the 1st, `count + 1`th,
     /// `count * 2 + 1`th... elements.
+    ///
+    /// If you want to collect into something else than `Vec`, you can use the
+    /// [`stride_into`](#method.stride_into).
+    #[inline(always)]
     #[cfg(not(feature = "no-std"))]
-    fn stride(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStride<A>>;
+    fn stride(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStride<A>> {
+        self.stride_into(count, default)
+    }
+
+    /// Return a collection of iterators which pack every `count`th element into an iterator.
+    ///
+    /// This works the same way as [`stride`](#method.stride). However, it is possible to choose
+    /// the collection into which the result is put.
+    ///
+    /// This can be beneficial in two cases:
+    /// * In no-std environment where `Vec` is not available, but one could use something like
+    ///   [arrayvec](https://crates.io/crates/arrayvec).
+    /// * To avoid heap allocations in small cases and falling back on them in large cases with
+    ///   [smallvec](https://crates.io/crates/smallvec).
+    fn stride_into<'s, C>(&'s self, count: usize, default: &[<A as SIMDObject>::Vector]) -> C
+    where
+        C: FromIterator<PackedStride<'s, A>>,
+        A: 's;
 
     /// Return a tuple of iterators which pack every 2nd element into an
     /// iterator. The nth iterator of the tuple is offset by n - 1. Therefore,
@@ -91,8 +112,11 @@ pub trait Stride<A> where A : SIMDArray {
 
 impl<A> Stride<A> for A where A : SIMDArray {
     #[inline(always)]
-    #[cfg(not(feature = "no-std"))]
-    fn stride(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStride<A>> {
+    fn stride_into<'s, C>(&'s self, count: usize, default: &[<A as SIMDObject>::Vector]) -> C
+    where
+        C: FromIterator<PackedStride<'s, A>>,
+        A: 's,
+    {
         assert!(default.len() == count);
         (0..count).map(move |offset| {
             PackedStride {
@@ -102,7 +126,7 @@ impl<A> Stride<A> for A where A : SIMDArray {
                 stride: count,
                 default: unsafe { *default.get_unchecked(offset) }
             }
-        }).collect::<Vec<PackedStride<A>>>()
+        }).collect()
     }
 
     #[inline(always)]
