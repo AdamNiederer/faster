@@ -1,7 +1,7 @@
-use vecs::*;
+use crate::vecs::*;
 use stdsimd::vendor::*;
-use intrin::{Merge, Transmute};
-use core_or_std::mem::transmute;
+use crate::intrin::{Merge, Transmute};
+use crate::core_or_std::mem::transmute;
 
 pub trait Destride : Sized {
     fn destride_two(self, other: Self) -> (Self, Self);

@@ -7,15 +7,15 @@
 
 #![allow(unused_imports)]
 
-use vecs::*;
-use iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator};
-use core_or_std::iter::{Iterator, ExactSizeIterator, FromIterator};
+use crate::vecs::*;
+use crate::iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator};
+use crate::core_or_std::iter::{Iterator, ExactSizeIterator, FromIterator};
 
 // For AVX2 gathers
-use core_or_std::mem::transmute;
+use crate::core_or_std::mem::transmute;
 use stdsimd::vendor::*;
 use stdsimd::simd::{__m256i, __m128i};
-use intrin::Transmute;
+use crate::intrin::Transmute;
 
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.

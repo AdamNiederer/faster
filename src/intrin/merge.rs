@@ -1,8 +1,8 @@
-use vecs::*;
-use vec_patterns::*;
+use crate::vecs::*;
+use crate::vec_patterns::*;
 use stdsimd::vendor::*;
-use intrin::transmute::*;
-use core_or_std::mem::transmute;
+use crate::intrin::transmute::*;
+use crate::core_or_std::mem::transmute;
 
 pub trait Merge {
     /// Return a vector with the first half populated by the first half of
@@ -154,8 +154,8 @@ impl_packed_merge!(f64x4, u64x4, u64, _mm256_blendv_epi8, "avx2", (0, 1), (2, 3)
 impl_packed_merge!(f64x8, u64x8, u64, _mm512_mask_mov_epi8, "avx512-butnotyet", (0, 1, 2, 3), (4, 5, 6, 7), 0, 1, 2, 3, 4, 5, 6, 7);
 
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     macro_rules! test_packed_merge {
         (($($vec:tt),*), ($($fn:ident),*)) => {

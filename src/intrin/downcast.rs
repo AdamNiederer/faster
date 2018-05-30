@@ -5,10 +5,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use vecs::*;
+use crate::vecs::*;
 use stdsimd::vendor::*;
-use intrin::transmute::*;
-use core_or_std::mem::transmute;
+use crate::intrin::transmute::*;
+use crate::core_or_std::mem::transmute;
 
 pub trait Downcast<T> {
     /// Return a vector containing elements of the same value as `self` and

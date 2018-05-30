@@ -5,8 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use vecs::{Packable, Packed};
-use core_or_std::slice::from_raw_parts;
+use crate::vecs::{Packable, Packed};
+use crate::core_or_std::slice::from_raw_parts;
 
 pub trait SIMDObject : Sized {
     type Scalar : Packable;

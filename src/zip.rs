@@ -5,8 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{SIMDIterator, SIMDIterable, SIMDObject, UnsafeIterator};
-use vecs::{Packed, Packable};
+use crate::iters::{SIMDIterator, SIMDIterable, SIMDObject, UnsafeIterator};
+use crate::vecs::{Packed, Packable};
 
 /// A macro which takes a number n and an expression, and returns a tuple
 /// containing n copies of the expression. Only works for numbers less than or

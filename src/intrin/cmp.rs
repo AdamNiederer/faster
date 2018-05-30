@@ -6,7 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use stdsimd::vendor::*;
-use vecs::*;
+use crate::vecs::*;
 
 pub trait Cmp {
     /// Return a vector where each element at an index i is the maximum of the

@@ -1,10 +1,10 @@
-use vecs::*;
+use crate::vecs::*;
 use stdsimd::vendor::*;
-use core_or_std::ops::Add;
-use intrin::upcast::Upcast;
-use intrin::cmp::Cmp;
-use intrin::abs::Abs;
-use intrin::transmute::Transmute;
+use crate::core_or_std::ops::Add;
+use crate::intrin::upcast::Upcast;
+use crate::intrin::cmp::Cmp;
+use crate::intrin::abs::Abs;
+use crate::intrin::transmute::Transmute;
 
 pub trait Sum : Packed {
     /// Return a scalar equivalent to the sum of all elements of this vector.
