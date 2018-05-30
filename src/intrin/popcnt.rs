@@ -6,9 +6,9 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use stdsimd::vendor::*;
-use intrin::sum::*;
-use intrin::transmute::*;
-use vecs::*;
+use crate::intrin::sum::*;
+use crate::intrin::transmute::*;
+use crate::vecs::*;
 
 pub trait Popcnt : Packed {
     fn count_ones(&self) -> usize;

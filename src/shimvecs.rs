@@ -10,10 +10,10 @@
 //! Vector types which aren't interpreted as SIMD vectors, for systems which
 //! don't have SIMD support.
 
-use core_or_std::mem::{transmute, size_of};
-use core_or_std::ptr::{copy_nonoverlapping};
-use core_or_std::ops::{Mul, MulAssign, Div, DivAssign, Add, AddAssign, Sub, SubAssign, Shl, ShlAssign, Shr, ShrAssign, Rem, RemAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
-use core_or_std::fmt::{Error, Debug, Formatter};
+use crate::core_or_std::mem::{transmute, size_of};
+use crate::core_or_std::ptr::{copy_nonoverlapping};
+use crate::core_or_std::ops::{Mul, MulAssign, Div, DivAssign, Add, AddAssign, Sub, SubAssign, Shl, ShlAssign, Shr, ShrAssign, Rem, RemAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
+use crate::core_or_std::fmt::{Error, Debug, Formatter};
 
 macro_rules! impl_packed {
     ($el:ident, $pvec:ident, $vec:ident, $sz:expr, [$($elname:ident),+]) => {

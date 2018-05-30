@@ -1,7 +1,7 @@
-use iters::{SIMDIterator, SIMDIterable, SIMDObject, SIMDArray};
-use vecs::{Packed, Packable};
-use intrin::Destride;
-use zip::{SIMDZippedIterable, SIMDZippedIterator, SIMDZippedObject};
+use crate::iters::{SIMDIterator, SIMDIterable, SIMDObject, SIMDArray};
+use crate::vecs::{Packed, Packable};
+use crate::intrin::Destride;
+use crate::zip::{SIMDZippedIterable, SIMDZippedIterator, SIMDZippedObject};
 
 pub struct StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
     base: usize,

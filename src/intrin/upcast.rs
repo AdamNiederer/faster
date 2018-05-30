@@ -5,11 +5,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use vecs::*;
-use intrin::transmute::*;
+use crate::vecs::*;
+use crate::intrin::transmute::*;
 use stdsimd::vendor::*;
 use stdsimd::simd::{__m256i, __m128i};
-use core_or_std::mem::transmute;
+use crate::core_or_std::mem::transmute;
 
 // TODO: Upcast<i..> for u..
 

@@ -5,8 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use iters::{SIMDIter, SIMDIterator, SIMDObject};
-use vecs::*;
+use crate::iters::{SIMDIter, SIMDIterator, SIMDObject};
+use crate::vecs::*;
 
 /// A trait which transforms a contiguous collection into an owned stream of
 /// vectors.

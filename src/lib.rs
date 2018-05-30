@@ -221,7 +221,7 @@ pub mod prelude;
 pub mod stride_zip;
 pub mod stride;
 
-pub use prelude::*;
+pub use crate::prelude::*;
 
 #[cfg(test)]
 mod tests {

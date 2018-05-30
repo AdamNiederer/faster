@@ -7,8 +7,8 @@
 
 // This file is machine-generated. See vec_patterns_gen.py for more info.
 
-use vecs::*;
-use core_or_std::mem::transmute;
+use crate::vecs::*;
+use crate::core_or_std::mem::transmute;
 use stdsimd::vendor::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
