@@ -196,10 +196,6 @@
 //! difference between AVX and SSE is the primary source of these issues!
 
 #![cfg_attr(feature = "no-std", no_std)]
-#![feature(target_feature)]
-#![feature(cfg_target_feature)]
-#![feature(specialization)]
-#![feature(const_fn)]
 #![cfg_attr(test, feature(test))]
 #![cfg_attr(test, feature(inclusive_range))]
 

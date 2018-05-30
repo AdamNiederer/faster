@@ -43,7 +43,7 @@ macro_rules! impl_packed {
 
         impl $vec {
             #[inline(always)]
-            pub const fn new($($elname: $el),*) -> $vec {
+            pub fn new($($elname: $el),*) -> $vec {
                 $vec { data: [$($elname),*] }
             }
 
