@@ -1,9 +1,12 @@
+cargo-features = ["edition"]
+
 [package]
 name = "faster"
 description = "Explicit SIMD for humans"
 authors = ["Adam Niederer <adam.niederer@gmail.com>"]
 license = "MPL-2.0"
 version = "0.4.3"
+edition = "2018"
 
 keywords = ["simd"]
 categories = ["no-std", "hardware-support", "api-bindings"]
