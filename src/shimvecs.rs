@@ -24,6 +24,7 @@ macro_rules! impl_packed {
 
         // PartialEq shim until const generics arrive
         impl PartialEq<Self> for $vec {
+            #[inline(always)]
             fn eq(&self, other: &Self) -> bool {
                 self.data.iter().zip(other.data.iter()).fold(true, |acc, (a, b)| acc && a == b)
             }
@@ -31,6 +32,7 @@ macro_rules! impl_packed {
 
         // Debug shim until const generics arrive
         impl Debug for $vec {
+            #[inline(always)]
             fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
                 write!(f, "$vec(")?;
                 for n in self.data.iter() {
@@ -132,6 +134,7 @@ macro_rules! impl_ops {
         $(
             impl $trait <Self> for $vec {
                 type Output = Self;
+                #[inline(always)]
                 fn $fn(self, rhs: Self) -> Self::Output {
                     let mut ret = Self::splat(0 as $el);
                     for (i, (x, y)) in self.data.iter().zip(rhs.data.iter()).enumerate() {
@@ -148,6 +151,7 @@ macro_rules! impl_assignops {
     ($el:ty, $vec:ty, $([$trait:tt, $fn:tt, $op:tt]),*) => {
         $(
             impl $trait <Self> for $vec {
+                #[inline(always)]
                 fn $fn(&mut self, rhs: Self) {
                     for (i, y) in rhs.data.iter().enumerate() {
                         self.data[i] $op y;
