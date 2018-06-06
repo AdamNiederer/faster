@@ -7,9 +7,9 @@
 
 use crate::vecs::*;
 use crate::intrin::transmute::*;
-use stdsimd::vendor::*;
-use stdsimd::simd::{__m256i, __m128i};
-use crate::core_or_std::mem::transmute;
+use crate::vektor::x86_64::*;
+use crate::vektor::x86::*;
+use crate::std::mem::transmute;
 
 // TODO: Upcast<i..> for u..
 

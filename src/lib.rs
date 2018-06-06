@@ -197,17 +197,13 @@
 
 #![cfg_attr(feature = "no-std", no_std)]
 #![cfg_attr(test, feature(test))]
-#![cfg_attr(test, feature(inclusive_range))]
-#![feature(rust_2018_preview)]
+#![feature(rust_2018_preview, stdsimd)]
 
-mod core_or_std {
-    #[cfg(not(feature = "no-std"))] pub use ::std::*;
-    #[cfg(feature = "no-std")] pub use ::core::*;
-}
+#[cfg(feature = "no-std")]
+pub use ::core as std;
 
 #[cfg(test)] extern crate test;
-
-extern crate stdsimd;
+extern crate vektor;
 
 mod shimvecs;
 

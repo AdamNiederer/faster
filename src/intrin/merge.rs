@@ -1,8 +1,9 @@
 use crate::vecs::*;
 use crate::vec_patterns::*;
-use stdsimd::vendor::*;
+use crate::vektor::x86_64::*;
+use crate::vektor::x86::*;
 use crate::intrin::transmute::*;
-use crate::core_or_std::mem::transmute;
+use crate::std::mem::transmute;
 
 pub trait Merge {
     /// Return a vector with the first half populated by the first half of
@@ -69,7 +70,7 @@ macro_rules! impl_packed_merge {
             fn merge_partitioned(&self, other: Self, offset: usize) -> Self {
                 assert!(offset < Self::WIDTH);
                 let mut ret = self.clone();
-                for i in (offset as u32)..(Self::WIDTH as u32) {
+                for i in offset..Self::WIDTH {
                     unsafe {
                         ret = ret.replace_unchecked(i, other.extract_unchecked(i));
                     }
