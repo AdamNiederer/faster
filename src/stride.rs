@@ -9,12 +9,12 @@
 
 use crate::vecs::*;
 use crate::iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator};
-use crate::core_or_std::iter::{Iterator, ExactSizeIterator, FromIterator};
+use crate::std::iter::{Iterator, ExactSizeIterator, FromIterator};
 
 // For AVX2 gathers
-use crate::core_or_std::mem::transmute;
-use stdsimd::vendor::*;
-use stdsimd::simd::{__m256i, __m128i};
+use crate::std::mem::transmute;
+use crate::vektor::x86_64::*;
+use crate::vektor::x86::*;
 use crate::intrin::Transmute;
 
 /// A slice-backed iterator which packs every nth element of its constituent

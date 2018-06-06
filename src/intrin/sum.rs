@@ -1,6 +1,7 @@
 use crate::vecs::*;
-use stdsimd::vendor::*;
-use crate::core_or_std::ops::Add;
+use crate::vektor::x86_64::*;
+use crate::vektor::x86::*;
+use crate::std::ops::Add;
 use crate::intrin::upcast::Upcast;
 use crate::intrin::cmp::Cmp;
 use crate::intrin::abs::Abs;

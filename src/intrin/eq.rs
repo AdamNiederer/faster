@@ -5,9 +5,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use stdsimd::vendor::*;
-use core_or_std::ops::BitXor;
-use vecs::*;
+use crate::vektor::x86_64::*;
+use crate::vektor::x86::*;
+use crate::std::ops::BitXor;
+use crate::vecs::*;
 
 pub trait Eq : Packed {
     type Out : Pattern + BitXor<Self::Out, Output = Self::Out>;
@@ -55,14 +56,14 @@ macro_rules! rust_fallback_eq {
                 #[inline(always)]
                 #[cfg(target_feature = $feat)]
                 fn $newfn(&self, other: Self) -> $mask {
-                    use core_or_std::mem::transmute;
+                    use crate::std::mem::transmute;
                     unsafe { transmute($mmfn(transmute(*self), transmute(other), $($mmfnargs),*)) }
                 }
 
                 #[inline(always)]
                 #[cfg(not(target_feature = $feat))]
                 fn $newfn(&self, other: Self) -> Self::Out {
-                    use core_or_std::mem::transmute;
+                    use crate::std::mem::transmute;
                     unsafe {
                         Self::Out::new($(transmute(if self.extract($n).$rustfn(&other.extract($n)) {
                             $maskel::max_value()

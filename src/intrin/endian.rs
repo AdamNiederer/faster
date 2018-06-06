@@ -1,7 +1,8 @@
 use crate::vecs::*;
-use stdsimd::vendor::*;
+use crate::vektor::x86_64::*;
+use crate::vektor::x86::*;
 use crate::intrin::transmute::*;
-use crate::core_or_std::mem::transmute;
+use crate::std::mem::transmute;
 
 pub trait Reendianize : Sized + Copy {
     /// Return a vector containing elements of `self` with switched endianness.

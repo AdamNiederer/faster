@@ -8,8 +8,9 @@
 // This file is machine-generated. See vec_patterns_gen.py for more info.
 
 use crate::vecs::*;
-use crate::core_or_std::mem::transmute;
-use stdsimd::vendor::*;
+use crate::std::mem::transmute;
+use crate::vektor::x86_64::*;
+use crate::vektor::x86::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
 pub trait Pattern : Packed {

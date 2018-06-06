@@ -16,6 +16,7 @@ readme = "README.org"
 
 [dependencies]
 stdsimd = {git = "https://github.com/AdamNiederer/stdsimd", branch="fix-bft-build"}
+vektor = {git = "https://github.com/AdamNiederer/vektor", branch="master"}
 
 [features]
 no-std = []
