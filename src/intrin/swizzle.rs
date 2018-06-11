@@ -34,7 +34,7 @@ macro_rules! impl_packed_swizzle {
             #[inline(always)]
             fn flip(&self) -> Self {
                 unsafe {
-                    transmute($mmfn(self.be_u8s(), $uvec::new($($c),*).be_u8s()))
+                    transmute($mmfn(self.be_i8s(), $uvec::new($($c),*).be_i8s()))
                 }
             }
         }

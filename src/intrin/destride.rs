@@ -48,11 +48,11 @@ impl Destride for u8x16 {
     #[cfg(target_feature = "ssse3")]
     fn destride_two(self, other: Self) -> (Self, Self) {
         unsafe {
-            let a = _mm_shuffle_epi8(self, Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15));
-            let b = _mm_shuffle_epi8(other, Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14));
+            let a = _mm_shuffle_epi8(self.be_i8s(), Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15).be_i8s());
+            let b = _mm_shuffle_epi8(other.be_i8s(), Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14).be_i8s());
             // Backwards merge of a and b (keeps elements at the same indices)
-            let c = _mm_shuffle_epi8(b.merge_halves(a), Self::new(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7));
-            (a.merge_halves(b), c)
+            let c = _mm_shuffle_epi8(b.merge_halves(a), Self::new(8, 9, 10, 11, 12, 13, 14, 15, 0, 1, 2, 3, 4, 5, 6, 7).be_i8s());
+            (a.merge_halves(b).be_u8s(), c.be_u8s())
         }
     }
 
@@ -74,8 +74,8 @@ impl Destride for u8x32 {
     fn destride_two(self, other: Self) -> (Self, Self) {
         unsafe {
             // In-lane destrided vectors
-            let a = _mm256_shuffle_epi8(self, Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15));
-            let b = _mm256_shuffle_epi8(other, Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14));
+            let a = _mm256_shuffle_epi8(self.be_i8s(), Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15).be_i8s());
+            let b = _mm256_shuffle_epi8(other.be_i8s(), Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14).be_i8s());
             // Cross-lane destrided vectors
             let aa = _mm256_permute4x64_epi64(a.be_i64s(), 0xD8).be_u8s();
             let bb = _mm256_permute4x64_epi64(b.be_i64s(), 0xD8).be_u8s();
