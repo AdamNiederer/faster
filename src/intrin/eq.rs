@@ -165,13 +165,13 @@ rust_fallback_eq! {
 }
 
 rust_fallback_eq! {
-    impl Eq for u32x8 where "avx" {
+    impl Eq for u32x8 where "avx2" {
         eq_mask, eq => u32x8, u32, _mm256_cmpeq_epi32(), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
 
 rust_fallback_eq! {
-    impl Eq for i32x8 where "avx" {
+    impl Eq for i32x8 where "avx2" {
         eq_mask, eq => u32x8, u32, _mm256_cmpeq_epi32(), [0, 1, 2, 3, 4, 5, 6, 7];
     }
 }
