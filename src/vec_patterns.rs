@@ -9,7 +9,7 @@
 
 use crate::vecs::*;
 use crate::std::mem::transmute;
-use crate::vektor::x86::*;
+use vektor::x86::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
 pub trait Pattern : Packed {
