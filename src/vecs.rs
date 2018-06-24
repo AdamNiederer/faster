@@ -29,19 +29,19 @@ pub trait Packed : Sized + Copy + Debug + Merge {
 
     /// Create a new vector with `Self::WIDTH` elements from `data`, beginning
     /// at `offset`.
-    fn load(data: &[Self::Scalar], offset: usize) -> Self;
+    fn get(data: &[Self::Scalar], offset: usize) -> Self;
 
     /// Create a new vector with `Self::WIDTH` elements from `data`, beginning
     /// at `offset`, without asserting length of data.
-    unsafe fn load_unchecked(data: &[Self::Scalar], offset: usize) -> Self;
+    unsafe fn get_unchecked(data: &[Self::Scalar], offset: usize) -> Self;
 
     /// Write `Self::WIDTH` elements from this vector to `data`, beginning at
     /// `offset`.
-    fn store(self, data: &mut [Self::Scalar], offset: usize);
+    fn put(self, data: &mut [Self::Scalar], offset: usize);
 
     /// Create a new vector with `Self::WIDTH` elements from `data`, beginning
     /// at `offset`, without asserting length of data.
-    unsafe fn store_unchecked(self, data: &mut [Self::Scalar], offset: usize);
+    unsafe fn put_unchecked(self, data: &mut [Self::Scalar], offset: usize);
 
     /// Assert all elements of the vector are equal, then return the
     /// element. Opposite operation of `Self::splat`.
@@ -110,23 +110,23 @@ macro_rules! impl_packed {
             const WIDTH: usize = $width;
 
             #[inline(always)]
-            fn load(data: &[$el], offset: usize) -> $vec {
+            fn get(data: &[$el], offset: usize) -> $vec {
                 $vec::load(data, offset)
             }
 
             #[inline(always)]
-            unsafe fn load_unchecked(data: &[$el], offset: usize) -> $vec {
+            unsafe fn get_unchecked(data: &[$el], offset: usize) -> $vec {
                 debug_assert!(data[offset..].len() >= Self::WIDTH);
                 $vec::load_unchecked(data, offset)
             }
 
             #[inline(always)]
-            fn store(self, data: &mut [$el], offset: usize) {
+            fn put(self, data: &mut [$el], offset: usize) {
                 $vec::store(self, data, offset);
             }
 
             #[inline(always)]
-            unsafe fn store_unchecked(self, data: &mut [$el], offset: usize) {
+            unsafe fn put_unchecked(self, data: &mut [$el], offset: usize) {
                 debug_assert!(data[offset..].len() >= Self::WIDTH);
                 $vec::store_unchecked(self, data, offset);
             }

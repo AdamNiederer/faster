@@ -42,7 +42,8 @@ unsafe fn popcnt128(v: u8x16) -> usize {
 unsafe fn popcnt256(v: u8x32) -> usize {
     // AVX2 popcnt algorithm by Wojciech Muła, Nathan Kurz, and Daniel Lemire
     // https://arxiv.org/abs/1611.07612
-    let lookup = i8x32::new(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);
+    let lookup = i8x32::new(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+                            0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);
     let lo = v.be_i8s() & i8x32::splat(0x0f);
     let hi = (v.be_i8s() >> 4) & i8x32::splat(0x0f);
     (_mm256_shuffle_epi8(lookup, hi) + _mm256_shuffle_epi8(lookup, lo))

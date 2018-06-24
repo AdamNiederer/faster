@@ -259,7 +259,7 @@ mod tests {
         b.iter(|| {
             for (i, v) in [-123.456f32; 1024].simd_iter(f32s(0.0)).enumerate() {
                 let ans = f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0);
-                ans.store(&mut out, i * ans.width());
+                ans.put(&mut out, i * ans.width());
             }
             out
         })
@@ -274,7 +274,7 @@ mod tests {
                     ($($idx:expr),*) => {
                         $(
                             let a = f32s(9.0) * v[$idx].abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0);
-                            a.store(&mut out, (i + $idx) * a.width());
+                            a.put(&mut out, (i + $idx) * a.width());
                         )*
                     }
                 }
@@ -304,7 +304,7 @@ mod tests {
                 let (a, b) = (v * f32s(1.20)).upcast();
                 let ans = (a.sqrt() * f64s(3.141592653589793)).saturating_downcast(
                     b.sqrt() * f64s(3.141592653589793));
-                ans.store(&mut out, i * ans.width());
+                ans.put(&mut out, i * ans.width());
             }
         })
     }
@@ -320,7 +320,7 @@ mod tests {
                             let (a, b) = (v[$idx] * f32s(1.20)).upcast();
                             let ans = (a.sqrt() * f64s(3.141592653589793)).saturating_downcast(
                                 b.sqrt() * f64s(3.141592653589793));
-                            ans.store(&mut out, (i + $idx) * ans.width());
+                            ans.put(&mut out, (i + $idx) * ans.width());
                         )*
                     }
                 }
@@ -336,7 +336,7 @@ mod tests {
             let mut out = vec![0f32; 1024];
             for (i, v) in [-123.456f32; 1024].simd_iter(f32s(0.0)).enumerate() {
                 let ans = f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0);
-                ans.store(&mut out, i * ans.width());
+                ans.put(&mut out, i * ans.width());
             }
             out
         })
@@ -538,10 +538,10 @@ mod tests {
 
                 // Interleave a constant 0xf09f with the third and fourth bytes,
                 // and store into out buffer
-                u32s(0xf09f0000).merge_interleaved(tfa).be_u8s().store(&mut out, i);
-                u32s(0xf09f0000).merge_interleaved(tfb).be_u8s().store(&mut out, i + v.width());
-                u32s(0xf09f0000).merge_interleaved(tfc).be_u8s().store(&mut out, i + v.width() * 2);
-                u32s(0xf09f0000).merge_interleaved(tfd).be_u8s().store(&mut out, i + v.width() * 3);
+                u32s(0xf09f0000).merge_interleaved(tfa).be_u8s().put(&mut out, i);
+                u32s(0xf09f0000).merge_interleaved(tfb).be_u8s().put(&mut out, i + v.width());
+                u32s(0xf09f0000).merge_interleaved(tfc).be_u8s().put(&mut out, i + v.width() * 2);
+                u32s(0xf09f0000).merge_interleaved(tfd).be_u8s().put(&mut out, i + v.width() * 3);
                 i += v.width() * 4;
             });
             out
