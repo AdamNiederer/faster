@@ -1,4 +1,4 @@
-use crate::iters::{SIMDIterator, SIMDIterable, SIMDObject, SIMDArray};
+use crate::iters::{SIMDIterator};
 use crate::vecs::{Packed, Packable};
 use crate::intrin::Destride;
 use crate::zip::{SIMDZippedIterable, SIMDZippedIterator, SIMDZippedObject};

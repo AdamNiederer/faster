@@ -292,13 +292,13 @@ impl<'a, A> SIMDObject for PackedStride<'a, A> where A : SIMDArray {
 
 impl<'a, A> SIMDArray for PackedStride<'a, A> where A : SIMDArray {
     #[inline(always)]
-    fn get(&self, offset: usize) -> Self::Vector {
+    fn load(&self, offset: usize) -> Self::Vector {
         assert!(self.base + self.stride * (offset + (self.width() - 1)) < self.iter.scalar_len());
-        unsafe { self.get_unchecked(offset) }
+        unsafe { self.load_unchecked(offset) }
     }
 
     #[inline(always)]
-    unsafe fn get_unchecked(&self, offset: usize) -> Self::Vector {
+    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
         debug_assert!(offset + self.stride * (self.width() - 1) < self.iter.scalar_len());
         let mut ret = <Self as SIMDObject>::Vector::default();
 
@@ -369,7 +369,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn scalar_get() {
+    fn scalar_load() {
         let x = [1u8, 2, 3, 4];
         let y = &x[..];
         let (a, b) = y.stride_two((u8s(0), u8s(0)));
@@ -380,14 +380,14 @@ mod tests {
     }
 
     #[test]
-    fn vector_get() {
+    fn vector_load() {
         let x = [1u64, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
         let y = &x[..];
         let (a, b) = y.stride_two((u64s(0), u64s(0)));
-        assert_eq!(a.get(0).extract(0), 1);
-        assert_eq!(a.get(1).extract(0), 3);
-        assert_eq!(b.get(0).extract(0), 2);
-        assert_eq!(b.get(1).extract(0), 4);
+        assert_eq!(a.load(0).extract(0), 1);
+        assert_eq!(a.load(1).extract(0), 3);
+        assert_eq!(b.load(0).extract(0), 2);
+        assert_eq!(b.load(1).extract(0), 4);
     }
 
     #[test]

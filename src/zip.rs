@@ -194,7 +194,7 @@ pub trait SIMDZippedIterator : SIMDZippedIterable {
     fn simd_reduce<A, F>(&mut self, mut start: A, mut func: F) -> A
         where F : FnMut(A, Self::Vectors) -> A {
 
-        while let Some(mut v) = self.next() {
+        while let Some(v) = self.next() {
             start = func(start, v);
         }
         if let Some((v, _)) = self.end() {
