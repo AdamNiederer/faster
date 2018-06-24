@@ -9,7 +9,6 @@
 
 use crate::vecs::*;
 use crate::std::mem::transmute;
-use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
@@ -69,7 +68,7 @@ impl Pattern for u8x64 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -178,7 +177,7 @@ impl Pattern for u8x32 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -255,7 +254,7 @@ impl Pattern for u8x16 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -316,7 +315,7 @@ impl Pattern for i8x64 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -425,7 +424,7 @@ impl Pattern for i8x32 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -502,7 +501,7 @@ impl Pattern for i8x16 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -563,7 +562,7 @@ impl Pattern for u16x32 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -640,7 +639,7 @@ impl Pattern for u16x16 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -701,7 +700,7 @@ impl Pattern for u16x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -754,7 +753,7 @@ impl Pattern for i16x32 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -831,7 +830,7 @@ impl Pattern for i16x16 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -892,7 +891,7 @@ impl Pattern for i16x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -945,7 +944,7 @@ impl Pattern for u32x16 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1006,7 +1005,7 @@ impl Pattern for u32x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1059,7 +1058,7 @@ impl Pattern for u32x4 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1108,7 +1107,7 @@ impl Pattern for i32x16 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1169,7 +1168,7 @@ impl Pattern for i32x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1222,7 +1221,7 @@ impl Pattern for i32x4 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1271,7 +1270,7 @@ impl Pattern for f32x16 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1332,7 +1331,7 @@ impl Pattern for f32x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1385,7 +1384,7 @@ impl Pattern for f32x4 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1434,7 +1433,7 @@ impl Pattern for u64x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1487,7 +1486,7 @@ impl Pattern for u64x4 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1536,7 +1535,7 @@ impl Pattern for u64x2 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1583,7 +1582,7 @@ impl Pattern for i64x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1636,7 +1635,7 @@ impl Pattern for i64x4 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1685,7 +1684,7 @@ impl Pattern for i64x2 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1732,7 +1731,7 @@ impl Pattern for f64x8 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1785,7 +1784,7 @@ impl Pattern for f64x4 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]
@@ -1834,7 +1833,7 @@ impl Pattern for f64x2 {
     fn partition_mask(off: usize) -> Self {
         debug_assert!(off <= Self::WIDTH);
         debug_assert!(off * Self::Scalar::SIZE <= 64);
-        Self::get(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
+        Self::load(unsafe { transmute(&PART_MASK[..]) }, 64 / Self::Scalar::SIZE - off)
     }
 
     #[inline(always)]

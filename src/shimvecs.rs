@@ -84,13 +84,13 @@ macro_rules! impl_packed {
             }
 
             #[inline(always)]
-            pub fn put(self, slice: &mut [$el], offset: usize) {
+            pub fn store(self, slice: &mut [$el], offset: usize) {
                 assert!(slice[offset..].len() >= $sz);
-                unsafe { self.put_unchecked(slice, offset) }
+                unsafe { self.store_unchecked(slice, offset) }
             }
 
             #[inline(always)]
-            pub unsafe fn put_unchecked(self, slice: &mut [$el], offset: usize) {
+            pub unsafe fn store_unchecked(self, slice: &mut [$el], offset: usize) {
                 copy_nonoverlapping(
                     &self as *const $vec as *const u8,
                     slice.get_unchecked_mut(offset) as *mut $el as *mut u8,
@@ -98,13 +98,13 @@ macro_rules! impl_packed {
             }
 
             #[inline(always)]
-            pub fn get(slice: &[$el], offset: usize) -> $vec {
+            pub fn load(slice: &[$el], offset: usize) -> $vec {
                 assert!(slice[offset..].len() >= $sz);
-                unsafe { $vec::get_unchecked(slice, offset) }
+                unsafe { $vec::load_unchecked(slice, offset) }
             }
 
             #[inline(always)]
-            pub unsafe fn get_unchecked(slice: &[$el], offset: usize) -> $vec {
+            pub unsafe fn load_unchecked(slice: &[$el], offset: usize) -> $vec {
                 let mut x = $vec::splat(0 as $el);
                 copy_nonoverlapping(
                     slice.get_unchecked(offset) as *const $el as *const u8,
