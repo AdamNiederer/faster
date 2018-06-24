@@ -16,7 +16,7 @@ readme = "README.org"
 
 [dependencies]
 # stdsimd = {path = "/home/adam/Programs/stdsimd/coresimd"}
-vektor = {path = "/home/adam/Programs/vektor-gen/vektor"}
+vektor = {git = "https://github.com/AdamNiederer/vektor", branch = "master"}
 
 [features]
 no-std = []
