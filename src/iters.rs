@@ -718,6 +718,8 @@ impl<'a, T, I> IntoScalar<T> for I
 }
 
 mod tests {
+    use super::super::prelude::*;
+
     #[test]
     #[cfg(not(feature = "no-std"))]
     fn bitcast_map_width_doubles() {
