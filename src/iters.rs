@@ -170,8 +170,8 @@ pub trait SIMDIteratorMut : SIMDIterator {
 }
 
 pub trait SIMDArray : SIMDObject {
-    fn load(&self, offset: usize) -> Self::Vector;
-    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector;
+    fn get(&self, offset: usize) -> Self::Vector;
+    unsafe fn get_unchecked(&self, offset: usize) -> Self::Vector;
     fn load_scalar(&self, offset: usize) -> Self::Scalar;
     unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar;
 
@@ -183,8 +183,8 @@ pub trait SIMDArray : SIMDObject {
 }
 
 pub trait SIMDArrayMut : SIMDArray {
-    fn store(&mut self, value: Self::Vector, offset: usize);
-    unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize);
+    fn put(&mut self, value: Self::Vector, offset: usize);
+    unsafe fn put_unchecked(&mut self, value: Self::Vector, offset: usize);
     fn store_scalar(&mut self, value: Self::Scalar, offset: usize);
     unsafe fn store_scalar_unchecked(&mut self, value: Self::Scalar, offset: usize);
 }
@@ -207,13 +207,13 @@ pub struct SIMDMap<I, F> where I : SIMDIterable {
 
 impl<'a, S, V> SIMDArrayMut for &'a mut [S] where S : 'a + Packable<Vector = V>, V : Packed<Scalar = S> {
     #[inline(always)]
-    fn store(&mut self, value: Self::Vector, offset: usize) {
-        value.store(self, offset)
+    fn put(&mut self, value: Self::Vector, offset: usize) {
+        value.put(self, offset)
     }
 
     #[inline(always)]
-    unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize) {
-        value.store_unchecked(self, offset)
+    unsafe fn put_unchecked(&mut self, value: Self::Vector, offset: usize) {
+        value.put_unchecked(self, offset)
     }
 
     #[inline(always)]
@@ -309,14 +309,14 @@ macro_rules! impl_iter {
 
         impl< $($genera),* > SIMDArray for $name $($pred )* {
             #[inline(always)]
-            fn load(&self, offset: usize) -> Self::Vector {
-                <Self::Vector as Packed>::load(&self, offset)
+            fn get(&self, offset: usize) -> Self::Vector {
+                <Self::Vector as Packed>::get(&self, offset)
             }
 
             #[inline(always)]
-            unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
+            unsafe fn get_unchecked(&self, offset: usize) -> Self::Vector {
                 debug_assert!(self[offset..].len() >= Self::Vector::WIDTH);
-                <Self::Vector as Packed>::load_unchecked(&self, offset)
+                <Self::Vector as Packed>::get_unchecked(&self, offset)
             }
 
             #[inline(always)]
@@ -366,7 +366,7 @@ impl<A> Iterator for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Sca
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         if self.position + self.width() <= self.scalar_len() {
-            let ret = unsafe { self.load_unchecked(self.position) };
+            let ret = unsafe { self.get_unchecked(self.position) };
             self.vector_inc();
             Some(ret)
         } else {
@@ -377,13 +377,13 @@ impl<A> Iterator for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Sca
 
 impl<A> SIMDArray for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Scalar : Packable {
     #[inline(always)]
-    fn load(&self, offset: usize) -> Self::Vector {
-        self.data.load(offset)
+    fn get(&self, offset: usize) -> Self::Vector {
+        self.data.get(offset)
     }
 
     #[inline(always)]
-    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector {
-        self.data.load_unchecked(offset)
+    unsafe fn get_unchecked(&self, offset: usize) -> Self::Vector {
+        self.data.get_unchecked(offset)
     }
 
     #[inline(always)]
@@ -447,7 +447,7 @@ impl<T, S, V> SIMDIterator for T where T : SIMDIterable + SIMDArray<Scalar = S, 
             let empty_amt = self.width() - (self.scalar_len() - self.scalar_pos());
             // Right-align the partial vector to ensure the load is vectorized
             if self.width() < self.scalar_len() {
-                ret = unsafe { self.load_unchecked(self.scalar_len() - self.width()) };
+                ret = unsafe { self.get_unchecked(self.scalar_len() - self.width()) };
                 ret = self.default().merge_partitioned(ret, empty_amt);
             } else {
                 for i in self.scalar_pos()..self.scalar_len() {
@@ -474,7 +474,7 @@ impl<T> SIMDIteratorMut for SIMDIter<T> where T : SIMDArrayMut {
             func(&mut v);
             lastvec = v;
             let offset = self.scalar_pos() - self.width();
-            unsafe { self.data.store_unchecked(v, offset); }
+            unsafe { self.data.put_unchecked(v, offset); }
         }
         let offset = self.scalar_pos();
         if let Some((mut p, n)) = self.end() {
@@ -483,8 +483,8 @@ impl<T> SIMDIteratorMut for SIMDIter<T> where T : SIMDArrayMut {
             if self.width() < self.scalar_len() {
                 // We stored a vector in this buffer; overwrite the unused elements
                 unsafe {
-                    self.data.store_unchecked(p, offset - n);
-                    self.data.store_unchecked(lastvec, offset - width);
+                    self.data.put_unchecked(p, offset - n);
+                    self.data.put_unchecked(lastvec, offset - width);
                 }
             } else {
                 // The buffer won't fit one vector; store elementwise
@@ -506,7 +506,7 @@ impl<T, S, V> UnsafeIterator for T where T : SIMDIterable + SIMDArray<Scalar = S
     #[inline(always)]
     unsafe fn next_unchecked(&mut self, offset: usize) -> Self::Item {
         debug_assert!(offset + self.width() <= self.scalar_len());
-        self.load_unchecked(offset)
+        self.get_unchecked(offset)
     }
 
     #[inline(always)]
@@ -516,7 +516,7 @@ impl<T, S, V> UnsafeIterator for T where T : SIMDIterable + SIMDArray<Scalar = S
         debug_assert_eq!(empty_amt, self.width() - (self.scalar_len() - offset));
         // Right-align the partial vector to ensure the load is vectorized
         if self.width() < self.scalar_len() {
-            ret = self.load_unchecked(self.scalar_len() - self.width());
+            ret = self.get_unchecked(self.scalar_len() - self.width());
             ret = self.default().merge_partitioned(ret, empty_amt);
         } else {
             for i in offset..self.scalar_len() {
@@ -633,7 +633,7 @@ impl<'a, T, I> IntoScalar<T> for I
         unsafe {
             ret.set_len((self.len() + 1) * self.width());
             while let Some(vec) = self.next() {
-                vec.store_unchecked(&mut ret, offset);
+                vec.put_unchecked(&mut ret, offset);
                 offset += self.width();
                 lastvec = vec;
             }
@@ -641,8 +641,8 @@ impl<'a, T, I> IntoScalar<T> for I
             if let Some((p, n)) = self.end() {
                 if offset > 0 {
                     // We stored a vector in this buffer; overwrite the unused elements
-                    p.store_unchecked(&mut ret, offset - n);
-                    lastvec.store_unchecked(&mut ret, offset - self.width());
+                    p.put_unchecked(&mut ret, offset - n);
+                    lastvec.put_unchecked(&mut ret, offset - self.width());
                 } else {
                     // The buffer won't fit one vector; store elementwise
                     for i in 0..(self.width() - n) {
@@ -663,7 +663,7 @@ impl<'a, T, I> IntoScalar<T> for I
         let mut lastvec = Self::Vector::default();
 
         while let Some(vec) = self.next() {
-            unsafe { vec.store_unchecked(fill, offset); }
+            unsafe { vec.put_unchecked(fill, offset); }
             offset += self.width();
             lastvec = vec;
         }
@@ -672,8 +672,8 @@ impl<'a, T, I> IntoScalar<T> for I
             if offset > 0 {
                 // We stored a vector in this buffer; overwrite the unused elements
                 unsafe {
-                    p.store_unchecked(fill, offset - n);
-                    lastvec.store_unchecked(fill, offset - self.width());
+                    p.put_unchecked(fill, offset - n);
+                    lastvec.put_unchecked(fill, offset - self.width());
                 }
             } else {
                 // The buffer won't fit one vector; store elementwise
@@ -705,12 +705,12 @@ impl<'a, T, I> IntoScalar<T> for I
         let mut offset = 0;
 
         while let Some(vec) = self.next() {
-            unsafe { vec.store_unchecked(fill, offset); }
+            unsafe { vec.put_unchecked(fill, offset); }
             offset += self.width();
         }
 
         if let Some((vec, _)) = self.end() {
-            unsafe { vec.store_unchecked(fill, offset); }
+            unsafe { vec.put_unchecked(fill, offset); }
         }
 
         fill

@@ -1,4 +1,5 @@
 #![feature(test)]
+#![feature(stdsimd)]
 
 extern crate faster;
 
@@ -12,15 +13,15 @@ mod tests {
         let matrices = [1i16, 2, 3, 4, 5, 6, 7, 8, 9][..].iter().cycle().take(9 * 100).map(|i| i.clone()).collect::<Vec<_>>();
         let determinants = (&matrices[..]).stride_nine(tuplify!(9, i16s(0))).zip()
             .simd_map(|(a, b, c, d, e, f, g, h, i)| {
-                assert_eq!(a.extract((a.width() - 1) as u32), 1);
-                assert_eq!(b.extract((b.width() - 1) as u32), 2);
-                assert_eq!(c.extract((c.width() - 1) as u32), 3);
-                assert_eq!(d.extract((d.width() - 1) as u32), 4);
-                assert_eq!(e.extract((e.width() - 1) as u32), 5);
-                assert_eq!(f.extract((f.width() - 1) as u32), 6);
-                assert_eq!(g.extract((g.width() - 1) as u32), 7);
-                assert_eq!(h.extract((h.width() - 1) as u32), 8);
-                assert_eq!(i.extract((i.width() - 1) as u32), 9);
+                assert_eq!(a.extract((a.width() - 1)), 1);
+                assert_eq!(b.extract((b.width() - 1)), 2);
+                assert_eq!(c.extract((c.width() - 1)), 3);
+                assert_eq!(d.extract((d.width() - 1)), 4);
+                assert_eq!(e.extract((e.width() - 1)), 5);
+                assert_eq!(f.extract((f.width() - 1)), 6);
+                assert_eq!(g.extract((g.width() - 1)), 7);
+                assert_eq!(h.extract((h.width() - 1)), 8);
+                assert_eq!(i.extract((i.width() - 1)), 9);
                 (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
             }).scalar_collect();
         assert!(determinants.iter().fold(true, |acc, x| acc && x == &0));

@@ -204,7 +204,6 @@ pub trait SIMDZippedIterator : SIMDZippedIterable {
     }
 }
 
-
 macro_rules! impl_iter_zip {
     (($($a:tt),*), ($($b:tt),*), ($($n:tt),*)) => (
         impl<$($a),*> IntoSIMDZip for ($($a),*) where $($a : SIMDIterator + UnsafeIterator),* {
