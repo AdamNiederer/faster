@@ -188,7 +188,7 @@ mod tests {
         let a = [0u8; 4096];
         b.iter(|| {
             for v in a.simd_iter(u8s(0)).unroll(2) {
-                let x = black_box(v[0].destride_two(v[1]));
+                let _ = black_box(v[0].destride_two(v[1]));
             }
         })
     }
@@ -199,7 +199,7 @@ mod tests {
         let a = [0u8; 4096];
         b.iter(|| {
             for v in a.simd_iter(u8s(0)).unroll(4) {
-                let x = black_box(v[0].destride_four(v[1], v[2], v[3]));
+                let _ = black_box(v[0].destride_four(v[1], v[2], v[3]));
             }
         })
     }
@@ -210,7 +210,7 @@ mod tests {
         let a = [0u16; 4096];
         b.iter(|| {
             for v in a.simd_iter(u16s(0)).unroll(2) {
-                let x = black_box(v[0].destride_two(v[1]));
+                let _ = black_box(v[0].destride_two(v[1]));
             }
         })
     }
@@ -221,7 +221,7 @@ mod tests {
         let a = [0u16; 4096];
         b.iter(|| {
             for v in a.simd_iter(u16s(0)).unroll(4) {
-                let x = v[0].destride_four(v[1], v[2], v[3]);
+                let _ = v[0].destride_four(v[1], v[2], v[3]);
             }
         })
     }
@@ -232,7 +232,7 @@ mod tests {
         let a = [0u32; 4096];
         b.iter(|| {
             for v in a.simd_iter(u32s(0)).unroll(2) {
-                let x = black_box(v[0].destride_two(v[1]));
+                let _ = black_box(v[0].destride_two(v[1]));
             }
         })
     }
@@ -243,7 +243,7 @@ mod tests {
         let a = [0u32; 4096];
         b.iter(|| {
             for v in a.simd_iter(u32s(0)).unroll(4) {
-                let x = v[0].destride_four(v[1], v[2], v[3]);
+                let _ = v[0].destride_four(v[1], v[2], v[3]);
             }
         })
     }

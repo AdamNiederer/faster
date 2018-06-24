@@ -124,8 +124,8 @@ impl_packed_transmute!(u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, f32x4,
 
 #[cfg(test)]
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     macro_rules! test_transmute {
         ($name:ident, $val:expr, $xmute:ident) => (

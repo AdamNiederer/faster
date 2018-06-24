@@ -132,8 +132,8 @@ impl HAdd for f32x16 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 
 #[cfg(test)]
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     #[test]
     fn hadd_i8s() {
