@@ -65,8 +65,8 @@ impl SaturatingHSub for i8x64 { hop!(saturating_hsub, i8::saturating_sub, 0, 1, 
 
 #[cfg(test)]
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     #[test]
     fn saturating_hsub_i8s() {

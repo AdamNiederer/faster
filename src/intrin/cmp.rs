@@ -13,8 +13,7 @@ pub trait Cmp {
     /// Return a vector where each element at an index i is the maximum of the
     /// elements at index i in `self` and `other`.
     ///
-    /// ```
-    /// extern crate faster;
+    /// ```ignore
     /// use faster::*;
     ///
     /// # fn main() {
@@ -27,8 +26,7 @@ pub trait Cmp {
     /// Return a vector where each element at an index i is the minimum of the
     /// elements at index i in `self` and `other`.
     ///
-    /// ```
-    /// extern crate faster;
+    /// ```ignore
     /// use faster::*;
     ///
     /// # fn main() {

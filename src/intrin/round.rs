@@ -114,8 +114,8 @@ rust_fallback_impl! {
 
 #[cfg(test)]
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     #[test]
     fn round_f32s() {

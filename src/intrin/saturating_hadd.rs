@@ -65,8 +65,8 @@ impl SaturatingHAdd for i8x64 { hop!(saturating_hadd, i8::saturating_add, 0, 1, 
 
 #[cfg(test)]
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     #[test]
     fn saturating_hadd_i8s() {

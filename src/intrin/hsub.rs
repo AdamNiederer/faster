@@ -131,8 +131,8 @@ impl HSub for f32x16 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
 
 #[cfg(test)]
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     #[test]
     fn hsub_i8s() {

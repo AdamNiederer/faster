@@ -602,8 +602,8 @@ impl Upcast<u64x8> for u32x16 {
 
 #[cfg(test)]
 mod tests {
-    use vecs::*;
-    use intrin::*;
+    use crate::vecs::*;
+    use crate::intrin::*;
 
     #[test]
     fn upcast_i8s() {
