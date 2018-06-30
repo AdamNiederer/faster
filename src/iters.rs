@@ -718,6 +718,9 @@ impl<'a, T, I> IntoScalar<T> for I
 }
 
 mod tests {
+    #[allow(unused_imports)] // WTF?
+    use crate::prelude::*;
+
     #[test]
     #[cfg(feature = "std")]
     fn bitcast_map_width_doubles() {
