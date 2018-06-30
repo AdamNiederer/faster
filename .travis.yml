@@ -27,7 +27,7 @@ matrix:
 install:
 script:
   - cat /proc/cpuinfo
-  - bash -c "cargo $RUN --verbose --features \"no-std\""
   - bash -c "cargo $RUN --verbose"
+  - bash -c "cargo $RUN --verbose --features \"std\""
 notifications:
   email: false
