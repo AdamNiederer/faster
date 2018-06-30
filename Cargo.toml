@@ -15,11 +15,11 @@ repository = "https://github.com/AdamNiederer/faster"
 readme = "README.org"
 
 [dependencies]
-# stdsimd = {path = "/home/adam/Programs/stdsimd/coresimd"}
 vektor = {git = "https://github.com/AdamNiederer/vektor", branch = "master"}
 
 [features]
-no-std = []
+default = ["std"]
+std = []
 
 [dev-dependencies]
 

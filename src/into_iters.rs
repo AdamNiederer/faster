@@ -44,7 +44,7 @@ pub trait IntoSIMDRefMutIterator<'a> {
 macro_rules! impl_array_intos {
     ($($el:ty, $vec:ty),*) => {
         $(
-            #[cfg(not(feature = "no-std"))]
+            #[cfg(feature = "std")]
             impl IntoSIMDIterator for Vec<$el> {
                 type Iter = SIMDIter<Self>;
 

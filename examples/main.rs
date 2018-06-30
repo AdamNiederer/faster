@@ -8,7 +8,7 @@
 extern crate faster;
 use faster::*;
 
-#[cfg(not(feature = "no-std"))]
+#[cfg(feature = "std")]
 fn main() {
     let lots_of_84s = (&[-10i8; 33][..]).simd_iter(i8s(0))
         .simd_map(|v| i8s(9) * v.abs().be_i8s() - i8s(4) - i8s(2))
@@ -40,5 +40,5 @@ fn main() {
     println!("{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n", lots_of_84s, lots_of_3s, lots_of_3s_sc, filled_u8s, filled_u8s.len(), reduced, strided);
 }
 
-#[cfg(feature = "no-std")]
+#[cfg(not(feature = "std"))]
 fn main() {}

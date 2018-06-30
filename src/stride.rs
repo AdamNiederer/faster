@@ -65,7 +65,7 @@ pub trait Stride<A> where A : SIMDArray {
     /// If you want to collect into something else than `Vec`, you can use the
     /// [`stride_into`](#method.stride_into).
     #[inline(always)]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn stride(&self, count: usize, default: &[<A as SIMDObject>::Vector]) -> Vec<PackedStride<A>> {
         self.stride_into(count, default)
     }

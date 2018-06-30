@@ -7,7 +7,7 @@ mod tests {
     use faster::*;
 
     #[test]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn in_place_mutation() {
         let test = |mut vec: Vec<f32>| {
             let mut scl = vec.clone();
