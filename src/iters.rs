@@ -343,7 +343,7 @@ macro_rules! impl_iter {
     }
 }
 
-#[cfg(not(feature = "no-std"))]
+#[cfg(feature = "std")]
 impl_iter!(Vec<S>, ('a, S, V) where S : Packable<Vector = V>, V : Packed<Scalar = S>);
 impl_iter!(&'a [S], ('a, S, V) where S : Packable<Vector = V>, V : Packed<Scalar = S>);
 impl_iter!(&'a mut [S], ('a, S, V) where S : Packable<Vector = V>, V : Packed<Scalar = S>);
@@ -604,7 +604,7 @@ impl<'a, A, B, I, F> SIMDIterator for SIMDMap<I, F>
 /// collection of scalars.
 pub trait IntoScalar<T> : SIMDObject where T : Packable {
     /// Take an iterator of SIMD vectors, and store them in-order in a Vec.
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn scalar_collect(&mut self) -> Vec<T>;
 
     /// Take an iterator of SIMD vectors and store them in-order in `fill`.
@@ -612,7 +612,7 @@ pub trait IntoScalar<T> : SIMDObject where T : Packable {
 
     /// Take an iterator of SIMD vectors, and store them in-order in a Vec,
     /// including possibly redundant elements at the end of the iterator.
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn scalar_collect_all(&mut self) -> Vec<T>;
 
     /// Take an iterator of SIMD vectors and store them in-order in `fill`,
@@ -624,7 +624,7 @@ impl<'a, T, I> IntoScalar<T> for I
     where I : SIMDIterator<Scalar = T>, I::Vector : Packed<Scalar = T>, T : Packable {
 
     #[inline(always)]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn scalar_collect(&mut self) -> Vec<Self::Scalar> {
         let mut ret = Vec::with_capacity((self.len() + 1) * self.width());
         let mut offset = 0;
@@ -689,7 +689,7 @@ impl<'a, T, I> IntoScalar<T> for I
     }
 
     #[inline(always)]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn scalar_collect_all(&mut self) -> Vec<Self::Scalar> {
         let mut ret = Vec::with_capacity((self.len() + 1) * self.width());
 
@@ -719,7 +719,7 @@ impl<'a, T, I> IntoScalar<T> for I
 
 mod tests {
     #[test]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn bitcast_map_width_doubles() {
         let y = [1, 2, 3, 4, 5i64].simd_iter(i64s(0))
             .simd_map(|v| v.to_le().be_u32s())
@@ -729,7 +729,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn bitcast_map_width_quadruples() {
         let y = [1, 2, 3, 4, 5i64].simd_iter(i64s(0))
             .simd_map(|v| v.to_le().be_u16s())
@@ -740,7 +740,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn bitcast_map_width_octuples() {
         let y = [1, 2, 3, 4, 5i64].simd_iter(i64s(0))
             .simd_map(|v| v.to_le().be_u8s())

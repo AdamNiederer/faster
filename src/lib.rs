@@ -48,10 +48,10 @@
 //! extern crate faster;
 //! use faster::*;
 //!
-//! # #[cfg(feature = "no-std")]
+//! # #[cfg(not(feature = "std"))]
 //! # fn main() { }
 //!
-//! # #[cfg(not(feature = "no-std"))]
+//! # #[cfg(feature = "std")]
 //! # fn main() {
 //! let lots_of_10s = [-10i8; 3000].simd_iter(i8s(0))
 //!    .simd_map(|v| v.abs())
@@ -112,10 +112,10 @@
 //! extern crate faster;
 //! use faster::*;
 //!
-//! # #[cfg(feature = "no-std")]
+//! # #[cfg(not(feature = "std"))]
 //! # fn main() { }
 //!
-//! # #[cfg(not(feature = "no-std"))]
+//! # #[cfg(feature = "std")]
 //! # fn main() {
 //! let sevens = ([4i32; 200].simd_iter(i32s(0)), [3i32; 200].simd_iter(i32s(0)))
 //!     .zip()
@@ -137,10 +137,10 @@
 //! extern crate faster;
 //! use faster::*;
 //!
-//! # #[cfg(feature = "no-std")]
+//! # #[cfg(not(feature = "std"))]
 //! # fn main() { }
 //!
-//! # #[cfg(not(feature = "no-std"))]
+//! # #[cfg(feature = "std")]
 //! # fn main() {
 //!     // Computes the determinant of matrices arranged as [a, b, c, d, a, b, c...]
 //!     let slice: &[f32] = &[1.0f32; 1024];
@@ -163,10 +163,10 @@
 //! extern crate faster;
 //! use faster::*;
 //!
-//! # #[cfg(feature = "no-std")]
+//! # #[cfg(not(feature = "std"))]
 //! # fn main() { }
 //!
-//! # #[cfg(not(feature = "no-std"))]
+//! # #[cfg(feature = "std")]
 //! # fn main() {
 //! let mut flip = true;
 //! let impure = [1i8; 3000].simd_iter(i8s(0))
@@ -199,7 +199,7 @@
 #![cfg_attr(test, feature(test))]
 #![feature(rust_2018_preview, stdsimd)]
 // , mmx_target_feature, sse4a_target_feautre, tbm_target_feature
-#[cfg(feature = "no-std")]
+#[cfg(not(feature = "std"))]
 pub use ::core as std;
 
 #[cfg(test)] extern crate test;
@@ -225,7 +225,7 @@ mod tests {
     use test::{Bencher, black_box};
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -234,7 +234,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn nop_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -243,7 +243,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn map_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -330,7 +330,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn for_simd(b: &mut Bencher) {
         b.iter(|| {
             let mut out = vec![0f32; 1024];
@@ -369,7 +369,7 @@ mod tests {
 
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn map_uneven_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -380,7 +380,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn map_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -419,7 +419,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn determinant3_simd(b: &mut Bencher) {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
@@ -433,7 +433,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn determinant3_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -444,7 +444,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn determinant2_simd(b: &mut Bencher) {
         // TODO: Why is this so slow? Cache locality?
         b.iter(|| {
@@ -457,7 +457,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn determinant2_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -468,7 +468,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn zip_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -482,7 +482,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn zip_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -493,7 +493,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn zip_nop_simd(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -504,7 +504,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn zip_nop_scalar(b: &mut Bencher) {
         b.iter(|| {
             black_box(
@@ -563,7 +563,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn stride_zip_naive(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
@@ -574,7 +574,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn stride_zip(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {

@@ -183,7 +183,7 @@ mod tests {
     use test::{Bencher, black_box};
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_two(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
@@ -194,7 +194,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_four(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
@@ -205,7 +205,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_two_16(b: &mut Bencher) {
         let a = [0u16; 4096];
         b.iter(|| {
@@ -216,7 +216,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_four_16(b: &mut Bencher) {
         let a = [0u16; 4096];
         b.iter(|| {
@@ -227,7 +227,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_two_32(b: &mut Bencher) {
         let a = [0u32; 4096];
         b.iter(|| {
@@ -238,7 +238,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_four_32(b: &mut Bencher) {
         let a = [0u32; 4096];
         b.iter(|| {
@@ -249,7 +249,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_four_naiive(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
@@ -259,7 +259,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_two_naiive(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
@@ -269,7 +269,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_four_naiive_16(b: &mut Bencher) {
         let a = [0u16; 4096];
         b.iter(|| {
@@ -279,7 +279,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_two_naiive_16(b: &mut Bencher) {
         let a = [0u16; 4096];
         b.iter(|| {
@@ -289,7 +289,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_four_naiive_32(b: &mut Bencher) {
         let a = [0u32; 4096];
         b.iter(|| {
@@ -299,7 +299,7 @@ mod tests {
     }
 
     #[bench]
-    #[cfg(not(feature = "no-std"))]
+    #[cfg(feature = "std")]
     fn destride_two_naiive_32(b: &mut Bencher) {
         let a = [0u32; 4096];
         b.iter(|| {
