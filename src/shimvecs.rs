@@ -60,54 +60,104 @@ macro_rules! impl_packed {
             }
 
             #[inline(always)]
-            pub fn extract(self, idx: u32) -> $el {
-                self.data[idx as usize]
+            pub fn extract(self, idx: usize) -> $el {
+                self.data[idx]
             }
 
             #[inline(always)]
-            pub unsafe fn extract_unchecked(self, idx: u32) -> $el {
+            pub unsafe fn extract_unchecked(self, idx: usize) -> $el {
                 // Maintain unsafe API with stdsimd
-                self.data[idx as usize]
+                self.data[idx]
             }
 
             #[inline(always)]
-            pub fn replace(mut self, idx: u32, val: $el) -> $vec {
-                self.data[idx as usize] = val;
+            pub fn replace(mut self, idx: usize, val: $el) -> $vec {
+                self.data[idx] = val;
                 self
             }
 
             #[inline(always)]
-            pub unsafe fn replace_unchecked(mut self, idx: u32, val: $el) -> $vec {
+            pub unsafe fn replace_unchecked(mut self, idx: usize, val: $el) -> $vec {
                 // Maintain unsafe API with stdsimd
-                self.data[idx as usize] = val;
+                self.data[idx] = val;
                 self
             }
 
             #[inline(always)]
             pub fn store(self, slice: &mut [$el], offset: usize) {
-                assert!(slice[offset..].len() >= $sz);
+                assert!(slice.len() >= $sz);
                 unsafe { self.store_unchecked(slice, offset) }
+            }
+
+            #[inline(always)]
+            pub fn store_unaligned(self, slice: &mut [$el]) {
+                assert!(slice.len() >= $sz);
+                unsafe { self.store_unchecked(slice, 0) }
             }
 
             #[inline(always)]
             pub unsafe fn store_unchecked(self, slice: &mut [$el], offset: usize) {
                 copy_nonoverlapping(
                     &self as *const $vec as *const u8,
-                    slice.get_unchecked_mut(offset) as *mut $el as *mut u8,
+                    slice[offset..].as_mut_ptr() as *mut u8,
+                    size_of::<$vec>());
+            }
+
+            // TODO: Actually check alignment
+            #[inline(always)]
+            pub unsafe fn store_aligned_unchecked(self, slice: &mut [$el]) {
+                copy_nonoverlapping(
+                    &self as *const $vec as *const u8,
+                    slice.as_mut_ptr() as *mut u8,
+                    size_of::<$vec>());
+            }
+
+            #[inline(always)]
+            pub unsafe fn store_unaligned_unchecked(self, slice: &mut [$el]) {
+                copy_nonoverlapping(
+                    &self as *const $vec as *const u8,
+                    slice.as_mut_ptr() as *mut u8,
                     size_of::<$vec>());
             }
 
             #[inline(always)]
             pub fn load(slice: &[$el], offset: usize) -> $vec {
-                assert!(slice[offset..].len() >= $sz);
+                assert!(slice.len() >= $sz);
                 unsafe { $vec::load_unchecked(slice, offset) }
+            }
+
+            #[inline(always)]
+            pub fn load_unaligned(slice: &[$el]) -> $vec {
+                assert!(slice.len() >= $sz);
+                unsafe { $vec::load_unchecked(slice, 0) }
             }
 
             #[inline(always)]
             pub unsafe fn load_unchecked(slice: &[$el], offset: usize) -> $vec {
                 let mut x = $vec::splat(0 as $el);
                 copy_nonoverlapping(
-                    slice.get_unchecked(offset) as *const $el as *const u8,
+                    slice[offset..].as_ptr() as *const u8,
+                    &mut x as *mut $vec as *mut u8,
+                    size_of::<$vec>());
+                x
+            }
+
+            // TODO: Actually check alignment
+            #[inline(always)]
+            pub unsafe fn load_aligned_unchecked(slice: &[$el]) -> $vec {
+                let mut x = $vec::splat(0 as $el);
+                copy_nonoverlapping(
+                    slice.as_ptr() as *const u8,
+                    &mut x as *mut $vec as *mut u8,
+                    size_of::<$vec>());
+                x
+            }
+
+            #[inline(always)]
+            pub unsafe fn load_unaligned_unchecked(slice: &[$el]) -> $vec {
+                let mut x = $vec::splat(0 as $el);
+                copy_nonoverlapping(
+                    slice.as_ptr() as *const u8,
                     &mut x as *mut $vec as *mut u8,
                     size_of::<$vec>());
                 x
