@@ -59,22 +59,16 @@ impl<T> SIMDZippedIterable for StrideZip<T> where T : SIMDIterator, T::Vector : 
         (self.iter.vector_pos() - (self.base / self.width())) / 2
     }
 
-    fn vector_inc(&mut self) {
-        self.iter.vector_inc();
-        self.iter.vector_inc();
+    fn scalar_len(&self) -> usize {
+        self.iter.scalar_len() / 2
     }
 
-    fn scalar_inc(&mut self) {
-        self.iter.scalar_inc();
-        self.iter.scalar_inc();
+    fn advance(&mut self, amount: usize) {
+        self.iter.advance(2 * amount);
     }
 
     fn default(&self) -> Self::Vectors {
         (T::Vector::default(), T::Vector::default())
-    }
-
-    fn finalize(&mut self) {
-        self.iter.scalar_inc();
     }
 }
 
