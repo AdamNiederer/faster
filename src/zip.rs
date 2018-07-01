@@ -5,7 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::iters::{SIMDIterator, SIMDIterable, SIMDObject, UnsafeIterator};
+use crate::iters::{SIMDIterator, SIMDIterable, SIMDObject, UnsafeIterator, SIMDSized};
 use crate::vecs::{Packed, Packable};
 
 /// A macro which takes a number n and an expression, and returns a tuple
@@ -74,19 +74,31 @@ pub trait SIMDZippedIterable : SIMDZippedObject + ExactSizeIterator<Item = <Self
     fn scalar_pos(&self) -> usize;
 
     /// Return the current position of this iterator, measured in vectors.
-    fn vector_pos(&self) -> usize;
+    fn vector_pos(&self) -> usize {
+        self.scalar_pos() / self.width()
+    }
 
-    /// Advance the iterable by one vector.
-    fn vector_inc(&mut self);
+    /// Return the length of this iterator, measured in scalars.
+    fn scalar_len(&self) -> usize {
+        <Self as ExactSizeIterator>::len(self)
+    }
 
-    /// Advance the iterable by one scalar.
-    fn scalar_inc(&mut self);
+    /// Return the length of this iterator, measured in vectors.
+    fn vector_len(&self) -> usize {
+        self.scalar_len() / self.width()
+    }
+
+    /// Advance the iterable by `amount` scalars.
+    fn advance(&mut self, amount: usize);
+
+    /// Advance the iterable such that it procudes no more items.
+    fn finalize(&mut self) {
+        let end = self.scalar_len() - self.scalar_pos();
+        self.advance(end);
+    }
 
     /// Return the default vector for this iterable.
     fn default(&self) -> Self::Vectors;
-
-    /// Advance the iterable such that it procudes no more items.
-    fn finalize(&mut self);
 
     // #[inline(always)]
     // /// Create a an iterator over the remaining scalar elements in this iterator
@@ -274,28 +286,13 @@ macro_rules! impl_iter_zip {
             }
 
             #[inline(always)]
-            fn vector_pos(&self) -> usize {
-                self.iters.0.vector_pos()
-            }
-
-            #[inline(always)]
-            fn vector_inc(&mut self) {
-                self.iters.0.vector_inc();
-            }
-
-            #[inline(always)]
-            fn scalar_inc(&mut self) {
-                self.iters.0.scalar_inc();
+            fn advance(&mut self, amount: usize) {
+                self.iters.0.advance(amount);
             }
 
             #[inline(always)]
             fn default(&self) -> Self::Vectors {
                 (self.iters.0.default(), $(self.iters.$n.default()),*)
-            }
-
-            #[inline(always)]
-            fn finalize(&mut self) {
-                self.iters.0.finalize();
             }
         }
     );
@@ -325,6 +322,19 @@ impl<I, F, A> SIMDObject for SIMDZipMap<I, F>
     type Scalar = A::Scalar;
 }
 
+impl<I, F, A> SIMDSized for SIMDZipMap<I, F>
+    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+    /// Return the length of this iterator, measured in scalars.
+    fn scalar_len(&self) -> usize {
+        self.iter.scalar_len()
+    }
+
+    /// Return the length of this iterator, measured in vectors.
+    fn vector_len(&self) -> usize {
+        self.iter.vector_len()
+    }
+}
+
 impl<I, F, A> SIMDIterable for SIMDZipMap<I, F>
     where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
     #[inline(always)]
@@ -333,29 +343,14 @@ impl<I, F, A> SIMDIterable for SIMDZipMap<I, F>
     }
 
     #[inline(always)]
-    fn vector_pos(&self) -> usize {
-        self.iter.vector_pos()
-    }
-
-    #[inline(always)]
-    fn vector_inc(&mut self) {
-        self.iter.vector_inc()
-    }
-
-    #[inline(always)]
-    fn scalar_inc(&mut self) {
-        self.iter.scalar_inc()
+    fn advance(&mut self, amount: usize) {
+        self.iter.advance(amount)
     }
 
     #[inline(always)]
     fn default(&self) -> Self::Vector {
         // TODO: Is there a more sane return value (without invoking the closure)?
         <Self::Vector as Packed>::default()
-    }
-
-    #[inline(always)]
-    fn finalize(&mut self) {
-        self.iter.finalize()
     }
 }
 

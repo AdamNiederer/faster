@@ -36,5 +36,4 @@ mod tests {
         let sum = vec.simd_iter(u32s(0u32)).simd_reduce(u32s(0u32), |acc, x| acc + x).sum();
         assert_eq!(sum, 2 * 129);
     }
-
 }

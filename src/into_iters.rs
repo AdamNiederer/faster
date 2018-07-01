@@ -6,6 +6,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::iters::{SIMDIter, SIMDIterator, SIMDObject};
+#[allow(unused_imports)] // Remove for specialization
+use crate::iters::SIMDAdapter;
 use crate::vecs::*;
 
 /// A trait which transforms a contiguous collection into an owned stream of
@@ -123,3 +125,18 @@ impl_array_intos!(u8, u8s,
                   u64, u64s,
                   i64, i64s,
                   f64, f64s);
+
+// TODO: Specialization
+// impl<I, S> IntoSIMDIterator for I where I : ExactSizeIterator + Iterator<Item = S>, S : Packable {
+//     type Iter = SIMDAdapter<Self, S::Vector>;
+
+//     #[inline(always)]
+//     fn into_simd_iter(self, default: S::Vector) -> Self::Iter {
+//         SIMDAdapter {
+//             iter: self,
+//             position: 0,
+//             default: default,
+//             scratch: default
+//         }
+//     }
+// }

@@ -27,24 +27,26 @@ pub trait SIMDObject : Sized {
 
 /// An iterator which automatically packs the values it iterates over into SIMD
 /// vectors.
-pub trait SIMDIterable : SIMDObject + ExactSizeIterator<Item = <Self as SIMDObject>::Vector> {
+pub trait SIMDIterable : SIMDObject + SIMDSized + ExactSizeIterator<Item = <Self as SIMDObject>::Vector> {
     /// Return the current position of this iterator, measured in scalars
     fn scalar_pos(&self) -> usize;
 
     /// Return the current position of this iterator, measured in vectors.
-    fn vector_pos(&self) -> usize;
+    fn vector_pos(&self) -> usize {
+        self.scalar_pos() / self.width()
+    }
 
-    /// Advance the iterable by one vector.
-    fn vector_inc(&mut self);
+    /// Advance the iterable by `amount` scalars.
+    fn advance(&mut self, amount: usize);
 
-    /// Advance the iterable by one scalar.
-    fn scalar_inc(&mut self);
+    /// Advance the iterable such that it procudes no more items.
+    fn finalize(&mut self) {
+        let end = self.scalar_len() - self.scalar_pos();
+        self.advance(end);
+    }
 
     /// Return the default vector for this iterable.
     fn default(&self) -> Self::Vector;
-
-    /// Advance the iterable such that it procudes no more items.
-    fn finalize(&mut self);
 
     #[inline(always)]
     /// Create a an iterator over the remaining scalar elements in this iterator
@@ -71,8 +73,9 @@ pub trait SIMDIterable : SIMDObject + ExactSizeIterator<Item = <Self as SIMDObje
 /// vectors natively.
 pub trait SIMDIterator : SIMDIterable {
     /// Pack and return a partially full vector containing up to the next
-    /// `self.width()` of the iterator, or None if no elements are left.
-    /// Elements which are not filled are instead initialized to default.
+    /// `self.width()` of the iterator, or None if no elements are left,
+    /// and the number of elements which were not filled. Elements which are
+    /// not filled are instead initialized to default.
     fn end(&mut self) -> Option<(Self::Vector, usize)>;
 
     #[inline(always)]
@@ -162,26 +165,34 @@ pub trait SIMDIterator : SIMDIterable {
     }
 }
 
+/// A trait defining a SIMD iterator over a mutable blob of primitive data
 pub trait SIMDIteratorMut : SIMDIterator {
-    #[inline(always)]
     /// Pack and run `func` over the iterator, modifying each element in-place.
     fn simd_for_each<F>(&mut self, func: F)
         where F : FnMut(&mut Self::Vector) -> ();
 }
 
-pub trait SIMDArray : SIMDObject {
-    fn load(&self, offset: usize) -> Self::Vector;
-    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector;
-    fn load_scalar(&self, offset: usize) -> Self::Scalar;
-    unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar;
-
+/// A trait defining a sized blob of primitive data
+pub trait SIMDSized : SIMDObject {
     /// Return the length of this iterator, measured in scalars.
     fn scalar_len(&self) -> usize;
 
     /// Return the length of this iterator, measured in vectors.
-    fn vector_len(&self) -> usize;
+    fn vector_len(&self) -> usize {
+        self.scalar_len() / self.width()
+    }
 }
 
+/// A trait defining a random-access blob of data which can be loaded via SIMD
+pub trait SIMDArray : SIMDObject + SIMDSized {
+    fn load(&self, offset: usize) -> Self::Vector;
+    unsafe fn load_unchecked(&self, offset: usize) -> Self::Vector;
+    fn load_scalar(&self, offset: usize) -> Self::Scalar;
+    unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar;
+}
+
+/// A trait defining a random-access mutable blob of data which can be loaded
+/// and stored to via SIMD.
 pub trait SIMDArrayMut : SIMDArray {
     fn store(&mut self, value: Self::Vector, offset: usize);
     unsafe fn store_unchecked(&mut self, value: Self::Vector, offset: usize);
@@ -203,6 +214,95 @@ pub struct SIMDIter<A : SIMDArray> {
 pub struct SIMDMap<I, F> where I : SIMDIterable {
     pub iter: I,
     pub func: F,
+}
+
+/// An iterator which packs an iterator of scalars into an iterator of vectors.
+/// Cannot take advantage of vectorized loads, so it's very slow to gather data!
+#[derive(Clone)]
+pub struct SIMDAdapter<I, V> where I : ExactSizeIterator<Item = V::Scalar>, V : Packed {
+    pub iter: I,
+    pub scratch: V,
+    pub default: V,
+    pub position: usize,
+}
+
+impl<I, V> SIMDObject for SIMDAdapter<I, V> where I : ExactSizeIterator<Item = V::Scalar>, V : Packed {
+    type Scalar = V::Scalar;
+    type Vector = V;
+}
+
+impl<I, V> Iterator for SIMDAdapter<I, V> where I : ExactSizeIterator<Item = V::Scalar>, V : Packed {
+    type Item = V;
+
+    #[inline(always)]
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.position + self.width() <= self.scalar_len() {
+            // Our iterator has at least one vector's worth of elements, so load
+            // them all into our vector
+            for offset in 0..self.width() {
+                unsafe {
+                    self.scratch = self.scratch.replace_unchecked(offset, self.iter.next().unwrap());
+                }
+            }
+            let width = self.width(); // Appease borrow checker
+            self.advance(width);
+            Some(self.scratch)
+        } else {
+            None
+        }
+    }
+}
+
+impl<I, V> SIMDIterator for SIMDAdapter<I, V> where I : ExactSizeIterator<Item = V::Scalar>, V : Packed {
+    fn end(&mut self) -> Option<(Self::Vector, usize)> {
+        if self.position < self.scalar_len() {
+            // This is the last vector we can load, so we should load it
+            // backwards and use the default vector to overwrite blank spots
+            self.scratch = self.default;
+            let mut offset = self.width() - 1;
+            while let Some(item) = self.iter.next() {
+                unsafe {
+                    self.scratch = self.scratch.replace_unchecked(offset, item);
+                }
+                offset -= 1;
+            }
+            self.finalize();
+            Some((self.scratch, offset))
+        } else {
+            None
+        }
+    }
+}
+
+impl<I, V> ExactSizeIterator for SIMDAdapter<I, V> where I : ExactSizeIterator<Item = V::Scalar>, V : Packed {
+    #[inline(always)]
+    fn len(&self) -> usize {
+        self.iter.len() / self.width()
+    }
+}
+
+impl<I, V> SIMDSized for SIMDAdapter<I, V> where I : ExactSizeIterator<Item = V::Scalar>, V : Packed {
+    #[inline(always)]
+    fn scalar_len(&self) -> usize {
+        self.iter.len()
+    }
+}
+
+impl<I, V> SIMDIterable for SIMDAdapter<I, V> where I : ExactSizeIterator<Item = V::Scalar>, V : Packed {
+    #[inline(always)]
+    fn scalar_pos(&self) -> usize {
+        self.position
+    }
+
+    #[inline(always)]
+    fn advance(&mut self, amount: usize) {
+        self.position += amount
+    }
+
+    #[inline(always)]
+    fn default(&self) -> Self::Vector {
+        self.default
+    }
 }
 
 impl<'a, S, V> SIMDArrayMut for &'a mut [S] where S : 'a + Packable<Vector = V>, V : Packed<Scalar = S> {
@@ -241,7 +341,7 @@ impl<T> Iterator for Unpacked<T> where T : SIMDIterable + SIMDArray {
     fn next(&mut self) -> Option<Self::Item> {
         if self.iter.scalar_pos() < self.iter.scalar_len() {
             let ret = unsafe { self.iter.load_scalar_unchecked(self.iter.scalar_pos()) };
-            self.iter.scalar_inc();
+            self.iter.advance(1);
             Some(ret)
         } else {
             None
@@ -329,15 +429,12 @@ macro_rules! impl_iter {
                 debug_assert!(offset < self.len());
                 *self.get_unchecked(offset)
             }
+        }
 
+        impl< $($genera),* > SIMDSized for $name $($pred )* {
             #[inline(always)]
             fn scalar_len(&self) -> usize {
                 self.len()
-            }
-
-            #[inline(always)]
-            fn vector_len(&self) -> usize {
-                self.len() / self.width()
             }
         }
     }
@@ -367,7 +464,8 @@ impl<A> Iterator for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Sca
     fn next(&mut self) -> Option<Self::Item> {
         if self.position + self.width() <= self.scalar_len() {
             let ret = unsafe { self.load_unchecked(self.position) };
-            self.vector_inc();
+            let width = self.width(); // Appease borrow checker
+            self.advance(width);
             Some(ret)
         } else {
             None
@@ -395,15 +493,12 @@ impl<A> SIMDArray for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Sc
     unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
         self.data.load_scalar_unchecked(offset)
     }
+}
 
+impl<A> SIMDSized for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A::Scalar : Packable {
     #[inline(always)]
     fn scalar_len(&self) -> usize {
         self.data.scalar_len()
-    }
-
-    #[inline(always)]
-   fn vector_len(&self) -> usize {
-        self.data.vector_len()
     }
 }
 
@@ -414,28 +509,13 @@ impl<A> SIMDIterable for SIMDIter<A> where A : SIMDArray, A::Vector : Packed, A:
     }
 
     #[inline(always)]
-    fn vector_pos(&self) -> usize {
-        self.scalar_pos() / self.width()
-    }
-
-    #[inline(always)]
-    fn vector_inc(&mut self) {
-        self.position += self.width()
-    }
-
-    #[inline(always)]
-    fn scalar_inc(&mut self) {
-        self.position += 1
+    fn advance(&mut self, amount: usize) {
+        self.position += amount
     }
 
     #[inline(always)]
     fn default(&self) -> Self::Vector {
         self.default
-    }
-
-    #[inline(always)]
-    fn finalize(&mut self) {
-        self.position = self.scalar_len()
     }
 }
 
@@ -556,6 +636,14 @@ impl<A, B, I, F> SIMDObject for SIMDMap<I, F>
     }
 }
 
+impl<A, B, I, F> SIMDSized for SIMDMap<I, F>
+    where I : SIMDIterable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
+    #[inline(always)]
+    fn scalar_len(&self) -> usize {
+        self.iter.len()
+    }
+}
+
 impl<A, B, I, F> SIMDIterable for SIMDMap<I, F>
     where I : SIMDIterable, F : FnMut(I::Vector) -> A, A : Packed<Scalar = B>, B : Packable {
     #[inline(always)]
@@ -564,29 +652,14 @@ impl<A, B, I, F> SIMDIterable for SIMDMap<I, F>
     }
 
     #[inline(always)]
-    fn vector_pos(&self) -> usize {
-        self.iter.vector_pos()
-    }
-
-    #[inline(always)]
-    fn vector_inc(&mut self) {
-        self.iter.vector_inc()
-    }
-
-    #[inline(always)]
-    fn scalar_inc(&mut self) {
-        self.iter.scalar_inc()
+    fn advance(&mut self, amount: usize) {
+        self.iter.advance(amount);
     }
 
     #[inline(always)]
     fn default(&self) -> Self::Vector {
         // TODO: Is there a more sane return value (without invoking the closure)?
         <Self::Vector as Packed>::default()
-    }
-
-    #[inline(always)]
-    fn finalize(&mut self) {
-        self.iter.finalize()
     }
 }
 

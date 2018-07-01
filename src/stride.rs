@@ -8,7 +8,7 @@
 #![allow(unused_imports)]
 
 use crate::vecs::*;
-use crate::iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator};
+use crate::iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator, SIMDSized};
 use crate::std::iter::{Iterator, ExactSizeIterator, FromIterator};
 
 // For AVX2 gathers
@@ -40,7 +40,8 @@ impl<'a, A> Iterator for PackedStride<'a, A> where A : 'a + SIMDArray {
                     self.iter.load_scalar_unchecked(self.pos + self.stride * i)
                 });
             }
-            self.vector_inc();
+            let width = self.width(); // Appease borrow checker
+            self.advance(width);
             Some(ret)
         } else {
             None
@@ -317,15 +318,12 @@ impl<'a, A> SIMDArray for PackedStride<'a, A> where A : SIMDArray {
     unsafe fn load_scalar_unchecked(&self, offset: usize) -> Self::Scalar {
         self.iter.load_scalar_unchecked(self.base + offset * self.stride)
     }
+}
 
+impl<'a, A> SIMDSized for PackedStride<'a, A> where A : SIMDArray {
     #[inline(always)]
     fn scalar_len(&self) -> usize {
         self.iter.scalar_len() / self.stride
-    }
-
-    #[inline(always)]
-    fn vector_len(&self) -> usize {
-        self.iter.vector_len() / self.stride
     }
 }
 
@@ -340,19 +338,8 @@ impl<'a, A> SIMDIterable for PackedStride<'a, A> where A : SIMDArray {
         (self.pos - self.base) / (self.stride * self.width())
     }
 
-    #[inline(always)]
-    fn scalar_inc(&mut self) {
-        self.pos += self.stride
-    }
-
-    #[inline(always)]
-    fn vector_inc(&mut self) {
-        self.pos += self.stride * self.width()
-    }
-
-    #[inline(always)]
-    fn finalize(&mut self) {
-        self.pos = self.iter.scalar_len()
+    fn advance(&mut self, amount: usize) {
+        self.pos += amount * self.stride;
     }
 
     #[inline(always)]
