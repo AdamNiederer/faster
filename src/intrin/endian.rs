@@ -1,4 +1,4 @@
-use crate::vecs::*;
+use crate::arch::current::vecs::*;
 use crate::intrin::transmute::*;
 use crate::std::mem::transmute;
 

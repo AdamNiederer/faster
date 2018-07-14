@@ -1,10 +1,12 @@
-#![feature(test)]
+#![feature(test,stdsimd)]
 
 extern crate faster;
 
 #[cfg(test)]
 mod tests {
     use faster::*;
+//    use faster::arch::current::intrin::prelude::*;
+//    use faster::arch::current::intrin::sum::*;
 
     macro_rules! kernel_definite {
         ($name:ident, $native_type:ty, $simd_type:ident) => (

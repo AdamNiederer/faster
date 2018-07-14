@@ -7,7 +7,7 @@
 
 #![allow(unused_imports)]
 
-use crate::vecs::*;
+use crate::arch::current::vecs::*;
 use crate::iters::{SIMDIterable, SIMDIterator, SIMDArray, SIMDObject, UnsafeIterator, SIMDSized};
 use crate::std::iter::{Iterator, ExactSizeIterator, FromIterator};
 

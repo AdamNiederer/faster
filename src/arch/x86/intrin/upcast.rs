@@ -5,6 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::transmute::*;
 use crate::intrin::upcast::*;
@@ -583,8 +584,7 @@ impl Upcast<u64x8> for u32x16 {
 
 #[cfg(test)]
 mod tests {
-    use crate::vecs::*;
-    use crate::intrin::*;
+    use crate::prelude::*;
 
     #[test]
     fn upcast_i8s() {

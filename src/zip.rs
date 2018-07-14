@@ -6,6 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::iters::{SIMDIterator, SIMDIterable, SIMDObject, UnsafeIterator, SIMDSized};
+use crate::arch::current::vecs::*;
 use crate::vecs::{Packed, Packable};
 
 /// A macro which takes a number n and an expression, and returns a tuple

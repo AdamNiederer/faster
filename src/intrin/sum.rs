@@ -1,5 +1,5 @@
-use crate::vecs::*;
 use crate::std::ops::Add;
+use crate::vecs::*;
 use crate::intrin::upcast::Upcast;
 use crate::intrin::cmp::Cmp;
 use crate::intrin::abs::Abs;

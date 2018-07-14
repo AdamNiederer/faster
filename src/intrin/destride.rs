@@ -1,4 +1,3 @@
-use crate::vecs::*;
 use crate::intrin::merge::*;
 use crate::intrin::transmute::*;
 use crate::std::mem::transmute;

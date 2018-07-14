@@ -1,3 +1,4 @@
+use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
@@ -133,7 +134,7 @@ impl_packed_swizzle!(f64x2, u8x16, "ssse3", _mm_shuffle_epi8,
                      (0, 1));
 
 mod tests {
-    use super::*;
+    use crate::prelude::*;
 
     macro_rules! test_packed_swizzle {
         (($($vec:tt),*), ($($fn:tt),*)) => {

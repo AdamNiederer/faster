@@ -7,7 +7,7 @@
 
 // This file is machine-generated. See vec_patterns_gen.py for more info.
 
-use crate::vecs::*;
+use crate::arch::current::vecs::*;
 use crate::std::mem::transmute;
 use vektor::x86::*;
 

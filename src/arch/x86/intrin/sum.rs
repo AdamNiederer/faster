@@ -1,3 +1,4 @@
+use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
@@ -5,18 +6,9 @@ use crate::std::ops::Add;
 use crate::intrin::upcast::Upcast;
 use crate::intrin::cmp::Cmp;
 use crate::intrin::abs::Abs;
+use crate::intrin::sum::{Sum,UpcastSum};
 use crate::intrin::transmute::Transmute;
 
-pub trait Sum : Packed {
-    /// Return a scalar equivalent to the sum of all elements of this vector.
-    fn sum(&self) -> Self::Scalar;
-}
-
-pub trait UpcastSum :  {
-    /// Return a scalar equivalent to the sum of all elements of this vector,
-    /// but collect the result in an i64 rather than the vector's type.
-    fn sum_upcast(&self) -> i64;
-}
 
 // TODO: Specialization
 // impl<T> Sum for T where T : , T::Scalar : Add<T::Scalar, Output = T::Scalar>, T::Scalar : From<i8> {
@@ -298,7 +290,8 @@ impl_packed_sum!(i16x8);
 impl_packed_upcast_sum!();
 
 mod tests {
-    use super::*;
+    use crate::prelude::*;
+    use crate::arch::current::vecs::*;
 
     macro_rules! test_packed_sum_int {
         ($vec:tt, $el:tt, $name:ident) => {

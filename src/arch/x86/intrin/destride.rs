@@ -1,3 +1,4 @@
+use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
@@ -143,8 +144,8 @@ impl_destride!(i32x4, 0, 2);
 
 #[cfg(test)]
 mod tests {
-    use super::super::super::*;
-    use test::{Bencher, black_box};
+    use crate::prelude::*;
+    use test::*;
 
     #[bench]
     #[cfg(feature = "std")]
