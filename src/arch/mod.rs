@@ -1,5 +1,10 @@
+// We always want to compile shims because other implementations
+// might depend on them. However, we don't always want to make them
+// the default architecture. 
+#[macro_use] pub mod shim;
+
 #[cfg(target_feature = "sse")] pub mod x86;
-#[cfg(not(target_feature = "sse"))] pub mod shim;
+
 
 #[cfg(target_feature = "sse")] pub use self::x86 as current;
 #[cfg(not(target_feature = "sse"))] pub use self::shim as current;

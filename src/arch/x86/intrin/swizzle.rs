@@ -5,42 +5,6 @@ use crate::vektor::x86::*;
 use crate::intrin::transmute::*;
 use crate::std::mem::transmute;
 
-pub trait Swizzle {
-    /// Return a vector containing elements of self, but with even and odd
-    /// elements swapped in-place. For (n = 0, 2, ... Self::WIDTH), elements at
-    /// indices n and n + 1 are swapped.
-    ///
-    /// ```
-    /// extern crate faster;
-    /// use faster::*;
-    ///
-    /// # fn main() {
-    /// assert_eq!(u8s::interleave(2, 1).flip(), u8s::interleave(1, 2));
-    /// assert_eq!(u64s::interleave(2, 1).flip(), u64s::interleave(1, 2));
-    /// # }
-    /// ```
-    fn flip(&self) -> Self;
-}
-
-macro_rules! impl_packed_swizzle {
-    ($vec:tt, $uvec:tt, $feat:expr, $mmfn:tt, ($($c:expr),*), ($($a:expr, $b:expr),*)) => {
-        impl Swizzle for $vec {
-            #[cfg(not(target_feature = $feat))]
-            #[inline(always)]
-            fn flip(&self) -> Self {
-                $vec::new($(self.extract($b), self.extract($a)),*)
-            }
-
-            #[cfg(target_feature = $feat)]
-            #[inline(always)]
-            fn flip(&self) -> Self {
-                unsafe {
-                    transmute($mmfn(self.be_i8s(), $uvec::new($($c),*).be_i8s()))
-                }
-            }
-        }
-    }
-}
 
 impl_packed_swizzle!(u8x64, u8x64, "avx512-butnotyet", _mm512_permutexvar_epi8,
                      (1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14, 17, 16, 19, 18, 21, 20, 23, 22, 25, 24, 27, 26, 29, 28, 31, 30, 33, 32, 35, 34, 37, 36, 39, 38, 41, 40, 43, 42, 45, 44, 47, 46, 49, 48, 51, 50, 53, 52, 55, 54, 57, 56, 59, 58, 61, 60, 63, 62),

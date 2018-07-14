@@ -8,7 +8,6 @@ pub mod downcast;
 #[macro_use] pub mod eq;
 pub mod hadd;
 pub mod hsub;
-#[macro_use] pub mod macros;
 #[macro_use] pub mod merge;
 #[macro_use] pub mod popcnt;
 pub mod recip;
