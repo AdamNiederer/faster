@@ -8,7 +8,7 @@
 use crate::iters::{SIMDIter, SIMDIterator, SIMDObject};
 #[allow(unused_imports)] // Remove for specialization
 use crate::iters::SIMDAdapter;
-use crate::vecs::*;
+use crate::arch::current::vecs::*;
 
 /// A trait which transforms a contiguous collection into an owned stream of
 /// vectors.

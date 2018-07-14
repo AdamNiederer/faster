@@ -8,8 +8,9 @@
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::std::ops::BitXor;
-use crate::vecs::*;
 use crate::intrin::eq::*;
+use crate::arch::current::vecs::*;
+use crate::vecs::*;
 
 
 rust_fallback_eq! {
@@ -136,7 +137,8 @@ rust_fallback_eq! {
 }
 
 mod tests {
-    use super::*;
+    use crate::prelude::*;
+    use crate::arch::current::vecs::*;
 
     macro_rules! test_packed_eq {
         ($vec:tt, $el:tt, $mask:tt, $maskel:tt, $name:tt) => {

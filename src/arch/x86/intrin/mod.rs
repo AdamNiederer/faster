@@ -8,48 +8,54 @@
 #![allow(unused_imports)]
 
 mod abs;
-pub use self::abs::*;
+mod addsub;
 mod cmp;
-pub use self::cmp::*;
 mod destride;
-pub use self::destride::*;
 mod downcast;
-pub use self::downcast::*;
 mod endian;
-pub use self::endian::*;
 mod eq;
-pub use self::eq::*;
 mod hadd;
-pub use self::hadd::*;
 mod hsub;
-pub use self::hsub::*;
 mod merge;
-pub use self::merge::*;
 mod popcnt;
-pub use self::popcnt::*;
 mod recip;
-pub use self::recip::*;
 mod round;
-pub use self::round::*;
-mod sum;
-pub use self::rsqrt::*;
+pub mod sum;
 mod rsqrt;
-pub use self::sum::*;
 mod saturating_add;
-pub use self::saturating_add::*;
 mod saturating_hadd;
-pub use self::saturating_hadd::*;
 mod saturating_sub;
-pub use self::saturating_sub::*;
 mod saturating_hsub;
-pub use self::saturating_hsub::*;
 mod sqrt;
-pub use self::sqrt::*;
 mod transmute;
-pub use self::transmute::*;
 mod upcast;
-pub use self::upcast::*;
 
+
+// We use an internal prelude not to clutter the namespace when we import
+// from actual prelude. 
+pub mod prelude {
+    pub use super::abs::*;
+    pub use super::addsub::*;
+    pub use super::cmp::*;
+    pub use super::destride::*;
+    pub use super::downcast::*;
+    pub use super::endian::*;
+    pub use super::eq::*;
+    pub use super::hadd::*;
+    pub use super::hsub::*;
+    pub use super::merge::*;
+    pub use super::popcnt::*;
+    pub use super::recip::*;
+    pub use super::round::*;
+    pub use super::rsqrt::*;
+    pub use super::sum::*;
+    pub use super::saturating_add::*;
+    pub use super::saturating_hadd::*;
+    pub use super::saturating_hsub::*;
+    pub use super::saturating_sub::*;
+    pub use super::transmute::*;
+    pub use super::upcast::*;
+}
 
 //
 //mod abs;

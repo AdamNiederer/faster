@@ -1,3 +1,4 @@
+use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
@@ -80,7 +81,8 @@ impl_packed_swap_bytes!(i64x2, u8x16, "ssse3", _mm_shuffle_epi8,
 
 
 mod tests {
-    use super::*;
+    use crate::prelude::*;
+    use crate::arch::current::vecs::*;
 
     macro_rules! test_packed_swap_bytes {
         (($($vec:tt),*), ($($fn:tt),*)) => {

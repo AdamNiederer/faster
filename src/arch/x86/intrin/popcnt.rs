@@ -10,9 +10,9 @@ use crate::vektor::x86::*;
 use crate::intrin::sum::*;
 use crate::intrin::transmute::*;
 use crate::intrin::popcnt::*;
-use crate::intrin::sum::*;
-use crate::arch::x86::intrin::upcast::*;
-use crate::arch::x86::intrin::sum::UpcastSum;
+use crate::arch::current::intrin::upcast::*;
+use crate::intrin::sum::UpcastSum;
+use crate::arch::current::vecs::*;
 use crate::intrin::upcast::*;
 use crate::vecs::*;
 
@@ -74,7 +74,8 @@ impl_popcnt!(i64x8, popcnt512, i64x4, popcnt256, i64x2, popcnt128);
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::prelude::*;
+    use crate::arch::current::vecs::*;
 
     macro_rules! test_popcnt {
         (($($el:tt),*), ($($vec:tt),*), ($($fn:tt),*)) => (

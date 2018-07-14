@@ -205,22 +205,19 @@ pub use ::core as std;
 #[cfg(test)] extern crate test;
 extern crate vektor;
 
-mod shimvecs;
-
 #[macro_use] pub mod zip;
-pub mod vecs;
+#[macro_use] pub mod vecs;
 pub mod vec_patterns;
 pub mod iters;
 pub mod into_iters;
-#[macro_use]
-pub mod intrin;
-#[macro_use]
-pub mod arch;
+#[macro_use] pub mod intrin;
+#[macro_use] pub mod arch;
 pub mod prelude;
 pub mod stride_zip;
 pub mod stride;
-
 pub use crate::prelude::*;
+
+
 
 #[cfg(test)]
 mod tests {

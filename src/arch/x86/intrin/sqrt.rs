@@ -8,7 +8,8 @@
 use vektor::x86_64::*;
 use vektor::x86::*;
 use crate::intrin::sqrt::*;
-use crate::vecs::{u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2};
+use crate::arch::current::vecs::*;
+use crate::vecs::*;
 
 rust_fallback_impl! {
     impl Sqrt for f32x8 where "avx" {
@@ -36,8 +37,7 @@ rust_fallback_impl! {
 
 #[cfg(test)]
 mod tests {
-    use crate::vecs::*;
-    use crate::intrin::*;
+    use crate::prelude::*;
 
     #[test]
     fn sqrt_f64s() {
