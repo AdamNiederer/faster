@@ -15,7 +15,8 @@ repository = "https://github.com/AdamNiederer/faster"
 readme = "README.org"
 
 [dependencies]
-vektor = {git = "https://github.com/AdamNiederer/vektor", branch = "master"}
+vektor = { path="../vektor-gen/vektor"}
+#vektor = {git = "https://github.com/AdamNiederer/vektor", branch = "master"}
 
 [features]
 default = ["std"]
