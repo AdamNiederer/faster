@@ -8,31 +8,3 @@
 pub trait AddSub {
     fn addsub(&self, other: Self) -> Self;
 }
-
-// impl AddSub for f32x4 {
-//     #[inline(always)]
-//     fn addsub(&self, other: Self) -> Self {
-//         unsafe { _mm_addsub_ps(*self, other) }
-//     }
-// }
-
-// impl AddSub for f64x2 {
-//     #[inline(always)]
-//     fn addsub(&self, other: Self) -> Self {
-//         unsafe { _mm_addsub_pd(*self, other) }
-//     }
-// }
-
-// impl AddSub for f32x8 {
-//     #[inline(always)]
-//     fn addsub(&self, other: Self) -> Self {
-//         unsafe { _mm256_addsub_ps(*self, other) }
-//     }
-// }
-
-// impl AddSub for f64x4 {
-//     #[inline(always)]
-//     fn addsub(&self, other: Self) -> Self {
-//         unsafe { _mm256_addsub_pd(*self, other) }
-//     }
-// }

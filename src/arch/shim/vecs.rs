@@ -14,7 +14,7 @@ use crate::std::mem::{transmute, size_of};
 use crate::std::ptr::{copy_nonoverlapping};
 use crate::std::ops::{Mul, MulAssign, Div, DivAssign, Add, AddAssign, Sub, SubAssign, Shl, ShlAssign, Shr, ShrAssign, Rem, RemAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
 use crate::std::fmt::{Error, Debug, Formatter};
-use use crate::vecs::*;
+use crate::vecs::*;
 
 macro_rules! impl_packed {
     ($el:ident, $pvec:ident, $vec:ident, $sz:expr, [$($elname:ident),+]) => {
