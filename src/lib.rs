@@ -212,7 +212,10 @@ pub mod vecs;
 pub mod vec_patterns;
 pub mod iters;
 pub mod into_iters;
+#[macro_use]
 pub mod intrin;
+#[macro_use]
+pub mod arch;
 pub mod prelude;
 pub mod stride_zip;
 pub mod stride;

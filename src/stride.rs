@@ -15,7 +15,7 @@ use crate::std::iter::{Iterator, ExactSizeIterator, FromIterator};
 use crate::std::mem::transmute;
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
-use crate::intrin::Transmute;
+use crate::intrin::transmute::*;
 
 /// A slice-backed iterator which packs every nth element of its constituent
 /// elements into a vector.

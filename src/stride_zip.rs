@@ -1,6 +1,6 @@
 use crate::iters::{SIMDIterator};
 use crate::vecs::{Packed, Packable};
-use crate::intrin::Destride;
+use crate::intrin::destride::*;
 use crate::zip::{SIMDZippedIterable, SIMDZippedIterator, SIMDZippedObject};
 
 pub struct StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
