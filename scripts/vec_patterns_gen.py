@@ -1,9 +1,9 @@
-# This o is part of faster, the SIMD library for humans.
+# This file is part of faster, the SIMD library for humans.
 # Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
 
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
-# o, You can obtain one at http:#mozilla.org/MPL/2.0/.
+# file, You can obtain one at http:#mozilla.org/MPL/2.0/.
 
 # Who needs procedural macros when you have code generators?
 
@@ -15,18 +15,23 @@ newline = "\n"
 
 header = lambda imports: f"""
 
-// This o is part of faster, the SIMD library for humans.
+// This file is part of faster, the SIMD library for humans.
 // Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
 
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
-// o, You can obtain one at http://mozilla.org/MPL/2.0/.
+// file , You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// This o is machine-generated. See vec_patterns_gen.py for more inff.
+// THIS FILE IS MACHINE GENERATED.
+ 
+// See vec_patterns_gen.py for more information.
+
+#![allow(unused_imports)]
 
 use crate::arch::current::vecs::*;
 use crate::std::mem::transmute;
 use crate::vecs::*;
+
 {newline.join(imports)}
 
 const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -117,11 +122,13 @@ def generate_vec_patterns(arch, headers, els, vecs, lens, feats, blends, elsz, m
             # Generate ones & zeroes
             fprint(f"""
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {{
                 Self::splat(unsafe {{ transmute(0x{'F' * (s // 4)}{m}) }})
             }}
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {{
                 Self::splat(unsafe {{ transmute(0x{'0' * (s // 4)}{m}) }})
             }}""")

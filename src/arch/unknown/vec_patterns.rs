@@ -1,17 +1,22 @@
 
 
-// This o is part of faster, the SIMD library for humans.
+// This file is part of faster, the SIMD library for humans.
 // Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
 
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
-// o, You can obtain one at http://mozilla.org/MPL/2.0/.
+// file , You can obtain one at http://mozilla.org/MPL/2.0/.
 
-// This o is machine-generated. See vec_patterns_gen.py for more inff.
+// THIS FILE IS MACHINE GENERATED.
+ 
+// See vec_patterns_gen.py for more information.
+
+#![allow(unused_imports)]
 
 use crate::arch::current::vecs::*;
 use crate::std::mem::transmute;
 use crate::vecs::*;
+
 
 
 const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -82,11 +87,13 @@ impl Pattern for u8x16 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFu8) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x00u8) })
             }
@@ -143,11 +150,13 @@ impl Pattern for i8x16 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFu8) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x00u8) })
             }
@@ -196,11 +205,13 @@ impl Pattern for u16x8 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFu16) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x0000u16) })
             }
@@ -249,11 +260,13 @@ impl Pattern for i16x8 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFu16) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x0000u16) })
             }
@@ -298,11 +311,13 @@ impl Pattern for u32x4 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x00000000u32) })
             }
@@ -347,11 +362,13 @@ impl Pattern for i32x4 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x00000000u32) })
             }
@@ -396,11 +413,13 @@ impl Pattern for f32x4 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFFFFFu32) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x00000000u32) })
             }
@@ -443,11 +462,13 @@ impl Pattern for u64x2 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x0000000000000000u64) })
             }
@@ -490,11 +511,13 @@ impl Pattern for i64x2 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x0000000000000000u64) })
             }
@@ -537,11 +560,13 @@ impl Pattern for f64x2 {
     }
 
             /// Return a vector made entirely of ones.
+            #[inline(always)]
             fn ones() -> Self {
                 Self::splat(unsafe { transmute(0xFFFFFFFFFFFFFFFFu64) })
             }
 
             /// Return a vector made entirely of zeroes.
+            #[inline(always)]
             fn zeroes() -> Self {
                 Self::splat(unsafe { transmute(0x0000000000000000u64) })
             }
