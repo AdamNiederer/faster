@@ -6,7 +6,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::intrin::round::Round;
-use crate::std::arch::x86_64::{_MM_FROUND_TO_NEAREST_INT, _MM_FROUND_TRUNC};
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 

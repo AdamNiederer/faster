@@ -1,7 +1,5 @@
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
 use crate::intrin::merge::*;
 use crate::intrin::transmute::*;
 use crate::intrin::destride::*;

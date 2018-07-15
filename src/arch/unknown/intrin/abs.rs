@@ -7,9 +7,6 @@
 
 use crate::intrin::abs::Abs;
 
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
-use crate::vektor::x86::*;
 use crate::arch::current::vecs::*;
 use crate::std::mem::transmute;
 
