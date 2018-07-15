@@ -9,6 +9,7 @@
 
 use crate::arch::current::vecs::*;
 use crate::std::mem::transmute;
+use crate::vecs::*;
 use vektor::x86::*;
 
 /// Constructors which may be used to instantiate vectors with patterned data.
