@@ -337,6 +337,7 @@ impl<'a, A> SIMDIterable for PackedStride<'a, A> where A : SIMDArray {
         (self.pos - self.base) / (self.stride * self.width())
     }
 
+    #[inline(always)]
     fn advance(&mut self, amount: usize) {
         self.pos += amount * self.stride;
     }

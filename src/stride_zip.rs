@@ -51,22 +51,27 @@ impl<T> ExactSizeIterator for StrideZip<T> where T : SIMDIterator, T::Vector : D
 }
 
 impl<T> SIMDZippedIterable for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
+    #[inline(always)]
     fn scalar_pos(&self) -> usize {
         (self.iter.scalar_pos() - self.base) / 2
     }
 
+    #[inline(always)]
     fn vector_pos(&self) -> usize {
         (self.iter.vector_pos() - (self.base / self.width())) / 2
     }
 
+    #[inline(always)]
     fn scalar_len(&self) -> usize {
         self.iter.scalar_len() / 2
     }
 
+    #[inline(always)]
     fn advance(&mut self, amount: usize) {
         self.iter.advance(2 * amount);
     }
 
+    #[inline(always)]
     fn default(&self) -> Self::Vectors {
         (T::Vector::default(), T::Vector::default())
     }
@@ -74,7 +79,7 @@ impl<T> SIMDZippedIterable for StrideZip<T> where T : SIMDIterator, T::Vector : 
 
 impl<T> Iterator for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
     type Item = <Self as SIMDZippedObject>::Vectors;
-
+    
     fn next(&mut self) -> Option<Self::Item> {
         let first = self.iter.next()?;
         let second = self.iter.next();

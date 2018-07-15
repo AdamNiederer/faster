@@ -39,9 +39,8 @@ pub trait Eq : Packed {
     /// assert_eq!(u32s::halfs(1, 0).ne_mask(u32s(0)), u32s::halfs(0xFFFFFFFF, 0));
     /// # }
     /// ```
-    fn ne_mask(&self, other: Self) -> Self::Out {
-        self.eq_mask(other) ^ Self::Out::ones()
-    }
+    #[inline(always)]
+    fn ne_mask(&self, other: Self) -> Self::Out { self.eq_mask(other) ^ Self::Out::ones() }
 }
 
 

@@ -32,6 +32,7 @@ pub trait SIMDIterable : SIMDObject + SIMDSized + ExactSizeIterator<Item = <Self
     fn scalar_pos(&self) -> usize;
 
     /// Return the current position of this iterator, measured in vectors.
+    #[inline(always)]
     fn vector_pos(&self) -> usize {
         self.scalar_pos() / self.width()
     }
@@ -40,6 +41,7 @@ pub trait SIMDIterable : SIMDObject + SIMDSized + ExactSizeIterator<Item = <Self
     fn advance(&mut self, amount: usize);
 
     /// Advance the iterable such that it procudes no more items.
+    #[inline(always)]
     fn finalize(&mut self) {
         let end = self.scalar_len() - self.scalar_pos();
         self.advance(end);
@@ -178,6 +180,7 @@ pub trait SIMDSized : SIMDObject {
     fn scalar_len(&self) -> usize;
 
     /// Return the length of this iterator, measured in vectors.
+    #[inline(always)]
     fn vector_len(&self) -> usize {
         self.scalar_len() / self.width()
     }
