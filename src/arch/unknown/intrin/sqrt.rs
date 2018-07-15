@@ -20,22 +20,3 @@ rust_fallback_impl! {
         sqrt => __undefined(), [0, 1];
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::prelude::*;
-
-    #[test]
-    fn sqrt_f64s() {
-        assert_eq!(f64s(1.0).sqrt(), f64s(1.0));
-        assert!(f64s(9.0).sqrt().max(f64s(2.999)) == f64s(9.0).sqrt());
-        assert!(f64s(9.0).sqrt().min(f64s(3.001)) == f64s(9.0).sqrt());
-    }
-
-    #[test]
-    fn sqrt_f32s() {
-        assert_eq!(f32s(1.0).sqrt(), f32s(1.0));
-        assert!(f32s(9.0).sqrt().max(f32s(2.999)) == f32s(9.0).sqrt());
-        assert!(f32s(9.0).sqrt().min(f32s(3.001)) == f32s(9.0).sqrt());
-    }
-}

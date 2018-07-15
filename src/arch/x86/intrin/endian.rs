@@ -84,21 +84,6 @@ mod tests {
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 
-    macro_rules! test_packed_swap_bytes {
-        (($($vec:tt),*), ($($fn:tt),*)) => {
-            $(
-                #[test]
-                fn $fn() {
-                    let a = $vec::interleave(33u8 as <$vec as Packed>::Scalar,
-                                             92u8 as <$vec as Packed>::Scalar);
-                    let b = $vec::interleave((33u8 as <$vec as Packed>::Scalar).swap_bytes(),
-                                             (92u8 as <$vec as Packed>::Scalar).swap_bytes());
-                    assert_eq!(a.swap_bytes(), b);
-                }
-            )*
-        }
-    }
-
     test_packed_swap_bytes!((u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2),
                              (swap_bytes_u8x64, swap_bytes_u8x32, swap_bytes_u8x16, swap_bytes_i8x64, swap_bytes_i8x32, swap_bytes_i8x16, swap_bytes_u16x32, swap_bytes_u16x16, swap_bytes_u16x8, swap_bytes_i16x32, swap_bytes_i16x16, swap_bytes_i16x8, swap_bytes_u32x16, swap_bytes_u32x8, swap_bytes_u32x4, swap_bytes_i32x16, swap_bytes_i32x8, swap_bytes_i32x4, swap_bytes_u64x8, swap_bytes_u64x4, swap_bytes_u64x2, swap_bytes_i64x8, swap_bytes_i64x4, swap_bytes_i64x2));
 }

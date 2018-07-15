@@ -23,29 +23,6 @@ mod tests {
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 
-    macro_rules! test_packed_merge {
-        (($($vec:tt),*), ($($fn:ident),*)) => {
-            $(
-                #[test]
-                fn $fn() {
-                    let asc = 30i32 as <$vec as Packed>::Scalar;
-                    let bsc = 5i32 as <$vec as Packed>::Scalar;
-                    let a = $vec::splat(asc);
-                    let b = $vec::splat(bsc);
-                    assert_eq!(a.merge_interleaved(b), $vec::interleave(asc, bsc));
-                    assert_eq!(b.merge_interleaved(a), $vec::interleave(bsc, asc));
-
-                    assert_eq!(a.merge_halves(b), $vec::halfs(asc, bsc));
-                    assert_eq!(b.merge_halves(a), $vec::halfs(bsc, asc));
-
-                    for i in 0..$vec::WIDTH {
-                        assert_eq!(a.merge_partitioned(b, i), $vec::partition(asc, bsc, i));
-                        assert_eq!(b.merge_partitioned(a, i), $vec::partition(bsc, asc, i));
-                    }
-                }
-            )*
-        }
-    }
     // TODO: Which ones do we really need?
     test_packed_merge!(
         (u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, f32x4, u64x2, i64x2, f64x2),
