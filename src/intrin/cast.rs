@@ -74,3 +74,16 @@ pub trait Asu64s {
     /// Return a vector containing all elements of `self` cast to u64s.
     fn as_u64s(self) -> Self::Cast;
 }
+
+// macro_rules! impl_cast {
+//     ($trait:path, $from:ty, $to:ty, $name:ident, $rsname:ident) => (
+//         impl $trait for $from {
+//             type Cast = $to;
+
+//             #[inline(always)]
+//             fn $name(self) -> Self::Cast {
+//                 self.$rsname()
+//             }
+//         }
+//     );
+// }
