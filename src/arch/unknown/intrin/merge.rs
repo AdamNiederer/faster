@@ -1,9 +1,6 @@
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
-use crate::vec_patterns::*;
-use crate::intrin::transmute::*;
 use crate::intrin::merge::*;
-use crate::std::mem::transmute;
 
 
 // Will produce fallback implementations only, so we get away with __undefined. 
@@ -20,6 +17,8 @@ impl_packed_merge!(f64x2, u64x2, u64, __undefined, "__undefined", (0), (1), 0, 1
 
 
 mod tests {
+    #![allow(unused_imports)]
+
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 

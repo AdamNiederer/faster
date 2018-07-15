@@ -1,17 +1,14 @@
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
-use crate::std::ops::Add;
-use crate::intrin::upcast::Upcast;
-use crate::intrin::cmp::Cmp;
-use crate::intrin::abs::Abs;
 use crate::intrin::sum::{Sum,UpcastSum};
-use crate::intrin::transmute::Transmute;
 
 
 impl_packed_sum!(u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, u64x2, i64x2, f32x4, f64x2);
 impl_packed_upcast_sum!(u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, u64x2, i64x2, f32x4, f64x2);
 
 mod tests {
+    #![allow(unused_imports)]
+
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 

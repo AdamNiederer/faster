@@ -1,6 +1,3 @@
-use crate::intrin::merge::*;
-use crate::intrin::transmute::*;
-use crate::std::mem::transmute;
 
 
 pub trait Destride : Sized {

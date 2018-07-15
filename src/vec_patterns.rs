@@ -7,8 +7,8 @@
 
 // This file is machine-generated. See vec_patterns_gen.py for more info.
 
-use crate::vecs::*;
-
+use crate::vecs::*; 
+ 
 /// Constructors which may be used to instantiate vectors with patterned data.
 pub trait Pattern : Packed {
     /// Return a vector whose first `Self::WIDTH / 2` elements are `hi`, and

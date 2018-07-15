@@ -1,6 +1,4 @@
-use crate::arch::current::vecs::*;
-use crate::intrin::transmute::*;
-use crate::std::mem::transmute;
+
 
 pub trait Reendianize : Sized + Copy {
     /// Return a vector containing elements of `self` with switched endianness.

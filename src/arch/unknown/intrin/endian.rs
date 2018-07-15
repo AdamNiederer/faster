@@ -1,8 +1,6 @@
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::endian::*;
-use crate::intrin::transmute::*;
-use crate::std::mem::transmute;
 
 impl_packed_swap_bytes!(u8x16, u8x16, "__undefined", __undefined,
                         (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
@@ -31,6 +29,8 @@ impl_packed_swap_bytes!(i64x2, u8x16, "__undefined", __undefined,
 
 
 mod tests {
+    #![allow(unused_imports)]
+
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 

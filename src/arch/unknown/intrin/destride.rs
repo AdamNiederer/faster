@@ -1,9 +1,5 @@
 use crate::arch::current::vecs::*;
-use crate::vecs::*;
-use crate::intrin::merge::*;
-use crate::intrin::transmute::*;
 use crate::intrin::destride::*;
-use crate::std::mem::transmute;
 
 
 impl Destride for u8x16 {

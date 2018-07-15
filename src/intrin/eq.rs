@@ -7,7 +7,6 @@
 
 use crate::std::ops::BitXor;
 use crate::vecs::*;
-use crate::arch::current::vecs::*;
 
 pub trait Eq : Packed {
     type Out : Pattern + BitXor<Self::Out, Output = Self::Out>;

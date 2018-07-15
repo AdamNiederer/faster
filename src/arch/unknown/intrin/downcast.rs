@@ -6,10 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::arch::current::vecs::*;
-use crate::vecs::*;
 use crate::intrin::downcast::*;
-use crate::intrin::transmute::*;
-use crate::std::mem::transmute;
 
 impl Downcast<i16x8> for i32x4 {
     #[inline(always)]

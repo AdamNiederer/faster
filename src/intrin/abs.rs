@@ -28,7 +28,6 @@ pub trait Abs {
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;
-    use std::f32::INFINITY;
 
     #[test]
     fn abs_i8s() {

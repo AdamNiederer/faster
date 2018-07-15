@@ -14,7 +14,8 @@ pub trait Popcnt : Packed {
     }
 }
 
-
+// Only used in some architectures. Might produce `unused` warning on others.
+#[allow(unused_macros)]
 macro_rules! impl_popcnt {
     ($($vec:ty, $fn:ident),*) => {
         $(
@@ -29,6 +30,8 @@ macro_rules! impl_popcnt {
     }
 }
 
+// Only used in some architectures. Might produce `unused` warning on others.
+#[allow(unused_macros)]
 macro_rules! test_popcnt {
     (($($el:tt),*), ($($vec:tt),*), ($($fn:tt),*)) => (
         $(
