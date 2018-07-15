@@ -14,3 +14,17 @@ pub trait Popcnt : Packed {
     }
 }
 
+
+macro_rules! impl_popcnt {
+    ($($vec:ty, $fn:ident),*) => {
+        $(
+            impl Popcnt for $vec {
+                #[inline(always)]
+                #[allow(unused_unsafe)]
+                fn count_ones(&self) -> usize {
+                    unsafe { $fn(self.be_u8s()) }
+                }
+            }
+        )*
+    }
+}
