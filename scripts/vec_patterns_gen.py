@@ -54,29 +54,30 @@ def generate_vec_patterns(fn, els, vecs, lens, feats, blends, elsz, masks):
         feats = ['avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1', 'avx512-notyet', 'avx2', 'sse4.1']
         blends= ['_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8']
         masks = ['u8', 'u8', 'u8', 'u8', 'u8', 'u8', 'u16', 'u16', 'u16', 'u16', 'u16', 'u16', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64']
-    """
+    """    
     with open(fn, 'w') as f:
-        f.write(header)
+        fprint = lambda x: print(x, file=f) 
+        fprint(header)
 
         for e, v, l, ft, b, s, m in zip(els, vecs, lens, feats, blends, elsz, masks):
             # Generate halfs
-            f.write(f"impl Pattern for {v} {{")
-            f.write(f"    #[inline(always)]")
-            f.write(f"    fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {{")
+            fprint(f"impl Pattern for {v} {{")
+            fprint(f"    #[inline(always)]")
+            fprint(f"    fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self {{")
             first = ", ".join("hi" for _ in range(l // 2))
             second = ", ".join("lo" for _ in range(l // 2))
-            f.write(f"        Self::new({first}, {second})")
-            f.write(f"    }}\n")
+            fprint(f"        Self::new({first}, {second})")
+            fprint(f"    }}\n")
 
             # Generate interleave
-            f.write(f"    #[inline(always)]")
-            f.write(f"    fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {{")
+            fprint(f"    #[inline(always)]")
+            fprint(f"    fn interleave(hi: Self::Scalar, lo: Self::Scalar) -> Self {{")
             args = ", ".join("hi, lo" for _ in range(l // 2))
-            f.write(f"        Self::new({args})")
-            f.write(f"    }}")
+            fprint(f"        Self::new({args})")
+            fprint(f"    }}")
 
             # Generate partition_mask
-            f.write(f"""
+            fprint(f"""
             #[inline(always)]
             fn partition_mask(off: usize) -> Self {{
                 debug_assert!(off <= Self::WIDTH);
@@ -85,7 +86,7 @@ def generate_vec_patterns(fn, els, vecs, lens, feats, blends, elsz, masks):
             }}""",)
 
             # Generate partition polyfill
-            f.write(f"""
+            fprint(f"""
             #[inline(always)]
             #[cfg(target_feature = "{ft}")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {{
@@ -94,22 +95,22 @@ def generate_vec_patterns(fn, els, vecs, lens, feats, blends, elsz, masks):
             """)
 
             # Generate partition polyfill
-            f.write(f"    #[inline(always)]")
-            f.write(f"    #[cfg(not(target_feature = \"{ft}\"))]")
-            f.write(f"    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {{")
-            f.write(f"        assert!(off <= Self::WIDTH);")
-            f.write(f"        match off {{")
+            fprint(f"    #[inline(always)]")
+            fprint(f"    #[cfg(not(target_feature = \"{ft}\"))]")
+            fprint(f"    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {{")
+            fprint(f"        assert!(off <= Self::WIDTH);")
+            fprint(f"        match off {{")
             for i in range(0, l + 1):
                 first = ", ".join("hi" for _ in range(i))
                 second = ", ".join("lo" for _ in range(l - i))
                 args = ", ".join((first, second)).strip(", ")
-                f.write(f"            {i} => Self::new({args}),")
-            f.write(f"            _ => unreachable!()")
-            f.write(f"        }}")
-            f.write(f"    }}")
+                fprint(f"            {i} => Self::new({args}),")
+            fprint(f"            _ => unreachable!()")
+            fprint(f"        }}")
+            fprint(f"    }}")
 
             # Generate ones & zeroes
-            f.write(f"""
+            fprint(f"""
             /// Return a vector made entirely of ones.
             fn ones() -> Self {{
                 Self::splat(unsafe {{ transmute(0x{'F' * (s // 4)}{m}) }})
@@ -121,7 +122,7 @@ def generate_vec_patterns(fn, els, vecs, lens, feats, blends, elsz, masks):
             }}""")
 
 
-            f.write(f"}}\n")
+            fprint(f"}}\n")
 
 
 # Down here we do all architecture dependent stuff. 
@@ -140,4 +141,17 @@ if "x86":
 
     # Generate file 
     generate_vec_patterns(f"{root}/x86/{filename}", els, vecs, lens, feats, blends, elsz, masks)
+
+
+if "unknown":  
+    vecs = ["u8x16", "i8x16", "u16x8", "i16x8", "u32x4", "i32x4", "f32x4", "u64x2", "i64x2", "f64x2"]
+    lens = [int(v.split("x")[1]) for v in vecs]
+    els = [v.split("x")[0] for v in vecs]
+    elsz = [int(el[1:]) for el in els]
+    masks = ["u" + el[1:] for el in els]
+    feats = [{128: "__undefined"}[l * e] for l, e in zip(lens, elsz)]
+    blends = [{128: "__undefined"}[l * e] for l, e in zip(lens, elsz)]
+
+    # Generate file 
+    generate_vec_patterns(f"{root}/unknown/{filename}", els, vecs, lens, feats, blends, elsz, masks)
 
