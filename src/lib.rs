@@ -78,6 +78,7 @@
 //! operations:
 //!
 //! ```
+//! #![feature(rust_2018_preview, stdsimd)]
 //! extern crate faster;
 //! use faster::*;
 //!
