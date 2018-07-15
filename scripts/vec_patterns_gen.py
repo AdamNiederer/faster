@@ -13,7 +13,8 @@ filename = "vec_patterns.rs"
 # https://stackoverflow.com/questions/44780357/how-to-use-newline-n-in-f-string-to-format-output-in-python-3-6
 newline = "\n"
 
-header = lambda imports: f"""// This file is part of faster, the SIMD library for humans.
+header = lambda imports: f"""
+// This file is part of faster, the SIMD library for humans.
 // Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
 
 // This Source Code Form is subject to the terms of the Mozilla Public
@@ -48,7 +49,7 @@ const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
-"""
+""".lstrip()
 
 def generate_vec_patterns(arch, headers, els, vecs, lens, feats, blends, elsz, masks):
     """Generates a vec pattern f. A typical combination of inputs might look like this:
