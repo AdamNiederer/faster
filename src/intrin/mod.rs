@@ -47,6 +47,7 @@ pub(crate) mod prelude {
     pub use super::saturating_hadd::*;
     pub use super::saturating_hsub::*;
     pub use super::saturating_sub::*;
+    pub use super::sqrt::*;
     pub use super::transmute::*;
     pub use super::upcast::*;
 }

@@ -223,7 +223,7 @@ pub use crate::prelude::*;
 mod tests {
     use super::prelude::*;
     use test::{Bencher, black_box};
-
+    
     #[bench]
     #[cfg(feature = "std")]
     fn nop_simd(b: &mut Bencher) {
