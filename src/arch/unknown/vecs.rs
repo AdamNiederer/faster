@@ -9,14 +9,13 @@
 
 //! Vector types which aren't interpreted as SIMD vectors, for systems which
 //! don't have SIMD support.
-
-use crate::std::mem::{transmute, size_of};
-use crate::std::ptr::{copy_nonoverlapping};
-use crate::std::ops::{Mul, MulAssign, Div, DivAssign, Add, AddAssign, Sub, SubAssign, Shl, ShlAssign, Shr, ShrAssign, Rem, RemAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign};
-use crate::std::fmt::{Error, Debug, Formatter};
+use crate::std::ops::*;
+use crate::std::mem::*;
+use crate::std::ptr::*;
+use crate::std::fmt::*;
 use crate::vecs::*;
 
-macro_rules! impl_packed {
+macro_rules! impl_packed_type {
     ($el:ident, $pvec:ident, $vec:ident, $sz:expr, [$($elname:ident),+]) => {
         // Blocked by const generics (or impl {Debug, PartialEq} for [T; 64])
         #[derive(Clone, Copy, /*Debug, PartialEq*/)]
@@ -34,7 +33,7 @@ macro_rules! impl_packed {
         // Debug shim until const generics arrive
         impl Debug for $vec {
             #[inline(always)]
-            fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+            fn fmt(&self, f: &mut Formatter) -> Result {
                 write!(f, "$vec(")?;
                 for n in self.data.iter() {
                     write!(f, "{:?}, ", n)?;
@@ -228,36 +227,50 @@ macro_rules! impl_cast {
     }
 }
 
-impl_packed!(f64, f64s, f64x2, 2, [x0, x1]);
-impl_packed!(f64, f64s, f64x4, 4, [x0, x1, x2, x3]);
-impl_packed!(f64, f64s, f64x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(u64, u64s, u64x2, 2, [x0, x1]);
-impl_packed!(u64, u64s, u64x4, 4, [x0, x1, x2, x3]);
-impl_packed!(u64, u64s, u64x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(i64, i64s, i64x2, 2, [x0, x1]);
-impl_packed!(i64, i64s, i64x4, 4, [x0, x1, x2, x3]);
-impl_packed!(i64, i64s, i64x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(f32, f32s, f32x4, 4, [x0, x1, x2, x3]);
-impl_packed!(f32, f32s, f32x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(f32, f32s, f32x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
-impl_packed!(u32, u32s, u32x4, 4, [x0, x1, x2, x3]);
-impl_packed!(u32, u32s, u32x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(u32, u32s, u32x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
-impl_packed!(i32, i32s, i32x4, 4, [x0, x1, x2, x3]);
-impl_packed!(i32, i32s, i32x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(i32, i32s, i32x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
-impl_packed!(u16, u16s, u16x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(u16, u16s, u16x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
-impl_packed!(u16, u16s, u16x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
-impl_packed!(i16, i16s, i16x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
-impl_packed!(i16, i16s, i16x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
-impl_packed!(i16, i16s, i16x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
-impl_packed!(u8, u8s, u8x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
-impl_packed!(u8, u8s, u8x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
-impl_packed!(u8, u8s, u8x64, 64, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31, x32, x33, x34, x35, x36, x37, x38, x39, x40, x41, x42, x43, x44, x45, x46, x47, x48, x49, x50, x51, x52, x53, x54, x55, x56, x57, x58, x59, x60, x61, x62, x63]);
-impl_packed!(i8, i8s, i8x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
-impl_packed!(i8, i8s, i8x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
-impl_packed!(i8, i8s, i8x64, 64, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31, x32, x33, x34, x35, x36, x37, x38, x39, x40, x41, x42, x43, x44, x45, x46, x47, x48, x49, x50, x51, x52, x53, x54, x55, x56, x57, x58, x59, x60, x61, x62, x63]);
+// "undefined" is just a string that should not match any target-feature.
+impl_packed!(u8, u8s, u8x16, 1, 16, [], ["undefined"]);
+impl_packed!(i8, i8s, i8x16, 1, 16, [], ["undefined"]);
+impl_packed!(u16, u16s, u16x8, 2, 8, [], ["undefined"]);
+impl_packed!(i16, i16s, i16x8, 2, 8, [], ["undefined"]);
+impl_packed!(u32, u32s, u32x4, 4, 4, [], ["undefined"]);
+impl_packed!(i32, i32s, i32x4, 4, 4, [], ["undefined"]);
+impl_packed!(f32, f32s, f32x4, 4, 4, [], ["undefined"]);
+impl_packed!(u64, u64s, u64x2, 8, 2, [], ["undefined"]);
+impl_packed!(i64, i64s, i64x2, 8, 2, [], ["undefined"]);
+impl_packed!(f64, f64s, f64x2, 8, 2, [], ["undefined"]);
+
+
+
+impl_packed_type!(f64, f64s, f64x2, 2, [x0, x1]);
+impl_packed_type!(f64, f64s, f64x4, 4, [x0, x1, x2, x3]);
+impl_packed_type!(f64, f64s, f64x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(u64, u64s, u64x2, 2, [x0, x1]);
+impl_packed_type!(u64, u64s, u64x4, 4, [x0, x1, x2, x3]);
+impl_packed_type!(u64, u64s, u64x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(i64, i64s, i64x2, 2, [x0, x1]);
+impl_packed_type!(i64, i64s, i64x4, 4, [x0, x1, x2, x3]);
+impl_packed_type!(i64, i64s, i64x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(f32, f32s, f32x4, 4, [x0, x1, x2, x3]);
+impl_packed_type!(f32, f32s, f32x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(f32, f32s, f32x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
+impl_packed_type!(u32, u32s, u32x4, 4, [x0, x1, x2, x3]);
+impl_packed_type!(u32, u32s, u32x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(u32, u32s, u32x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
+impl_packed_type!(i32, i32s, i32x4, 4, [x0, x1, x2, x3]);
+impl_packed_type!(i32, i32s, i32x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(i32, i32s, i32x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
+impl_packed_type!(u16, u16s, u16x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(u16, u16s, u16x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
+impl_packed_type!(u16, u16s, u16x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
+impl_packed_type!(i16, i16s, i16x8, 8, [x0, x1, x2, x3, x4, x5, x6, x7]);
+impl_packed_type!(i16, i16s, i16x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
+impl_packed_type!(i16, i16s, i16x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
+impl_packed_type!(u8, u8s, u8x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
+impl_packed_type!(u8, u8s, u8x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
+impl_packed_type!(u8, u8s, u8x64, 64, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31, x32, x33, x34, x35, x36, x37, x38, x39, x40, x41, x42, x43, x44, x45, x46, x47, x48, x49, x50, x51, x52, x53, x54, x55, x56, x57, x58, x59, x60, x61, x62, x63]);
+impl_packed_type!(i8, i8s, i8x16, 16, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]);
+impl_packed_type!(i8, i8s, i8x32, 32, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31]);
+impl_packed_type!(i8, i8s, i8x64, 64, [x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23, x24, x25, x26, x27, x28, x29, x30, x31, x32, x33, x34, x35, x36, x37, x38, x39, x40, x41, x42, x43, x44, x45, x46, x47, x48, x49, x50, x51, x52, x53, x54, x55, x56, x57, x58, x59, x60, x61, x62, x63]);
 
 impl_from!(u64x2, i64x2, u32x4, i32x4, u16x8, i16x8, u8x16, i8x16);
 impl_from!(i64x2, u64x2, u32x4, i32x4, u16x8, i16x8, u8x16, i8x16);

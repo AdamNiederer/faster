@@ -6,6 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::std::ops::BitXor;
+use crate::vecs::*;
 use crate::arch::current::vecs::*;
 
 pub trait Eq : Packed {
