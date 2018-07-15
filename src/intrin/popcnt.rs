@@ -9,6 +9,8 @@ use crate::vecs::*;
 
 pub trait Popcnt : Packed {
     fn count_ones(&self) -> usize;
+    
+    #[inline(always)]
     fn count_zeroes(&self) -> usize {
         (Self::WIDTH * Self::Scalar::SIZE) - self.count_ones()
     }
