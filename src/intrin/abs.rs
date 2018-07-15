@@ -23,3 +23,58 @@ pub trait Abs {
     /// ```
     fn abs(&self) -> Self::Out;
 }
+
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+    use std::f32::INFINITY;
+
+    #[test]
+    fn abs_i8s() {
+        for i in -128..127 {
+            assert_eq!(i8s(i).abs().extract(0), (i as i64).abs() as u8);
+        }
+    }
+
+    #[test]
+    fn abs_i16s() {
+        for i in -32768..32767 {
+            assert_eq!(i16s(i).abs().extract(0), (i as i64).abs() as u16);
+        }
+    }
+
+    #[test]
+    fn abs_i32s() {
+        for i in -65536..65536 {
+            assert_eq!(i32s(i).abs().extract(0), (i as i64).abs() as u32);
+        }
+    }
+
+    #[test]
+    fn abs_i64s() {
+        for i in -65536..65536 {
+            assert_eq!(i64s(i).abs().extract(0), (i as i64).abs() as u64);
+        }
+    }
+
+    #[test]
+    fn abs_f32s() {
+        let mut i = -1024.0;
+        while i < 1024.0 {
+            // This test has some pretty significant float error if done on x86
+            assert_eq!(f32s(i).abs().extract(0), i.abs());
+            i += 1.0
+        }
+    }
+
+    #[test]
+    fn abs_f64s() {
+        let mut i = -1024.0;
+        while i < 1024.0 {
+            // This test has some pretty significant float error if done on x86
+            assert_eq!(f64s(i).abs().extract(0), i.abs());
+            i += 1.0
+        }
+    }
+}

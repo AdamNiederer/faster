@@ -76,3 +76,22 @@ macro_rules! rust_fallback_eq {
         }
     );
 }
+
+macro_rules! test_packed_eq {
+        ($vec:tt, $el:tt, $mask:tt, $maskel:tt, $name:tt) => {
+            #[test]
+            fn $name() {
+                assert_eq!($vec::halfs(1 as $el, 0 as $el).eq_mask($vec::splat(0 as $el)),
+                           $mask::halfs(0, $maskel::max_value()));
+
+                assert_eq!($vec::interleave(1 as $el, 0 as $el).eq_mask($vec::splat(1 as $el)),
+                           $mask::interleave($maskel::max_value(), 0));
+
+                assert_eq!($vec::halfs(1 as $el, 0 as $el).ne_mask($vec::splat(0 as $el)),
+                           $mask::halfs($maskel::max_value(), 0));
+
+                assert_eq!($vec::interleave(1 as $el, 0 as $el).ne_mask($vec::splat(1 as $el)),
+                           $mask::interleave(0, $maskel::max_value()));
+            }
+        }
+    }

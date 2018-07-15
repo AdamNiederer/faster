@@ -28,3 +28,17 @@ macro_rules! impl_popcnt {
         )*
     }
 }
+
+macro_rules! test_popcnt {
+    (($($el:tt),*), ($($vec:tt),*), ($($fn:tt),*)) => (
+        $(
+            #[test]
+            fn $fn() {
+                assert_eq!($vec::splat(1i8 as $el).count_ones(), $vec::WIDTH);
+                assert_eq!($vec::splat(1i8 as $el).count_zeroes()
+                           + $vec::splat(1i8 as $el).count_ones(),
+                           $vec::WIDTH * <<$vec as Packed>::Scalar as Packable>::SIZE);
+            }
+        )*
+    )
+}

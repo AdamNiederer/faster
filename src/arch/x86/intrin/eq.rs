@@ -140,25 +140,6 @@ mod tests {
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 
-    macro_rules! test_packed_eq {
-        ($vec:tt, $el:tt, $mask:tt, $maskel:tt, $name:tt) => {
-            #[test]
-            fn $name() {
-                assert_eq!($vec::halfs(1 as $el, 0 as $el).eq_mask($vec::splat(0 as $el)),
-                           $mask::halfs(0, $maskel::max_value()));
-
-                assert_eq!($vec::interleave(1 as $el, 0 as $el).eq_mask($vec::splat(1 as $el)),
-                           $mask::interleave($maskel::max_value(), 0));
-
-                assert_eq!($vec::halfs(1 as $el, 0 as $el).ne_mask($vec::splat(0 as $el)),
-                           $mask::halfs($maskel::max_value(), 0));
-
-                assert_eq!($vec::interleave(1 as $el, 0 as $el).ne_mask($vec::splat(1 as $el)),
-                           $mask::interleave(0, $maskel::max_value()));
-            }
-        }
-    }
-
     // test_packed_eq!(u8x64, u8, u8x64, u8, test_eq_u8x64);
     test_packed_eq!(u8x32, u8, u8x32, u8, test_eq_u8x32);
     test_packed_eq!(u8x16, u8, u8x16, u8, test_eq_u8x16);

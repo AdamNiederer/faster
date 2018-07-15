@@ -23,20 +23,3 @@ rust_fallback_impl! {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::prelude::*;
-    use std::f32::INFINITY;
-
-    #[test]
-    fn recip_f32s() {
-        let mut i = -1024.0;
-        while i < 1024.0 {
-            // This test has some pretty significant float error if done on x86
-            let ans = f32s(i).recip().extract(0);
-            let real = f32s(1.0 / i).extract(0);
-            assert!((real == INFINITY && ans == INFINITY) || (ans - real).abs() < 0.0005);
-            i += 1.0
-        }
-    }
-}

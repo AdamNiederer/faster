@@ -77,20 +77,6 @@ mod tests {
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 
-    macro_rules! test_popcnt {
-        (($($el:tt),*), ($($vec:tt),*), ($($fn:tt),*)) => (
-            $(
-                #[test]
-                fn $fn() {
-                    assert_eq!($vec::splat(1i8 as $el).count_ones(), $vec::WIDTH);
-                    assert_eq!($vec::splat(1i8 as $el).count_zeroes()
-                               + $vec::splat(1i8 as $el).count_ones(),
-                               $vec::WIDTH * <<$vec as Packed>::Scalar as Packable>::SIZE);
-                }
-            )*
-        )
-    }
-
     test_popcnt!((u8, u8, u8, i8, i8, i8, u16, u16, u16, i16, i16, i16, u32, u32, u32, i32, i32, i32, u64, u64, u64, i64, i64, i64),
                  (u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2),
                  (popcnt_u8x64, popcnt_u8x32, popcnt_u8x16, popcnt_i8x64, popcnt_i8x32, popcnt_i8x16, popcnt_u16x32, popcnt_u16x16, popcnt_u16x8, popcnt_i16x32, popcnt_i16x16, popcnt_i16x8, popcnt_u32x16, popcnt_u32x8, popcnt_u32x4, popcnt_i32x16, popcnt_i32x8, popcnt_i32x4, popcnt_u64x8, popcnt_u64x4, popcnt_u64x2, popcnt_i64x8, popcnt_i64x4, popcnt_i64x2));

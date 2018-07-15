@@ -34,21 +34,6 @@ mod tests {
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 
-    macro_rules! test_packed_swap_bytes {
-        (($($vec:tt),*), ($($fn:tt),*)) => {
-            $(
-                #[test]
-                fn $fn() {
-                    let a = $vec::interleave(33u8 as <$vec as Packed>::Scalar,
-                                             92u8 as <$vec as Packed>::Scalar);
-                    let b = $vec::interleave((33u8 as <$vec as Packed>::Scalar).swap_bytes(),
-                                             (92u8 as <$vec as Packed>::Scalar).swap_bytes());
-                    assert_eq!(a.swap_bytes(), b);
-                }
-            )*
-        }
-    }
-
     test_packed_swap_bytes!((u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, u64x2, i64x2),
                              (swap_bytes_u8x16, swap_bytes_i8x16, swap_bytes_u16x8, swap_bytes_i16x8, swap_bytes_u32x4, swap_bytes_i32x4, swap_bytes_u64x2, swap_bytes_i64x2));
 }

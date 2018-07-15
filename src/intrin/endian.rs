@@ -85,3 +85,19 @@ macro_rules! impl_packed_swap_bytes {
         }
     }
 }
+
+
+macro_rules! test_packed_swap_bytes {
+        (($($vec:tt),*), ($($fn:tt),*)) => {
+            $(
+                #[test]
+                fn $fn() {
+                    let a = $vec::interleave(33u8 as <$vec as Packed>::Scalar,
+                                             92u8 as <$vec as Packed>::Scalar);
+                    let b = $vec::interleave((33u8 as <$vec as Packed>::Scalar).swap_bytes(),
+                                             (92u8 as <$vec as Packed>::Scalar).swap_bytes());
+                    assert_eq!(a.swap_bytes(), b);
+                }
+            )*
+        }
+    }

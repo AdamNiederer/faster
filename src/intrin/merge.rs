@@ -112,3 +112,26 @@ macro_rules! impl_packed_merge {
 }
 
 
+macro_rules! test_packed_merge {
+    (($($vec:tt),*), ($($fn:ident),*)) => {
+        $(
+            #[test]
+            fn $fn() {
+                let asc = 30i32 as <$vec as Packed>::Scalar;
+                let bsc = 5i32 as <$vec as Packed>::Scalar;
+                let a = $vec::splat(asc);
+                let b = $vec::splat(bsc);
+                assert_eq!(a.merge_interleaved(b), $vec::interleave(asc, bsc));
+                assert_eq!(b.merge_interleaved(a), $vec::interleave(bsc, asc));
+
+                assert_eq!(a.merge_halves(b), $vec::halfs(asc, bsc));
+                assert_eq!(b.merge_halves(a), $vec::halfs(bsc, asc));
+
+                for i in 0..$vec::WIDTH {
+                    assert_eq!(a.merge_partitioned(b, i), $vec::partition(asc, bsc, i));
+                    assert_eq!(b.merge_partitioned(a, i), $vec::partition(bsc, asc, i));
+                }
+            }
+        )*
+    }
+}
