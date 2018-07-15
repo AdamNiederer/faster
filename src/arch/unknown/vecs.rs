@@ -227,6 +227,7 @@ macro_rules! impl_cast {
     }
 }
 
+
 // "undefined" is just a string that should not match any target-feature.
 impl_packed!(u8, u8s, u8x16, 1, 16, [], ["undefined"]);
 impl_packed!(i8, i8s, i8x16, 1, 16, [], ["undefined"]);
