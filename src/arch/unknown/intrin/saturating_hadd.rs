@@ -7,7 +7,6 @@
 
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
-use crate::intrin::transmute::*;
 use crate::intrin::saturating_hadd::*;
 
 

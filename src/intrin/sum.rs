@@ -1,9 +1,4 @@
-use crate::std::ops::Add;
 use crate::vecs::*;
-use crate::intrin::upcast::Upcast;
-use crate::intrin::cmp::Cmp;
-use crate::intrin::abs::Abs;
-use crate::intrin::transmute::Transmute;
 
 pub trait Sum : Packed {
     /// Return a scalar equivalent to the sum of all elements of this vector.

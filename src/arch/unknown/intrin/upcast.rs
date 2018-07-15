@@ -6,10 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::arch::current::vecs::*;
-use crate::vecs::*;
-use crate::intrin::transmute::*;
 use crate::intrin::upcast::*;
-use crate::std::mem::transmute;
 
 
 impl Upcast<u16x8> for u8x16 {

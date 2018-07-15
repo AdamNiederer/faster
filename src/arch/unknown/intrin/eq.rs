@@ -5,7 +5,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::std::ops::BitXor;
 use crate::intrin::eq::*;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
@@ -72,6 +71,7 @@ rust_fallback_eq! {
 }
 
 mod tests {
+    #![allow(unused_imports)]
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
 

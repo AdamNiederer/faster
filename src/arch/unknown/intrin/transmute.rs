@@ -7,7 +7,6 @@
 
 use crate::intrin::transmute::*;
 use crate::arch::current::vecs::*;
-use crate::vecs::*;
 use crate::std::mem::transmute;
 
 

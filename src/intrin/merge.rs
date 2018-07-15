@@ -1,7 +1,3 @@
-use crate::arch::current::vecs::*;
-use crate::vec_patterns::*;
-use crate::intrin::transmute::*;
-use crate::std::mem::transmute;
 
 pub trait Merge {
     /// Return a vector with the first half populated by the first half of
