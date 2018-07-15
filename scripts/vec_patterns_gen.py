@@ -10,7 +10,10 @@
 root = "../src/arch"
 filename = "vec_patterns.rs"
 
-header = f"""
+# https://stackoverflow.com/questions/44780357/how-to-use-newline-n-in-f-string-to-format-output-in-python-3-6
+newline = "\n"
+
+header = lambda imports: f"""
 
 // This o is part of faster, the SIMD library for humans.
 // Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
@@ -24,7 +27,7 @@ header = f"""
 use crate::arch::current::vecs::*;
 use crate::std::mem::transmute;
 use crate::vecs::*;
-use vektor::x86::*;
+{newline.join(imports)}
 
 const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -44,7 +47,7 @@ const PART_MASK: [u8; 128] = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF];
 """
 
-def generate_vec_patterns(fn, els, vecs, lens, feats, blends, elsz, masks):
+def generate_vec_patterns(arch, headers, els, vecs, lens, feats, blends, elsz, masks):
     """Generates a vec pattern f. A typical combination of inputs might look like this:
 
         vecs  = ['u8x64', 'u8x32', 'u8x16', 'i8x64', 'i8x32', 'i8x16', 'u16x32', 'u16x16', 'u16x8', 'i16x32', 'i16x16', 'i16x8', 'u32x16', 'u32x8', 'u32x4', 'i32x16', 'i32x8', 'i32x4', 'f32x16', 'f32x8', 'f32x4', 'u64x8', 'u64x4', 'u64x2', 'i64x8', 'i64x4', 'i64x2', 'f64x8', 'f64x4', 'f64x2']
@@ -55,9 +58,11 @@ def generate_vec_patterns(fn, els, vecs, lens, feats, blends, elsz, masks):
         blends= ['_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8', '_mm512_mask_mov_epi8', '_mm256_blendv_epi8', '_mm_blendv_epi8']
         masks = ['u8', 'u8', 'u8', 'u8', 'u8', 'u8', 'u16', 'u16', 'u16', 'u16', 'u16', 'u16', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u32', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64', 'u64']
     """    
-    with open(fn, 'w') as f:
+
+    with open(f"{root}/{arch}/{filename}", 'w') as f:        
         fprint = lambda x: print(x, file=f) 
-        fprint(header)
+
+        fprint(header(headers))
 
         for e, v, l, ft, b, s, m in zip(els, vecs, lens, feats, blends, elsz, masks):
             # Generate halfs
@@ -140,7 +145,7 @@ if "x86":
             for l, e in zip(lens, elsz)]
 
     # Generate file 
-    generate_vec_patterns(f"{root}/x86/{filename}", els, vecs, lens, feats, blends, elsz, masks)
+    generate_vec_patterns("x86", ["use vektor::x86::*;"], els, vecs, lens, feats, blends, elsz, masks)
 
 
 if "unknown":  
@@ -153,5 +158,5 @@ if "unknown":
     blends = [{128: "__undefined"}[l * e] for l, e in zip(lens, elsz)]
 
     # Generate file 
-    generate_vec_patterns(f"{root}/unknown/{filename}", els, vecs, lens, feats, blends, elsz, masks)
+    generate_vec_patterns("unknown", [], els, vecs, lens, feats, blends, elsz, masks)
 
