@@ -46,7 +46,9 @@ mod tests {
             )*
         }
     }
+    // TODO: Which ones do we really need?
     test_packed_merge!(
-        (u8x64, u8x32, u8x16, i8x64, i8x32, i8x16, u16x32, u16x16, u16x8, i16x32, i16x16, i16x8, u32x16, u32x8, u32x4, i32x16, i32x8, i32x4, f32x16, f32x8, f32x4, u64x8, u64x4, u64x2, i64x8, i64x4, i64x2, f64x8, f64x4, f64x2),
-        (merge_u8x64, merge_u8x32, merge_u8x16, merge_i8x64, merge_i8x32, merge_i8x16, merge_u16x32, merge_u16x16, merge_u16x8, merge_i16x32, merge_i16x16, merge_i16x8, merge_u32x16, merge_u32x8, merge_u32x4, merge_i32x16, merge_i32x8, merge_i32x4, merge_f32x16, merge_f32x8, merge_f32x4, merge_u64x8, merge_u64x4, merge_u64x2, merge_i64x8, merge_i64x4, merge_i64x2, merge_f64x8, merge_f64x4, merge_f64x2));
+        (u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, f32x4, u64x2, i64x2, f64x2),
+        (merge_u8x16, merge_i8x16, merge_u16x8, merge_i16x8, merge_u32x4, merge_i32x4, merge_f32x4, merge_u64x2, merge_i64x2, merge_f64x2)
+    );
 }
