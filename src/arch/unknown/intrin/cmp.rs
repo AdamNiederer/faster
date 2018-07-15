@@ -90,7 +90,6 @@ rust_fallback_impl_binary! {
     }
 }
 
-
 rust_fallback_impl_binary! {
     impl Cmp for i16x16 where "__undefined" {
         min => __undefined(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];

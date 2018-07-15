@@ -9,7 +9,6 @@ use crate::intrin::abs::Abs;
 use crate::intrin::sum::{Sum,UpcastSum};
 use crate::intrin::transmute::Transmute;
 
-
 // TODO: Specialization
 // impl<T> Sum for T where T : , T::Scalar : Add<T::Scalar, Output = T::Scalar>, T::Scalar : From<i8> {
 //     #[inline(always)]

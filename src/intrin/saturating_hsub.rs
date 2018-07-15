@@ -13,7 +13,6 @@ pub trait SaturatingHSub {
     fn saturating_hsub(&self, other: Self) -> Self;
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;

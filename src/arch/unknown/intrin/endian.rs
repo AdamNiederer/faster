@@ -1,3 +1,10 @@
+// This file is part of faster, the SIMD library for humans.
+// Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::endian::*;
@@ -26,7 +33,6 @@ impl_packed_swap_bytes!(u64x2, u8x16, "__undefined", __undefined,
 impl_packed_swap_bytes!(i64x2, u8x16, "__undefined", __undefined,
                         (7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8),
                         (0, 1));
-
 
 mod tests {
     #![allow(unused_imports)]

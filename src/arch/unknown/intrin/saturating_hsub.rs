@@ -9,7 +9,6 @@ use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::saturating_hsub::*;
 
-
 impl SaturatingHSub for u64x2 { hop!(saturating_hsub, u64::saturating_sub, 0, 1); }
 impl SaturatingHSub for u32x4 { hop!(saturating_hsub, u32::saturating_sub, 0, 1, 2, 3); }
 impl SaturatingHSub for u16x8 { hop!(saturating_hsub, u16::saturating_sub, 0, 1, 2, 3, 4, 5, 6, 7); }
@@ -18,4 +17,3 @@ impl SaturatingHSub for i64x2 { hop!(saturating_hsub, i64::saturating_sub, 0, 1)
 impl SaturatingHSub for i32x4 { hop!(saturating_hsub, i32::saturating_sub, 0, 1, 2, 3); }
 impl SaturatingHSub for i16x8 { hop!(saturating_hsub, i16::saturating_sub, 0, 1, 2, 3, 4, 5, 6, 7); }
 impl SaturatingHSub for i8x16 { hop!(saturating_hsub, i8::saturating_sub, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15); }
-

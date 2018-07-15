@@ -227,7 +227,6 @@ macro_rules! impl_cast {
     }
 }
 
-
 // "undefined" is just a string that should not match any target-feature.
 impl_packed!(u8, u8s, u8x16, 1, 16, [], ["undefined"]);
 impl_packed!(i8, i8s, i8x16, 1, 16, [], ["undefined"]);
@@ -239,8 +238,6 @@ impl_packed!(f32, f32s, f32x4, 4, 4, [], ["undefined"]);
 impl_packed!(u64, u64s, u64x2, 8, 2, [], ["undefined"]);
 impl_packed!(i64, i64s, i64x2, 8, 2, [], ["undefined"]);
 impl_packed!(f64, f64s, f64x2, 8, 2, [], ["undefined"]);
-
-
 
 impl_packed_type!(f64, f64s, f64x2, 2, [x0, x1]);
 impl_packed_type!(f64, f64s, f64x4, 4, [x0, x1, x2, x3]);

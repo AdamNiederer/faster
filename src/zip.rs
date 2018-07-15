@@ -370,7 +370,6 @@ where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
     }
 }
 
-
 impl_iter_zip!((A, B),
                (AA, BB),
                (1));

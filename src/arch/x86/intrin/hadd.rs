@@ -13,7 +13,6 @@ use crate::std::ops::Add;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 
-
 #[cfg(target_feature = "sse3")]
 impl HAdd for f32x4 {
     #[inline(always)]
@@ -75,7 +74,6 @@ impl HAdd for i16x16 {
                                    _mm256_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
 }
-
 
 #[cfg(target_feature = "avx2")]
 impl HAdd for i32x8 {

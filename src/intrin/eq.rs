@@ -43,7 +43,6 @@ pub trait Eq : Packed {
     fn ne_mask(&self, other: Self) -> Self::Out { self.eq_mask(other) ^ Self::Out::ones() }
 }
 
-
 macro_rules! rust_fallback_eq {
     (impl $trait:tt for $type:tt where $feat:tt {
         $($newfn:ident, $rustfn:ident => $mask:tt, $maskel:tt, $mmfn:tt ( $($mmfnargs:expr),* ), [$($n:expr),+]);*;}) => (

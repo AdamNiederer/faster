@@ -13,7 +13,6 @@ use crate::vektor::x86::*;
 use crate::arch::current::vecs::*;
 use crate::std::mem::transmute;
 
-
 impl Abs for f32x4 {
     type Out = f32x4;
 
@@ -211,7 +210,6 @@ impl Abs for i8x32 {
                        unsafe { transmute::<i8, u8>(self.extract(31).overflowing_abs().0) })
     }
 }
-
 
 impl Abs for i16x16 {
     type Out = u16x16;

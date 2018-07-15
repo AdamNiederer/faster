@@ -12,7 +12,6 @@ use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::std::mem::transmute;
 
-
 impl_packed_transmute!(u8x32, i8x32, u16x16, i16x16, u32x8, i32x8, f32x8,
                        u64x4, i64x4, f64x4, ...
                        u8x32, i8x32, u16x16, i16x16, u32x8, i32x8,

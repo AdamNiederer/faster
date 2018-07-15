@@ -10,7 +10,6 @@ use crate::vecs::*;
 use crate::intrin::hsub::*;
 use crate::std::ops::Sub;
 
-
 impl HSub for u64x2 { hop!(hsub, Sub::sub, 0, 1); }
 impl HSub for u32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }
 impl HSub for u16x8 { hop!(hsub, Sub::sub, 0, 1, 2, 3, 4, 5, 6, 7); }

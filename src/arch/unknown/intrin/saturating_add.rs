@@ -33,13 +33,11 @@ rust_fallback_impl_binary! {
     }
 }
 
-
 rust_fallback_impl_binary! {
     impl SaturatingAdd for u32x4 where "__undefined" {
         saturating_add => __undefined(), [0, 1, 2, 3];
     }
 }
-
 
 rust_fallback_impl_binary! {
     impl SaturatingAdd for i32x4 where "__undefined" {

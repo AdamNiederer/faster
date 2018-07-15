@@ -13,7 +13,6 @@ use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::std::mem::transmute;
 
-
 impl Upcast<u16x8> for u8x16 {
     #[inline(always)]
     #[cfg(target_feature = "sse4.1")]

@@ -12,7 +12,6 @@ use crate::intrin::eq::*;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 
-
 rust_fallback_eq! {
     impl Eq for u8x16 where "sse2" {
         eq_mask, eq => u8x16, u8, _mm_cmpeq_epi8(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -92,7 +91,6 @@ rust_fallback_eq! {
         eq_mask, eq => u16x16, u16, _mm256_cmpeq_epi16(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     }
 }
-
 
 rust_fallback_eq! {
     impl Eq for i16x16 where "avx2" {

@@ -13,7 +13,6 @@ use crate::intrin::transmute::*;
 use crate::intrin::hsub::*;
 use crate::std::ops::Sub;
 
-
 #[cfg(target_feature = "sse3")]
 impl HSub for f32x4 {
     #[inline(always)]

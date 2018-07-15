@@ -1,3 +1,10 @@
+// This file is part of faster, the SIMD library for humans.
+// Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 pub mod abs;
 pub mod addsub;
 pub mod cast;
@@ -23,9 +30,8 @@ pub mod sqrt;
 #[macro_use] pub mod transmute;
 pub mod upcast;
 
-
 // We use an internal prelude not to clutter the namespace when we import
-// from actual prelude. 
+// from actual prelude.
 pub(crate) mod prelude {
     pub use super::abs::*;
     pub use super::addsub::*;

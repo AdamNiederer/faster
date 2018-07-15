@@ -23,13 +23,11 @@ rust_fallback_impl! {
     }
 }
 
-
 rust_fallback_impl! {
     impl Rsqrt for f64x2 where "__undefined" {
         rsqrt => __undefined(), [0, 1];
     }
 }
-
 
 impl Rsqrt for f32 {
     #[inline(always)]

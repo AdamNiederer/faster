@@ -12,8 +12,6 @@ use crate::vecs::*;
 use crate::intrin::transmute::*;
 use crate::intrin::saturating_hsub::*;
 
-
-
 #[cfg(target_feature = "ssse3")]
 impl SaturatingHSub for i16x8 {
     #[inline(always)]

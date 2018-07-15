@@ -10,7 +10,6 @@ use crate::std::ops::Add;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 
-
 impl HAdd for u64x2 { hop!(hadd, Add::add, 0, 1); }
 impl HAdd for u32x4 { hop!(hadd, Add::add, 0, 1, 2, 3); }
 impl HAdd for u16x8 { hop!(hadd, Add::add, 0, 1, 2, 3, 4, 5, 6, 7); }

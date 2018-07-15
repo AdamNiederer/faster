@@ -13,7 +13,6 @@ pub trait SaturatingHAdd {
     fn saturating_hadd(&self, other: Self) -> Self;
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;

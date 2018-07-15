@@ -5,7 +5,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
 pub trait HAdd {
     /// Return a vector containing the interleaved sums of elements in `self`
     /// and `other`. The returned vector will begin with the sum of the first
@@ -13,7 +12,6 @@ pub trait HAdd {
     /// `other`
     fn hadd(&self, other: Self) -> Self;
 }
-
 
 #[cfg(test)]
 mod tests {

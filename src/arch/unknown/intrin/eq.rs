@@ -9,7 +9,6 @@ use crate::intrin::eq::*;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 
-
 rust_fallback_eq! {
     impl Eq for u8x16 where "__undefined" {
         eq_mask, eq => u8x16, u8, __undefined(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -74,7 +73,6 @@ mod tests {
     #![allow(unused_imports)]
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
-
 
     // test_packed_eq!(u8x64, u8, u8x64, u8, test_eq_u8x64);
     // test_packed_eq!(u8x32, u8, u8x32, u8, test_eq_u8x32);

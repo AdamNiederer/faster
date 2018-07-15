@@ -1,3 +1,9 @@
+// This file is part of faster, the SIMD library for humans.
+// Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 pub trait Merge {
     /// Return a vector with the first half populated by the first half of
@@ -39,7 +45,6 @@ pub trait Merge {
     /// ```
     fn merge_partitioned(&self, other: Self, offset: usize) -> Self;
 }
-
 
 macro_rules! impl_packed_merge {
     ($vec:ty, $uvec:tt, $uscl:tt, $mmfn:expr, $feat:expr, ($($a:expr),*), ($($b:expr),*), $($na:expr, $nb:expr),*) => {
@@ -106,7 +111,6 @@ macro_rules! impl_packed_merge {
         }
     }
 }
-
 
 macro_rules! test_packed_merge {
     (($($vec:tt),*), ($($fn:ident),*)) => {

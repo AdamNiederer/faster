@@ -35,7 +35,6 @@ rust_fallback_impl_binary! {
     }
 }
 
-
 rust_fallback_impl_binary! {
     impl SaturatingAdd for u8x32 where "avx2" {
         saturating_add => _mm256_adds_epu8(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,

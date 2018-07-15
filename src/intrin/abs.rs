@@ -5,7 +5,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
 pub trait Abs {
     type Out;
     /// Return a vector the absolute value of the elements of `self`.
@@ -23,7 +22,6 @@ pub trait Abs {
     /// ```
     fn abs(&self) -> Self::Out;
 }
-
 
 #[cfg(test)]
 mod tests {

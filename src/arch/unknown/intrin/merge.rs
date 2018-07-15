@@ -1,9 +1,15 @@
+// This file is part of faster, the SIMD library for humans.
+// Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::merge::*;
 
-
-// Will produce fallback implementations only, so we get away with __undefined. 
+// Will produce fallback implementations only, so we get away with __undefined.
 impl_packed_merge!(u8x16, u8x16,  u8, __undefined, "__undefined", (0, 1, 2, 3, 4, 5, 6, 7), (8, 9, 10, 11, 12, 13, 14, 15), 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
 impl_packed_merge!(u16x8, u16x8, u16, __undefined, "__undefined", (0, 1, 2, 3), (4, 5, 6, 7), 0, 1, 2, 3, 4, 5, 6, 7);
 impl_packed_merge!(u32x4, u32x4, u32, __undefined, "__undefined", (0, 1), (2, 3), 0, 1, 2, 3);
@@ -14,7 +20,6 @@ impl_packed_merge!(i32x4, u32x4, u32, __undefined, "__undefined", (0, 1), (2, 3)
 impl_packed_merge!(i64x2, u64x2, u64, __undefined, "__undefined", (0), (1), 0, 1);
 impl_packed_merge!(f32x4, u32x4, u32, __undefined, "__undefined", (0, 1), (2, 3), 0, 1, 2, 3);
 impl_packed_merge!(f64x2, u64x2, u64, __undefined, "__undefined", (0), (1), 0, 1);
-
 
 mod tests {
     #![allow(unused_imports)]

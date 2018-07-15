@@ -8,7 +8,6 @@
 use crate::arch::current::vecs::*;
 use crate::intrin::upcast::*;
 
-
 impl Upcast<u16x8> for u8x16 {
     #[inline(always)]
     fn upcast(self) -> (u16x8, u16x8) {

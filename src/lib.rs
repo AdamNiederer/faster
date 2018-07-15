@@ -219,8 +219,6 @@ pub mod stride;
 
 pub use crate::prelude::*;
 
-
-
 #[cfg(test)]
 mod tests {
     use super::prelude::*;
@@ -344,7 +342,6 @@ mod tests {
         })
     }
 
-
     // #[bench]
     // fn map_eager_simd(b: &mut Bencher) {
     //     let mut into = [0f32; 1024];
@@ -368,7 +365,6 @@ mod tests {
                 }).scalar_fill(&mut into));
         })
     }
-
 
     #[bench]
     #[cfg(feature = "std")]

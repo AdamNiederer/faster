@@ -1,3 +1,10 @@
+// This file is part of faster, the SIMD library for humans.
+// Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 #![feature(test,stdsimd)]
 
 extern crate faster;
@@ -72,7 +79,6 @@ mod tests {
                         .simd_map(|(a, b)| (a - b) * (a - b))
                         .simd_reduce($simd_type(0.0 as $native_type), |a, v| a + v)
                         .sum();
-
 
                     // Ensure both ways produce the same result
                     assert_eq!(sum_scalar, sum_simd);

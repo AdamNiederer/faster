@@ -5,7 +5,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
 pub trait HSub {
     /// Return a vector containing the interleaved differences of elements in
     /// `self` and `other`. The returned vector will begin with the difference
@@ -13,8 +12,6 @@ pub trait HSub {
     /// last two elements in `other`
     fn hsub(&self, other: Self) -> Self;
 }
-
-
 
 #[cfg(test)]
 mod tests {

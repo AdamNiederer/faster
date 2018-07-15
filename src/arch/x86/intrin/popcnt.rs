@@ -16,7 +16,6 @@ use crate::arch::current::vecs::*;
 use crate::intrin::upcast::*;
 use crate::vecs::*;
 
-
 #[inline(always)]
 #[cfg(target_feature = "ssse3")]
 unsafe fn popcnt128(v: u8x16) -> usize {
@@ -61,7 +60,6 @@ unsafe fn popcnt256(v: u8x32) -> usize {
 unsafe fn popcnt512(v: u8x64) -> usize {
     v.be_u64s().scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
 }
-
 
 impl_popcnt!(u8x64, popcnt512, u8x32, popcnt256, u8x16, popcnt128);
 impl_popcnt!(i8x64, popcnt512, i8x32, popcnt256, i8x16, popcnt128);

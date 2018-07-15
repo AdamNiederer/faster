@@ -9,7 +9,6 @@ use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::recip::Recip;
 
-
 rust_fallback_impl! {
     impl Recip for f32x4 where "__undefined" {
         recip => __undefined(), [0, 1, 2, 3];

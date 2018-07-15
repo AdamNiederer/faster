@@ -79,7 +79,6 @@ impl_packed_swap_bytes!(i64x2, u8x16, "ssse3", _mm_shuffle_epi8,
                         (7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8),
                         (0, 1));
 
-
 mod tests {
     use crate::prelude::*;
     use crate::arch::current::vecs::*;

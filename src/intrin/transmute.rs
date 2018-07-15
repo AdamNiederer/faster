@@ -5,7 +5,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-
 pub trait Transmute {
     type i8s;
     type u8s;
@@ -31,7 +30,6 @@ pub trait Transmute {
     // TODO: Remove possibility of signalling NaNs
     unsafe fn be_f64s_unchecked(&self) -> Self::f64s;
 }
-
 
 macro_rules! impl_packed_transmute {
     ($($t:ty,)* ... $u8s:ty, $i8s:ty, $u16s:ty, $i16s:ty, $u32s:ty, $i32s:ty,
@@ -102,7 +100,6 @@ macro_rules! impl_packed_transmute {
         )*
     );
 }
-
 
 #[cfg(test)]
 mod tests {

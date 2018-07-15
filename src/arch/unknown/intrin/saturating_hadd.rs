@@ -9,7 +9,6 @@ use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::saturating_hadd::*;
 
-
 impl SaturatingHAdd for u64x2 { hop!(saturating_hadd, u64::saturating_add, 0, 1); }
 impl SaturatingHAdd for u32x4 { hop!(saturating_hadd, u32::saturating_add, 0, 1, 2, 3); }
 impl SaturatingHAdd for u16x8 { hop!(saturating_hadd, u16::saturating_add, 0, 1, 2, 3, 4, 5, 6, 7); }

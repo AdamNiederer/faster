@@ -7,7 +7,6 @@
 
 use crate::arch::current::vecs::*;
 
-
 // impl AddSub for f32x4 {
 //     #[inline(always)]
 //     fn addsub(&self, other: Self) -> Self {

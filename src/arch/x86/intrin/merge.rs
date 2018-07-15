@@ -7,7 +7,6 @@ use crate::intrin::transmute::*;
 use crate::intrin::merge::*;
 use crate::std::mem::transmute;
 
-
 // TODO: The AVX-512 version of this macro doesn't work; impl when stdsimd gets
 // around to it (and when I have some hardware to test it on).
 impl_packed_merge!(u8x16, u8x16, u8, _mm_blendv_epi8, "sse4.1", (0, 1, 2, 3, 4, 5, 6, 7), (8, 9, 10, 11, 12, 13, 14, 15), 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);

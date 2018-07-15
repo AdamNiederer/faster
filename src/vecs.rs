@@ -10,7 +10,6 @@ pub use crate::vec_patterns::Pattern;
 use crate::std::fmt::Debug;
 use crate::intrin::merge::*;
 
-
 /// A SIMD vector of some type.
 pub trait Packed : Sized + Copy + Debug + Merge {
     /// The type which fits into this SIMD vector
@@ -79,7 +78,6 @@ pub trait Packable where Self : Sized + Copy + Debug {
     type Vector : Packed<Scalar = Self> + Clone;
     const SIZE: usize;
 }
-
 
 // Vector types which aren't interpreted as SIMD vectors, for systems which
 // don't have SIMD support.

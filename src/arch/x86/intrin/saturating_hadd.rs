@@ -12,7 +12,6 @@ use crate::vecs::*;
 use crate::intrin::transmute::*;
 use crate::intrin::saturating_hadd::*;
 
-
 #[cfg(target_feature = "ssse3")]
 impl SaturatingHAdd for i16x8 {
     #[inline(always)]

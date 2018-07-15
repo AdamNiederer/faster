@@ -26,8 +26,6 @@ pub trait Upcast<T> {
     fn upcast(self) -> (T, T);
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use crate::prelude::*;

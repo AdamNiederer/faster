@@ -11,7 +11,7 @@ pub trait Sqrt {
     /// # Examples
     ///
     /// ```
-    /// #![feature(rust_2018_preview, stdsimd)] 
+    /// #![feature(rust_2018_preview, stdsimd)]
     /// extern crate faster;
     /// use faster::*;
     ///
@@ -22,7 +22,6 @@ pub trait Sqrt {
     /// ```
     fn sqrt(&self) -> Self;
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -1,4 +1,9 @@
+// This file is part of faster, the SIMD library for humans.
+// Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
 
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 pub trait Reendianize : Sized + Copy {
     /// Return a vector containing elements of `self` with switched endianness.
@@ -62,7 +67,6 @@ pub trait Reendianize : Sized + Copy {
     }
 }
 
-
 macro_rules! impl_packed_swap_bytes {
     ($vec:tt, $uvec:tt, $feat:expr, $mmfn:tt, ($($c:expr),*), ($($a:expr, $b:expr),*)) => {
         impl Reendianize for $vec {
@@ -83,7 +87,6 @@ macro_rules! impl_packed_swap_bytes {
         }
     }
 }
-
 
 macro_rules! test_packed_swap_bytes {
         (($($vec:tt),*), ($($fn:tt),*)) => {

@@ -1,3 +1,10 @@
+// This file is part of faster, the SIMD library for humans.
+// Copyright 2017 Adam Niederer <adam.niederer@gmail.com>
+
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
 use crate::vecs::*;
 
 pub trait Sum : Packed {
@@ -10,7 +17,6 @@ pub trait UpcastSum :  {
     /// but collect the result in an i64 rather than the vector's type.
     fn sum_upcast(&self) -> i64;
 }
-
 
 macro_rules! impl_packed_sum {
     ($($vec:tt),*) => {
@@ -37,7 +43,6 @@ macro_rules! impl_packed_upcast_sum {
         )*
     }
 }
-
 
 macro_rules! test_packed_sum_int {
     ($vec:tt, $el:tt, $name:ident) => {
@@ -72,4 +77,3 @@ macro_rules! test_packed_sum {
         }
     };
 }
-

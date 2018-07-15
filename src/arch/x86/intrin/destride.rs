@@ -7,7 +7,6 @@ use crate::intrin::transmute::*;
 use crate::intrin::destride::*;
 use crate::std::mem::transmute;
 
-
 impl Destride for u8x16 {
     #[inline(always)]
     #[cfg(target_feature = "ssse3")]
