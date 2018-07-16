@@ -28,6 +28,7 @@ macro_rules! impl_packed_swizzle {
             #[cfg(not(target_feature = $feat))]
             #[inline(always)]
             fn flip(&self) -> Self {
+                fallback!();
                 $vec::new($(self.extract($b), self.extract($a)),*)
             }
 

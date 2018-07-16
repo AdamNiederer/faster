@@ -25,6 +25,7 @@ impl Abs for f32x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(self.extract(0).abs(),
                        self.extract(1).abs(),
                        self.extract(2).abs(),
@@ -44,6 +45,7 @@ impl Abs for f64x2 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(self.extract(0).abs(),
                        self.extract(1).abs())
     }
@@ -61,6 +63,7 @@ impl Abs for f32x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(self.extract(0).abs(),
                        self.extract(1).abs(),
                        self.extract(2).abs(),
@@ -84,6 +87,7 @@ impl Abs for f64x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(self.extract(0).abs(),
                        self.extract(1).abs(),
                        self.extract(2).abs(),
@@ -103,6 +107,7 @@ impl Abs for i8x16 {
     #[inline(always)]
     #[cfg(not(target_feature = "ssse3"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i8, u8>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i8, u8>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i8, u8>(self.extract(2).overflowing_abs().0) },
@@ -134,6 +139,7 @@ impl Abs for i16x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "ssse3"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i16, u16>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i16, u16>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i16, u16>(self.extract(2).overflowing_abs().0) },
@@ -157,6 +163,7 @@ impl Abs for i32x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "ssse3"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i32, u32>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i32, u32>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i32, u32>(self.extract(2).overflowing_abs().0) },
@@ -176,6 +183,7 @@ impl Abs for i8x32 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i8, u8>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i8, u8>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i8, u8>(self.extract(2).overflowing_abs().0) },
@@ -222,6 +230,7 @@ impl Abs for i16x16 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i16, u16>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i16, u16>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i16, u16>(self.extract(2).overflowing_abs().0) },
@@ -252,6 +261,7 @@ impl Abs for i32x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i32, u32>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i32, u32>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i32, u32>(self.extract(2).overflowing_abs().0) },
@@ -268,6 +278,7 @@ impl Abs for i64x2 {
 
     #[inline(always)]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) })
     }
@@ -278,6 +289,7 @@ impl Abs for i64x4 {
 
     #[inline(always)]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },
@@ -290,6 +302,7 @@ impl Abs for i64x8 {
 
     #[inline(always)]
     fn abs(&self) -> Self::Out {
+        fallback!();
         Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
                        unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
                        unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },

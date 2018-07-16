@@ -25,6 +25,7 @@ macro_rules! impl_popcnt {
                 #[inline(always)]
                 #[allow(unused_unsafe)]
                 fn count_ones(&self) -> usize {
+                    fallback!();
                     unsafe { $fn(self.be_u8s()) }
                 }
             }
