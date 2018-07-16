@@ -27,6 +27,7 @@ impl Upcast<u16x8> for u8x16 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn upcast(self) -> (u16x8, u16x8) {
+        fallback!();
         (u16x8::new(self.extract(0) as u16,
                     self.extract(1) as u16,
                     self.extract(2) as u16,
@@ -60,6 +61,7 @@ impl Upcast<i16x8> for i8x16 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn upcast(self) -> (i16x8, i16x8) {
+        fallback!();
         (i16x8::new(self.extract(0) as i16,
                     self.extract(1) as i16,
                     self.extract(2) as i16,
@@ -92,6 +94,7 @@ impl Upcast<u32x4> for u16x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn upcast(self) -> (u32x4, u32x4) {
+        fallback!();
         (u32x4::new(self.extract(0) as u32,
                     self.extract(1) as u32,
                     self.extract(2) as u32,
@@ -116,6 +119,7 @@ impl Upcast<i32x4> for i16x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn upcast(self) -> (i32x4, i32x4) {
+        fallback!();
         (i32x4::new(self.extract(0) as i32,
                     self.extract(1) as i32,
                     self.extract(2) as i32,
@@ -140,6 +144,7 @@ impl Upcast<u16x16> for u8x32 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (u16x16, u16x16) {
+        fallback!();
         (u16x16::new(self.extract(0) as u16,
                      self.extract(1) as u16,
                      self.extract(2) as u16,
@@ -195,6 +200,7 @@ impl Upcast<i16x16> for i8x32 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (i16x16, i16x16) {
+        fallback!();
         (i16x16::new(self.extract(0) as i16,
                      self.extract(1) as i16,
                      self.extract(2) as i16,
@@ -243,6 +249,7 @@ impl Upcast<u32x8> for u16x16 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (u32x8, u32x8) {
+        fallback!();
         (u32x8::new(self.extract(0) as u32,
                     self.extract(1) as u32,
                     self.extract(2) as u32,
@@ -283,6 +290,7 @@ impl Upcast<i32x8> for i16x16 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (i32x8, i32x8) {
+        fallback!();
         (i32x8::new(self.extract(0) as i32,
                     self.extract(1) as i32,
                     self.extract(2) as i32,
@@ -313,6 +321,7 @@ impl Upcast<f64x2> for f32x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
     fn upcast(self) -> (f64x2, f64x2) {
+        fallback!();
         (f64x2::new(self.extract(0) as f64,
                     self.extract(1) as f64),
          f64x2::new(self.extract(2) as f64,
@@ -330,6 +339,7 @@ impl Upcast<f64x2> for i32x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
     fn upcast(self) -> (f64x2, f64x2) {
+        fallback!();
         (f64x2::new(self.extract(0) as f64,
                     self.extract(1) as f64),
          f64x2::new(self.extract(2) as f64,
@@ -350,6 +360,7 @@ impl Upcast<i64x2> for i32x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn upcast(self) -> (i64x2, i64x2) {
+        fallback!();
         (i64x2::new(self.extract(0) as i64,
                     self.extract(1) as i64),
          i64x2::new(self.extract(2) as i64,
@@ -369,6 +380,7 @@ impl Upcast<u64x2> for u32x4 {
     #[inline(always)]
     #[cfg(not(target_feature = "sse4.1"))]
     fn upcast(self) -> (u64x2, u64x2) {
+        fallback!();
         (u64x2::new(self.extract(0) as u64,
                     self.extract(1) as u64),
          u64x2::new(self.extract(2) as u64,
@@ -397,6 +409,7 @@ impl Upcast<f64x4> for f32x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (f64x4, f64x4) {
+        fallback!();
         (f64x4::new(self.extract(0) as f64,
                     self.extract(1) as f64,
                     self.extract(2) as f64,
@@ -428,6 +441,7 @@ impl Upcast<f64x4> for i32x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (f64x4, f64x4) {
+        fallback!();
         (f64x4::new(self.extract(0) as f64,
                     self.extract(1) as f64,
                     self.extract(2) as f64,
@@ -459,6 +473,7 @@ impl Upcast<i64x4> for i32x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (i64x4, i64x4) {
+        fallback!();
         (i64x4::new(self.extract(0) as i64,
                     self.extract(1) as i64,
                     self.extract(2) as i64,
@@ -482,6 +497,7 @@ impl Upcast<u64x4> for u32x8 {
     #[inline(always)]
     #[cfg(not(target_feature = "avx2"))]
     fn upcast(self) -> (u64x4, u64x4) {
+        fallback!();
         (u64x4::new(self.extract(0) as u64,
                     self.extract(1) as u64,
                     self.extract(2) as u64,
@@ -496,6 +512,7 @@ impl Upcast<u64x4> for u32x8 {
 impl Upcast<f64x8> for f32x16 {
     #[inline(always)]
     fn upcast(self) -> (f64x8, f64x8) {
+        fallback!();
         (f64x8::new(self.extract(0) as f64,
                     self.extract(1) as f64,
                     self.extract(2) as f64,
@@ -518,6 +535,7 @@ impl Upcast<f64x8> for f32x16 {
 impl Upcast<f64x8> for i32x16 {
     #[inline(always)]
     fn upcast(self) -> (f64x8, f64x8) {
+        fallback!();
         (f64x8::new(self.extract(0) as f64,
                     self.extract(1) as f64,
                     self.extract(2) as f64,
@@ -540,6 +558,7 @@ impl Upcast<f64x8> for i32x16 {
 impl Upcast<i64x8> for i32x16 {
     #[inline(always)]
     fn upcast(self) -> (i64x8, i64x8) {
+        fallback!();
         (i64x8::new(self.extract(0) as i64,
                     self.extract(1) as i64,
                     self.extract(2) as i64,
@@ -562,6 +581,7 @@ impl Upcast<i64x8> for i32x16 {
 impl Upcast<u64x8> for u32x16 {
     #[inline(always)]
     fn upcast(self) -> (u64x8, u64x8) {
+        fallback!();
         (u64x8::new(self.extract(0) as u64,
                     self.extract(1) as u64,
                     self.extract(2) as u64,

@@ -5,6 +5,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+
+macro_rules! fallback {
+    () => { println!("faster::fallback {}:{}", file!(), line!()); }
+}
+
 macro_rules! rust_fallback_impl {
     (impl $trait:tt for $type:tt where $feat:tt {
         $($rustfn:ident => $mmfn:tt  ( $($mmfnargs:expr),* ), [$($n:expr),+]);*;}) => (
@@ -19,6 +24,7 @@ macro_rules! rust_fallback_impl {
                 #[inline(always)]
                 #[cfg(not(target_feature = $feat))]
                 fn $rustfn(&self) -> Self {
+                    fallback!();
                     Self::new($(self.extract($n).$rustfn(),)*)
                 }
             )*
@@ -41,6 +47,7 @@ macro_rules! rust_fallback_impl_binary {
                 #[inline(always)]
                 #[cfg(not(target_feature = $feat))]
                 fn $rustfn(&self, other: Self) -> Self {
+                    fallback!();
                     Self::new($(self.extract($n).$rustfn(other.extract($n)),)*)
                 }
             )*
@@ -52,6 +59,7 @@ macro_rules! hop {
     ($name:ident, $fn:path, $($a:expr, $b:expr),*) => {
         #[inline(always)]
         fn $name(&self, other: Self) -> Self {
+            fallback!();
             Self::new($($fn(self.extract($a), self.extract($b)),
                         $fn(other.extract($a), other.extract($b))),*)
         }

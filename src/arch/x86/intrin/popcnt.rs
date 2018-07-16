@@ -32,6 +32,7 @@ unsafe fn popcnt128(v: u8x16) -> usize {
 #[cfg(not(target_feature = "ssse3"))]
 #[allow(unused_unsafe)]
 unsafe fn popcnt128(v: u8x16) -> usize {
+    fallback!();
     v.be_u64s(). scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
 }
 
@@ -52,12 +53,14 @@ unsafe fn popcnt256(v: u8x32) -> usize {
 #[cfg(not(target_feature = "avx2"))]
 #[allow(unused_unsafe)]
 unsafe fn popcnt256(v: u8x32) -> usize {
+    fallback!();
     v.be_u64s().scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
 }
 
 #[inline(always)]
 // #[cfg(not(target_feature = "avx512"))]
 unsafe fn popcnt512(v: u8x64) -> usize {
+    fallback!();
     v.be_u64s().scalar_reduce(0, |acc, s| acc + (s.count_ones() as usize))
 }
 

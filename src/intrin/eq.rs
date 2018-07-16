@@ -60,6 +60,7 @@ macro_rules! rust_fallback_eq {
                 #[inline(always)]
                 #[cfg(not(target_feature = $feat))]
                 fn $newfn(&self, other: Self) -> Self::Out {
+                    fallback!();
                     use crate::std::mem::transmute;
                     unsafe {
                         Self::Out::new($(transmute(if self.extract($n).$rustfn(&other.extract($n)) {

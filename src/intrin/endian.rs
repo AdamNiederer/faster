@@ -73,6 +73,7 @@ macro_rules! impl_packed_swap_bytes {
             #[cfg(not(target_feature = $feat))]
             #[inline(always)]
             fn swap_bytes(&self) -> Self {
+                fallback!();
                 $vec::new($(self.extract($a).swap_bytes(),
                             self.extract($b).swap_bytes()),*)
             }

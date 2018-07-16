@@ -38,7 +38,7 @@ mod tests {
             .simd_map(|(a, b, c, d, e, f, g, h, i)| {
                 (a * e * i) + (b * f * g) + (c * d * h) - (c * e * g) - (b * d * i) - (a * f * h)
             }).scalar_collect();
-        assert!(determinants.iter().fold(true, |acc, x| { println!("{:?}", x); acc && x == &-12 }));
+        assert!(determinants.iter().fold(true, |acc, x| { acc && x == &-12 }));
     }
 
     #[test]
