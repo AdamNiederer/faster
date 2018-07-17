@@ -17,7 +17,7 @@ macro_rules! debug_append_log {
 
         // Allows the user to configure debug file path at compile time,
         // e.g., when building for embedded / Android.
-        let file_name = option_env!("FASTER_DEBUG_FILE").unwrap_or("faster-debug.log");
+        let file_name = option_env!("FASTER_DEBUG_FILE").unwrap_or("faster-debug.txt");
 
         std::fs::OpenOptions::new()
             .write(true)
