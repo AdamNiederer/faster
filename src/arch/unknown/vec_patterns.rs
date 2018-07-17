@@ -55,6 +55,7 @@ impl Pattern for u8x16 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -62,6 +63,7 @@ impl Pattern for u8x16 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -118,6 +120,7 @@ impl Pattern for i8x16 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -125,6 +128,7 @@ impl Pattern for i8x16 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -181,6 +185,7 @@ impl Pattern for u16x8 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -188,6 +193,7 @@ impl Pattern for u16x8 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -236,6 +242,7 @@ impl Pattern for i16x8 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -243,6 +250,7 @@ impl Pattern for i16x8 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -291,6 +299,7 @@ impl Pattern for u32x4 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -298,6 +307,7 @@ impl Pattern for u32x4 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -342,6 +352,7 @@ impl Pattern for i32x4 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -349,6 +360,7 @@ impl Pattern for i32x4 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -393,6 +405,7 @@ impl Pattern for f32x4 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -400,6 +413,7 @@ impl Pattern for f32x4 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -444,6 +458,7 @@ impl Pattern for u64x2 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -451,6 +466,7 @@ impl Pattern for u64x2 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),
@@ -493,6 +509,7 @@ impl Pattern for i64x2 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -500,6 +517,7 @@ impl Pattern for i64x2 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),
@@ -542,6 +560,7 @@ impl Pattern for f64x2 {
             #[inline(always)]
             #[cfg(target_feature = "__undefined")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(__undefined(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -549,6 +568,7 @@ impl Pattern for f64x2 {
     #[cfg(not(target_feature = "__undefined"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),

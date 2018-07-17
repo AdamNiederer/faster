@@ -1,7 +1,7 @@
 #![feature(test, stdsimd)]
 
 #[cfg(test)] extern crate test;
-#[macro_use] extern crate faster;
+extern crate faster;
 
 const ARRAY_F32: &[f32] = &[-123.456f32; 1024];
 

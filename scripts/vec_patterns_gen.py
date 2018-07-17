@@ -99,6 +99,7 @@ def generate_vec_patterns(arch, headers, els, vecs, lens, feats, blends, elsz, m
             #[inline(always)]
             #[cfg(target_feature = "{ft}")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {{
+                optimized!();
                 unsafe {{ transmute({b}(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }}
             }}
             """)
@@ -108,6 +109,7 @@ def generate_vec_patterns(arch, headers, els, vecs, lens, feats, blends, elsz, m
             fprint(f"    #[cfg(not(target_feature = \"{ft}\"))]")
             fprint(f"    fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {{")
             fprint(f"        assert!(off <= Self::WIDTH);")
+            fprint(f"        fallback!();")
             fprint(f"        match off {{")
             for i in range(0, l + 1):
                 first = ", ".join("hi" for _ in range(i))
