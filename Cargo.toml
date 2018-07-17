@@ -20,6 +20,7 @@ vektor = {git = "https://github.com/AdamNiederer/vektor", branch = "master"}
 [features]
 default = ["std"]
 std = []
+trace = []  # When enabled, `FASTER_DEBUG_FILE` environment can configure log file.
 
 [dev-dependencies]
 
