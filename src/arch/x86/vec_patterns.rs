@@ -55,6 +55,7 @@ impl Pattern for u8x64 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -62,6 +63,7 @@ impl Pattern for u8x64 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -166,6 +168,7 @@ impl Pattern for u8x32 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -173,6 +176,7 @@ impl Pattern for u8x32 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -245,6 +249,7 @@ impl Pattern for u8x16 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -252,6 +257,7 @@ impl Pattern for u8x16 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -308,6 +314,7 @@ impl Pattern for i8x64 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -315,6 +322,7 @@ impl Pattern for i8x64 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -419,6 +427,7 @@ impl Pattern for i8x32 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -426,6 +435,7 @@ impl Pattern for i8x32 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -498,6 +508,7 @@ impl Pattern for i8x16 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -505,6 +516,7 @@ impl Pattern for i8x16 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -561,6 +573,7 @@ impl Pattern for u16x32 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -568,6 +581,7 @@ impl Pattern for u16x32 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -640,6 +654,7 @@ impl Pattern for u16x16 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -647,6 +662,7 @@ impl Pattern for u16x16 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -703,6 +719,7 @@ impl Pattern for u16x8 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -710,6 +727,7 @@ impl Pattern for u16x8 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -758,6 +776,7 @@ impl Pattern for i16x32 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -765,6 +784,7 @@ impl Pattern for i16x32 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -837,6 +857,7 @@ impl Pattern for i16x16 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -844,6 +865,7 @@ impl Pattern for i16x16 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -900,6 +922,7 @@ impl Pattern for i16x8 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -907,6 +930,7 @@ impl Pattern for i16x8 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -955,6 +979,7 @@ impl Pattern for u32x16 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -962,6 +987,7 @@ impl Pattern for u32x16 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -1018,6 +1044,7 @@ impl Pattern for u32x8 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1025,6 +1052,7 @@ impl Pattern for u32x8 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -1073,6 +1101,7 @@ impl Pattern for u32x4 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1080,6 +1109,7 @@ impl Pattern for u32x4 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1124,6 +1154,7 @@ impl Pattern for i32x16 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1131,6 +1162,7 @@ impl Pattern for i32x16 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -1187,6 +1219,7 @@ impl Pattern for i32x8 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1194,6 +1227,7 @@ impl Pattern for i32x8 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -1242,6 +1276,7 @@ impl Pattern for i32x4 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1249,6 +1284,7 @@ impl Pattern for i32x4 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1293,6 +1329,7 @@ impl Pattern for f32x16 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1300,6 +1337,7 @@ impl Pattern for f32x16 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo, lo),
@@ -1356,6 +1394,7 @@ impl Pattern for f32x8 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1363,6 +1402,7 @@ impl Pattern for f32x8 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -1411,6 +1451,7 @@ impl Pattern for f32x4 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1418,6 +1459,7 @@ impl Pattern for f32x4 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1462,6 +1504,7 @@ impl Pattern for u64x8 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1469,6 +1512,7 @@ impl Pattern for u64x8 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -1517,6 +1561,7 @@ impl Pattern for u64x4 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1524,6 +1569,7 @@ impl Pattern for u64x4 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1568,6 +1614,7 @@ impl Pattern for u64x2 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1575,6 +1622,7 @@ impl Pattern for u64x2 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),
@@ -1617,6 +1665,7 @@ impl Pattern for i64x8 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1624,6 +1673,7 @@ impl Pattern for i64x8 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -1672,6 +1722,7 @@ impl Pattern for i64x4 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1679,6 +1730,7 @@ impl Pattern for i64x4 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1723,6 +1775,7 @@ impl Pattern for i64x2 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1730,6 +1783,7 @@ impl Pattern for i64x2 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),
@@ -1772,6 +1826,7 @@ impl Pattern for f64x8 {
             #[inline(always)]
             #[cfg(target_feature = "avx512-notyet")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm512_mask_mov_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1779,6 +1834,7 @@ impl Pattern for f64x8 {
     #[cfg(not(target_feature = "avx512-notyet"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo, lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo, lo, lo, lo, lo),
@@ -1827,6 +1883,7 @@ impl Pattern for f64x4 {
             #[inline(always)]
             #[cfg(target_feature = "avx2")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm256_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1834,6 +1891,7 @@ impl Pattern for f64x4 {
     #[cfg(not(target_feature = "avx2"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo, lo, lo),
             1 => Self::new(hi, lo, lo, lo),
@@ -1878,6 +1936,7 @@ impl Pattern for f64x2 {
             #[inline(always)]
             #[cfg(target_feature = "sse4.1")]
             fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
+                optimized!();
                 unsafe { transmute(_mm_blendv_epi8(transmute(Self::splat(hi)), transmute(Self::splat(lo)), transmute(Self::partition_mask(off)))) }
             }
             
@@ -1885,6 +1944,7 @@ impl Pattern for f64x2 {
     #[cfg(not(target_feature = "sse4.1"))]
     fn partition(hi: Self::Scalar, lo: Self::Scalar, off: usize) -> Self {
         assert!(off <= Self::WIDTH);
+        fallback!();
         match off {
             0 => Self::new(lo, lo),
             1 => Self::new(hi, lo),
