@@ -81,6 +81,7 @@ macro_rules! impl_packed_swap_bytes {
             #[cfg(target_feature = $feat)]
             #[inline(always)]
             fn swap_bytes(&self) -> Self {
+                optimized!();
                 unsafe {
                     transmute($mmfn(self.be_i8s(), $uvec::new($($c),*).be_i8s()))
                 }

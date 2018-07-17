@@ -16,6 +16,7 @@ use crate::intrin::saturating_hsub::*;
 impl SaturatingHSub for i16x8 {
     #[inline(always)]
     fn saturating_hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hsubs_epi16(_mm_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                  _mm_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
@@ -25,6 +26,7 @@ impl SaturatingHSub for i16x8 {
 impl SaturatingHSub for i16x16 {
     #[inline(always)]
     fn saturating_hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hsubs_epi16(_mm256_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                     _mm256_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }

@@ -17,6 +17,7 @@ use crate::vecs::*;
 impl HAdd for f32x4 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hadd_ps(_mm_shuffle_ps(*self, other, 0b01000100),
                              _mm_shuffle_ps(*self, other, 0b11101110)) }
     }
@@ -27,6 +28,7 @@ impl HAdd for f64x2 {
     #[inline(always)]
     #[cfg(target_feature = "sse3")]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hadd_pd(*self, other) }
     }
 }
@@ -35,6 +37,7 @@ impl HAdd for f64x2 {
 impl HAdd for f32x8 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hadd_ps(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_f32s_unchecked(),
                                 _mm256_unpackhi_epi64(self.be_i64s(), other.be_i64s()).be_f32s_unchecked()) }
     }
@@ -44,6 +47,7 @@ impl HAdd for f32x8 {
 impl HAdd for f64x4 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hadd_pd(*self, other) }
     }
 }
@@ -52,6 +56,7 @@ impl HAdd for f64x4 {
 impl HAdd for i16x8 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hadd_epi16(_mm_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                 _mm_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
@@ -61,6 +66,7 @@ impl HAdd for i16x8 {
 impl HAdd for i32x4 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hadd_epi32(_mm_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
                                 _mm_unpackhi_epi64(self.be_i64s(), other.be_i64s()).be_i32s()) }
     }
@@ -70,6 +76,7 @@ impl HAdd for i32x4 {
 impl HAdd for i16x16 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hadd_epi16(_mm256_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                    _mm256_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
@@ -79,6 +86,7 @@ impl HAdd for i16x16 {
 impl HAdd for i32x8 {
     #[inline(always)]
     fn hadd(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hadd_epi32(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
                                    _mm256_unpackhi_epi64(self.be_i64s(), other.be_i64s()).be_i32s()) }
     }

@@ -35,6 +35,7 @@ macro_rules! impl_packed_swizzle {
             #[cfg(target_feature = $feat)]
             #[inline(always)]
             fn flip(&self) -> Self {
+                optimized!();
                 unsafe {
                     transmute($mmfn(self.be_i8s(), $uvec::new($($c),*).be_i8s()))
                 }

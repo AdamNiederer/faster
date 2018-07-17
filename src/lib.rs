@@ -205,6 +205,7 @@ pub use ::core as std;
 
 extern crate vektor;
 
+#[macro_use] pub(crate) mod debug;
 #[macro_use] pub mod zip;
 #[macro_use] pub mod vecs;
 pub mod vec_patterns;

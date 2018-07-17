@@ -18,6 +18,7 @@ impl Upcast<u16x8> for u8x16 {
     #[cfg(target_feature = "sse4.1")]
     fn upcast(self) -> (u16x8, u16x8) {
         // Shuffle the vector as i32s for better perf
+        optimized!();
         unsafe {
             (_mm_cvtepu8_epi16(self).be_u16s(),
              _mm_cvtepu8_epi16(_mm_shuffle_epi32(self.be_i32s(), 0x0E).be_u8s()).be_u16s())
@@ -52,6 +53,7 @@ impl Upcast<i16x8> for i8x16 {
     #[cfg(target_feature = "sse4.1")]
     fn upcast(self) -> (i16x8, i16x8) {
         // Shuffle the vector as i32s for better perf
+        optimized!();
         unsafe {
             (_mm_cvtepi8_epi16(self),
              _mm_cvtepi8_epi16(_mm_shuffle_epi32(self.be_i32s(), 0x0E).be_i8s()))
@@ -85,6 +87,7 @@ impl Upcast<u32x4> for u16x8 {
     #[inline(always)]
     #[cfg(target_feature = "sse4.1")]
     fn upcast(self) -> (u32x4, u32x4) {
+        optimized!();
         unsafe {
             (_mm_cvtepu16_epi32(self).be_u32s(),
              _mm_cvtepu16_epi32(_mm_shuffle_epi32(self.be_i32s(), 0x0E).be_u16s()).be_u32s())
@@ -110,6 +113,7 @@ impl Upcast<i32x4> for i16x8 {
     #[inline(always)]
     #[cfg(target_feature = "sse4.1")]
     fn upcast(self) -> (i32x4, i32x4) {
+        optimized!();
         unsafe {
             (_mm_cvtepi16_epi32(self),
              _mm_cvtepi16_epi32(_mm_shuffle_epi32(self.be_i32s(), 0x0E).be_i16s()))
@@ -135,6 +139,7 @@ impl Upcast<u16x16> for u8x32 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (u16x16, u16x16) {
+        optimized!();
         unsafe {
             (_mm256_cvtepu8_epi16(transmute(_mm256_castsi256_si128(transmute(self)))).be_u16s(),
              _mm256_cvtepu8_epi16(transmute(_mm256_castsi256_si128(transmute(_mm256_permute4x64_epi64(self.be_i64s(), 0x0E).be_u16s())))).be_u16s())
@@ -184,6 +189,7 @@ impl Upcast<i16x16> for i8x32 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (i16x16, i16x16) {
+        optimized!();
         unsafe {
             (_mm256_cvtepi8_epi16(
                 transmute(
@@ -240,6 +246,7 @@ impl Upcast<u32x8> for u16x16 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (u32x8, u32x8) {
+        optimized!();
         unsafe {
             (_mm256_cvtepu16_epi32(transmute(_mm256_castsi256_si128(transmute(self)))).be_u32s(),
              _mm256_cvtepu16_epi32(transmute(_mm256_castsi256_si128(transmute(_mm256_permute4x64_epi64(self.be_i64s(), 0x0E).be_u32s())))).be_u32s())
@@ -274,6 +281,7 @@ impl Upcast<i32x8> for i16x16 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (i32x8, i32x8) {
+        optimized!();
         unsafe {
             (_mm256_cvtepi16_epi32(
                 transmute(
@@ -315,6 +323,7 @@ impl Upcast<f64x2> for f32x4 {
     #[cfg(target_feature = "sse2")]
     fn upcast(self) -> (f64x2, f64x2) {
         // Shuffle the vector as i32s for better perf
+        optimized!();
         unsafe { (_mm_cvtps_pd(self), _mm_cvtps_pd(_mm_shuffle_epi32(self.be_i32s(), 0x0E).be_f32s_unchecked())) }
     }
 
@@ -333,6 +342,7 @@ impl Upcast<f64x2> for i32x4 {
     #[inline(always)]
     #[cfg(target_feature = "sse2")]
     fn upcast(self) -> (f64x2, f64x2) {
+        optimized!();
         unsafe { (_mm_cvtepi32_pd(self), _mm_cvtepi32_pd(_mm_shuffle_epi32(self, 0x0E))) }
     }
 
@@ -351,6 +361,7 @@ impl Upcast<i64x2> for i32x4 {
     #[inline(always)]
     #[cfg(target_feature = "sse4.1")]
     fn upcast(self) -> (i64x2, i64x2) {
+        optimized!();
         unsafe {
             (_mm_cvtepi32_epi64(self),
              _mm_cvtepi32_epi64(_mm_shuffle_epi32(self, 0x0E)))
@@ -372,6 +383,7 @@ impl Upcast<u64x2> for u32x4 {
     #[inline(always)]
     #[cfg(target_feature = "sse4.1")]
     fn upcast(self) -> (u64x2, u64x2) {
+        optimized!();
         unsafe {
             (_mm_cvtepu32_epi64(self).be_u64s(),
              _mm_cvtepu32_epi64(_mm_shuffle_epi32(self.be_i32s(), 0x0E).be_u32s()).be_u64s()) }
@@ -393,6 +405,7 @@ impl Upcast<f64x4> for f32x8 {
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (f64x4, f64x4) {
         // Shuffle the vector as i32s for better perf
+        optimized!();
         unsafe {
             (_mm256_cvtps_pd(
                 transmute(
@@ -425,6 +438,7 @@ impl Upcast<f64x4> for i32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (f64x4, f64x4) {
+        optimized!();
         unsafe {
             (_mm256_cvtepi32_pd(
                 transmute(
@@ -457,6 +471,7 @@ impl Upcast<i64x4> for i32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (i64x4, i64x4) {
+        optimized!();
         unsafe {
             (_mm256_cvtepi32_epi64(
                 transmute(
@@ -489,6 +504,7 @@ impl Upcast<u64x4> for u32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn upcast(self) -> (u64x4, u64x4) {
+        optimized!();
         unsafe {
             (_mm256_cvtepu32_epi64(transmute(_mm256_castsi256_si128(transmute(self)))).be_u64s(),
              _mm256_cvtepu32_epi64(transmute(_mm256_castsi256_si128(transmute(_mm256_permute4x64_epi64(transmute(self), 0x0E).be_u32s())))).be_u64s()) }

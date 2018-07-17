@@ -19,6 +19,7 @@ impl Abs for f32x4 {
     #[inline(always)]
     #[cfg(target_feature = "sse")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm_and_ps(*self, Self::splat(transmute::<u32, f32>(0x7FFFFFFF))) }
     }
 
@@ -39,6 +40,7 @@ impl Abs for f64x2 {
     #[inline(always)]
     #[cfg(target_feature = "sse2")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm_and_pd(*self, Self::splat(transmute::<u64, f64>(0x7FFFFFFFFFFFFFFF))) }
     }
 
@@ -57,6 +59,7 @@ impl Abs for f32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm256_and_ps(*self, Self::splat(transmute::<u32, f32>(0x7FFFFFFF))) }
     }
 
@@ -81,6 +84,7 @@ impl Abs for f64x4 {
     #[inline(always)]
     #[cfg(target_feature = "avx")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm256_and_pd(*self, Self::splat(transmute::<u64, f64>(0x7FFFFFFFFFFFFFFF))) }
     }
 
@@ -101,6 +105,7 @@ impl Abs for i8x16 {
     #[inline(always)]
     #[cfg(target_feature = "ssse3")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm_abs_epi8(*self) }
     }
 
@@ -133,6 +138,7 @@ impl Abs for i16x8 {
     #[inline(always)]
     #[cfg(target_feature = "ssse3")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm_abs_epi16(*self) }
     }
 
@@ -157,6 +163,7 @@ impl Abs for i32x4 {
     #[inline(always)]
     #[cfg(target_feature = "ssse3")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm_abs_epi32(*self) }
     }
 
@@ -177,6 +184,7 @@ impl Abs for i8x32 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm256_abs_epi8(*self) }
     }
 
@@ -224,6 +232,7 @@ impl Abs for i16x16 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm256_abs_epi16(*self) }
     }
 
@@ -255,6 +264,7 @@ impl Abs for i32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn abs(&self) -> Self::Out {
+        optimized!();
         unsafe { _mm256_abs_epi32(*self) }
     }
 

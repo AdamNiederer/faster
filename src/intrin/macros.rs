@@ -6,10 +6,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 
-macro_rules! fallback {
-    () => { println!("faster::fallback {}:{}", file!(), line!()); }
-}
-
 macro_rules! rust_fallback_impl {
     (impl $trait:tt for $type:tt where $feat:tt {
         $($rustfn:ident => $mmfn:tt  ( $($mmfnargs:expr),* ), [$($n:expr),+]);*;}) => (
@@ -18,6 +14,7 @@ macro_rules! rust_fallback_impl {
                 #[inline(always)]
                 #[cfg(target_feature = $feat)]
                 fn $rustfn(&self) -> Self {
+                    optimized!();
                     unsafe { $mmfn(*self, $($mmfnargs),*) }
                 }
 
@@ -41,6 +38,7 @@ macro_rules! rust_fallback_impl_binary {
                 #[cfg(target_feature = $feat)]
                 fn $rustfn(&self, other: Self) -> Self {
                     use crate::std::mem::transmute;
+                    optimized!();
                     unsafe { transmute($mmfn(transmute(*self), transmute(other), $($mmfnargs),*)) }
                 }
 
