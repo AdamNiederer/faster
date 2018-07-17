@@ -17,6 +17,7 @@ impl Downcast<i16x8> for i32x4 {
     #[inline(always)]
     #[cfg(target_feature = "sse2")]
     fn saturating_downcast(self, other: Self) -> i16x8 {
+        optimized!();
         unsafe { _mm_packs_epi32(self.be_i32s(), other.be_i32s()).be_i16s() }
     }
 
@@ -72,6 +73,7 @@ impl Downcast<i8x16> for i16x8 {
     #[inline(always)]
     #[cfg(target_feature = "sse2")]
     fn saturating_downcast(self, other: Self) -> i8x16 {
+        optimized!();
         unsafe { _mm_packs_epi16(self.be_i16s(), other.be_i16s()).be_i8s() }
     }
 
@@ -102,6 +104,7 @@ impl Downcast<u16x8> for u32x4 {
     #[inline(always)]
     #[cfg(target_feature = "sse4.1")]
     fn saturating_downcast(self, other: Self) -> u16x8 {
+        optimized!();
         unsafe { transmute(_mm_packus_epi32(transmute(self), transmute(other))) }
     }
 
@@ -124,6 +127,7 @@ impl Downcast<u8x16> for u16x8 {
     #[inline(always)]
     #[cfg(target_feature = "sse2")]
     fn saturating_downcast(self, other: Self) -> u8x16 {
+        optimized!();
         unsafe { _mm_packus_epi16(self.be_i16s(), other.be_i16s()).be_u8s() }
     }
 
@@ -154,6 +158,7 @@ impl Downcast<i16x16> for i32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn saturating_downcast(self, other: Self) -> i16x16 {
+        optimized!();
         unsafe { _mm256_packs_epi32(self, other) }
     }
 
@@ -184,6 +189,7 @@ impl Downcast<i8x32> for i16x16 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn saturating_downcast(self, other: Self) -> i8x32 {
+        optimized!();
         unsafe { _mm256_packs_epi16(self.be_i16s(), other) }
     }
 
@@ -230,6 +236,7 @@ impl Downcast<u16x16> for u32x8 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn saturating_downcast(self, other: Self) -> u16x16 {
+        optimized!();
         unsafe { transmute(_mm256_packus_epi32(transmute(self), transmute(other))) }
     }
 
@@ -260,6 +267,7 @@ impl Downcast<u8x32> for u16x16 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn saturating_downcast(self, other: Self) -> u8x32 {
+        optimized!();
         unsafe { _mm256_packus_epi16(self.be_i16s(), other.be_i16s()).be_u8s() }
     }
 

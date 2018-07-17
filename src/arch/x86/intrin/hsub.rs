@@ -17,6 +17,7 @@ use crate::std::ops::Sub;
 impl HSub for f32x4 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hsub_ps(_mm_shuffle_ps(*self, other, 0b01000100),
                              _mm_shuffle_ps(*self, other, 0b11101110)) }
     }
@@ -26,6 +27,7 @@ impl HSub for f32x4 {
 impl HSub for f64x2 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hsub_pd(*self, other) }
     }
 }
@@ -34,6 +36,7 @@ impl HSub for f64x2 {
 impl HSub for f32x8 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hsub_ps(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_f32s_unchecked(),
                                 _mm256_unpackhi_epi64(self.be_i64s(), other.be_i64s()).be_f32s_unchecked()) }
     }
@@ -43,6 +46,7 @@ impl HSub for f32x8 {
 impl HSub for f64x4 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hsub_pd(*self, other) }
     }
 }
@@ -51,6 +55,7 @@ impl HSub for f64x4 {
 impl HSub for i16x8 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hsub_epi16(_mm_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                 _mm_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
@@ -60,6 +65,7 @@ impl HSub for i16x8 {
 impl HSub for i32x4 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm_hsub_epi32(_mm_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
                                 _mm_unpackhi_epi64(self.be_i64s(), other.be_i64s()).be_i32s()) }
     }
@@ -69,6 +75,7 @@ impl HSub for i32x4 {
 impl HSub for i16x16 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hsub_epi16(_mm256_unpacklo_epi32(self.be_i32s(), other.be_i32s()).be_i16s(),
                                    _mm256_unpackhi_epi32(self.be_i32s(), other.be_i32s()).be_i16s()) }
     }
@@ -78,6 +85,7 @@ impl HSub for i16x16 {
 impl HSub for i32x8 {
     #[inline(always)]
     fn hsub(&self, other: Self) -> Self {
+        optimized!();
         unsafe { _mm256_hsub_epi32(_mm256_unpacklo_epi64(self.be_i64s(), other.be_i64s()).be_i32s(),
                                    _mm256_unpackhi_epi64(self.be_i64s(), other.be_i64s()).be_i32s()) }
     }

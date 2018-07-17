@@ -29,6 +29,7 @@ use crate::intrin::transmute::Transmute;
 impl Sum for i8x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         let pos = unsafe { _mm_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x16::splat(0)).be_u16s() };
         let neg = unsafe { _mm_sad_epu8(self.min(Self::splat(0)).abs().be_u8s(), u8x16::splat(0)).be_u16s() };
         pos.extract(0).overflowing_sub(neg.extract(0)).0
@@ -40,6 +41,7 @@ impl Sum for i8x16 {
 impl UpcastSum for i8x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
+        optimized!();
         let pos = unsafe { _mm_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x16::splat(0)).be_u16s() };
         let neg = unsafe { _mm_sad_epu8(self.min(Self::splat(0)).abs().be_u8s(), u8x16::splat(0)).be_u16s() };
         pos.extract(0).overflowing_sub(neg.extract(0)).0
@@ -51,6 +53,7 @@ impl UpcastSum for i8x16 {
 impl Sum for i8x32 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         let pos = unsafe { _mm256_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x32::splat(0)).be_u16s() };
         let neg = unsafe { _mm256_sad_epu8(self.min(Self::splat(0)).abs().be_u8s(), u8x32::splat(0)).be_u16s() };
         pos.extract(0).overflowing_sub(neg.extract(0)).0
@@ -64,6 +67,7 @@ impl Sum for i8x32 {
 impl UpcastSum for i8x32 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
+        optimized!();
         let pos = unsafe { _mm256_sad_epu8(self.max(Self::splat(0)).be_u8s(), u8x32::splat(0)).be_u16s() };
         let neg = unsafe { _mm256_sad_epu8(self.min(Self::splat(0)).abs().be_u8s(), u8x32::splat(0)).be_u16s() };
         pos.extract(0).overflowing_sub(neg.extract(0)).0
@@ -77,6 +81,7 @@ impl UpcastSum for i8x32 {
 impl Sum for u8x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         let x = unsafe { _mm_sad_epu8(*self, Self::splat(0)).be_u16s() };
         (x.extract(0) + x.extract(4)) as u8
     }
@@ -86,6 +91,7 @@ impl Sum for u8x16 {
 impl UpcastSum for u8x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
+        optimized!();
         let x = unsafe { _mm_sad_epu8(*self, Self::splat(0)).be_u16s() };
         (x.extract(0) + x.extract(4)) as i64
     }
@@ -95,6 +101,7 @@ impl UpcastSum for u8x16 {
 impl Sum for u8x32 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         let x = unsafe { _mm256_sad_epu8(*self, Self::splat(0)).be_u16s() };
         (x.extract(0) + x.extract(4) + x.extract(8) + x.extract(12)) as u8
     }
@@ -104,6 +111,7 @@ impl Sum for u8x32 {
 impl UpcastSum for u8x32 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
+        optimized!();
         let x = unsafe { _mm256_sad_epu8(*self, Self::splat(0)).be_u16s() };
         (x.extract(0) + x.extract(4) + x.extract(8) + x.extract(12)) as i64
     }
@@ -113,6 +121,7 @@ impl UpcastSum for u8x32 {
 impl Sum for i16x8 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         let x =  unsafe {
             _mm_hadd_epi16(
                 _mm_hadd_epi16(
@@ -126,6 +135,7 @@ impl Sum for i16x8 {
 impl Sum for i16x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         let x =  unsafe {
             _mm256_hadd_epi16(
                 _mm256_hadd_epi16(
@@ -139,6 +149,7 @@ impl Sum for i16x16 {
 impl UpcastSum for i16x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
+        optimized!();
         unsafe {
             let (a, b) = self.upcast();
             let x =  _mm256_hadd_epi32(
@@ -154,6 +165,7 @@ impl UpcastSum for i16x16 {
 impl Sum for u16x16 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         unsafe {
             let (a, b) = self.upcast();
             let x =  _mm256_hadd_epi32(
@@ -169,6 +181,7 @@ impl Sum for u16x16 {
 impl UpcastSum for u16x16 {
     #[inline(always)]
     fn sum_upcast(&self) -> i64 {
+        optimized!();
         unsafe {
             let (a, b) = self.upcast();
             let x =  _mm256_hadd_epi32(
@@ -184,6 +197,7 @@ impl UpcastSum for u16x16 {
 impl Sum for i32x8 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         let x = unsafe {
             _mm256_hadd_epi32(
                 _mm256_hadd_epi32(*self, Self::splat(0)), Self::splat(0))
@@ -196,6 +210,7 @@ impl Sum for i32x8 {
 impl Sum for f32x4 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         unsafe {
             let x = _mm_hadd_ps(*self, *self);
             let x = _mm_hadd_ps(x, x);
@@ -208,6 +223,7 @@ impl Sum for f32x4 {
 impl Sum for f64x2 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         unsafe {
             let x = _mm_hadd_pd(*self, *self);
             x.extract(0)
@@ -219,6 +235,7 @@ impl Sum for f64x2 {
 impl Sum for f32x8 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         unsafe {
             let x = _mm256_hadd_ps(*self, *self);
             let x = _mm256_hadd_ps(x, x);
@@ -231,6 +248,7 @@ impl Sum for f32x8 {
 impl Sum for f64x4 {
     #[inline(always)]
     fn sum(&self) -> Self::Scalar {
+        optimized!();
         unsafe {
             let x = _mm256_hadd_pd(*self, *self);
             x.extract(0) + x.extract(2)
@@ -265,7 +283,7 @@ impl_packed_upcast_sum!();
 mod tests {
     use crate::prelude::*;
     use crate::arch::current::vecs::*;
-    
+
     test_packed_sum_int!(u8x64, u8, test_packed_sum_u8x64);
     test_packed_sum_int!(u8x32, u8, test_packed_sum_u8x32);
     test_packed_sum_int!(u8x16, u8, test_packed_sum_u8x16);

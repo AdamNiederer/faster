@@ -11,6 +11,7 @@ impl Destride for u8x16 {
     #[inline(always)]
     #[cfg(target_feature = "ssse3")]
     fn destride_two(self, other: Self) -> (Self, Self) {
+        optimized!();
         unsafe {
             let a = _mm_shuffle_epi8(self.be_i8s(), Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15).be_i8s());
             let b = _mm_shuffle_epi8(other.be_i8s(), Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14).be_i8s());
@@ -38,6 +39,7 @@ impl Destride for u8x32 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn destride_two(self, other: Self) -> (Self, Self) {
+        optimized!();
         unsafe {
             // In-lane destrided vectors
             let a = _mm256_shuffle_epi8(self.be_i8s(), Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15).be_i8s());
@@ -69,6 +71,7 @@ impl Destride for i8x16 {
     #[inline(always)]
     #[cfg(target_feature = "ssse3")]
     fn destride_two(self, other: Self) -> (Self, Self) {
+        optimized!();
         unsafe {
             let a = _mm_shuffle_epi8(transmute(self), transmute(Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15)));
             let b = _mm_shuffle_epi8(transmute(other), transmute(Self::new(1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14)));
@@ -96,6 +99,7 @@ impl Destride for i8x32 {
     #[inline(always)]
     #[cfg(target_feature = "avx2")]
     fn destride_two(self, other: Self) -> (Self, Self) {
+        optimized!();
         unsafe {
             // In-lane destrided vectors
             let a = _mm256_shuffle_epi8(transmute(self), transmute(Self::new(0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15, 0, 2, 4, 6, 8, 10, 12, 14, 1, 3, 5, 7, 9, 11, 13, 15)));
