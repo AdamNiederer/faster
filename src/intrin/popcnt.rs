@@ -44,6 +44,9 @@ macro_rules! test_popcnt {
                 assert_eq!($vec::splat(1i8 as $el).count_zeroes()
                            + $vec::splat(1i8 as $el).count_ones(),
                            $vec::WIDTH * <<$vec as Packed>::Scalar as Packable>::SIZE * 8);
+                assert_eq!($vec::splat(!(0 as $el)).count_ones(),
+                           $vec::WIDTH * <<$vec as Packed>::Scalar as Packable>::SIZE * 8);
+                assert_eq!($vec::splat(!(0 as $el)).count_zeroes(), 0);
             }
         )*
     )
