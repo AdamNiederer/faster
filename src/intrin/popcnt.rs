@@ -12,7 +12,7 @@ pub trait Popcnt : Packed {
 
     #[inline(always)]
     fn count_zeroes(&self) -> usize {
-        (Self::WIDTH * Self::Scalar::SIZE) - self.count_ones()
+        (Self::WIDTH * Self::Scalar::SIZE * 8) - self.count_ones()
     }
 }
 
@@ -43,7 +43,7 @@ macro_rules! test_popcnt {
                 assert_eq!($vec::splat(1i8 as $el).count_ones(), $vec::WIDTH);
                 assert_eq!($vec::splat(1i8 as $el).count_zeroes()
                            + $vec::splat(1i8 as $el).count_ones(),
-                           $vec::WIDTH * <<$vec as Packed>::Scalar as Packable>::SIZE);
+                           $vec::WIDTH * <<$vec as Packed>::Scalar as Packable>::SIZE * 8);
             }
         )*
     )
