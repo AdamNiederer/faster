@@ -11,7 +11,7 @@ use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::vektor::x86::*;
 use crate::arch::current::vecs::*;
-use crate::std::mem::transmute;
+use crate::core::mem::transmute;
 
 impl Abs for f32x4 {
     type Out = f32x4;

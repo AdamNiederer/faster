@@ -3,7 +3,7 @@ use crate::vecs::*;
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::intrin::transmute::*;
-use crate::std::mem::transmute;
+use crate::core::mem::transmute;
 
 impl_packed_swizzle!(u8x64, u8x64, "avx512-butnotyet", _mm512_permutexvar_epi8,
                      (1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14, 17, 16, 19, 18, 21, 20, 23, 22, 25, 24, 27, 26, 29, 28, 31, 30, 33, 32, 35, 34, 37, 36, 39, 38, 41, 40, 43, 42, 45, 44, 47, 46, 49, 48, 51, 50, 53, 52, 55, 54, 57, 56, 59, 58, 61, 60, 63, 62),

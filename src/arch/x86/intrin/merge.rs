@@ -5,7 +5,7 @@ use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::intrin::transmute::*;
 use crate::intrin::merge::*;
-use crate::std::mem::transmute;
+use crate::core::mem::transmute;
 
 // TODO: The AVX-512 version of this macro doesn't work; impl when stdsimd gets
 // around to it (and when I have some hardware to test it on).

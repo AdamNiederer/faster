@@ -11,7 +11,7 @@ use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::intrin::downcast::*;
 use crate::intrin::transmute::*;
-use crate::std::mem::transmute;
+use crate::core::mem::transmute;
 
 impl Downcast<i16x8> for i32x4 {
     #[inline(always)]

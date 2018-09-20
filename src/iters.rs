@@ -6,7 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::vecs::{Packable, Packed};
-use crate::std::slice::from_raw_parts;
+use crate::core::slice::from_raw_parts;
 
 pub trait SIMDObject : Sized {
     type Scalar : Packable;

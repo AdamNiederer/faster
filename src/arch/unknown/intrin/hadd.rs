@@ -6,7 +6,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::intrin::hadd::*;
-use crate::std::ops::Add;
+use crate::core::ops::Add;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 

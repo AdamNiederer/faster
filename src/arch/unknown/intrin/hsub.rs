@@ -8,7 +8,7 @@
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 use crate::intrin::hsub::*;
-use crate::std::ops::Sub;
+use crate::core::ops::Sub;
 
 impl HSub for u64x2 { hop!(hsub, Sub::sub, 0, 1); }
 impl HSub for u32x4 { hop!(hsub, Sub::sub, 0, 1, 2, 3); }

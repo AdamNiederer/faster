@@ -9,10 +9,10 @@
 
 //! Vector types which aren't interpreted as SIMD vectors, for systems which
 //! don't have SIMD support.
-use crate::std::ops::*;
-use crate::std::mem::*;
-use crate::std::ptr::*;
-use crate::std::fmt::*;
+use crate::core::ops::*;
+use crate::core::mem::*;
+use crate::core::ptr::*;
+use crate::core::fmt::*;
 use crate::vecs::*;
 
 macro_rules! impl_packed_type {
