@@ -78,7 +78,7 @@
 //! operations:
 //!
 //! ```
-//! #![feature(rust_2018_preview, stdsimd)]
+//! #![feature(stdsimd)]
 //! extern crate faster;
 //! use faster::*;
 //!
@@ -198,7 +198,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(test, feature(test))]
-#![feature(rust_2018_preview, stdsimd)]
+#![feature(stdsimd)]
 // , mmx_target_feature, sse4a_target_feautre, tbm_target_feature
 
 mod core {

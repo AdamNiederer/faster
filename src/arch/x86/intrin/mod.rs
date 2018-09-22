@@ -31,7 +31,7 @@ mod transmute;
 mod upcast;
 
 // We use an internal prelude not to clutter the namespace when we import
-// from actual prelude. 
+// from actual prelude.
 pub mod prelude {
     pub use super::abs::*;
     pub use super::addsub::*;
