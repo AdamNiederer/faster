@@ -11,7 +11,7 @@ use crate::intrin::transmute::*;
 use crate::intrin::upcast::*;
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
-use crate::std::mem::transmute;
+use crate::core::mem::transmute;
 
 impl Upcast<u16x8> for u8x16 {
     #[inline(always)]

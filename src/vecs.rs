@@ -7,7 +7,7 @@
 #![allow(dead_code)]
 
 pub use crate::vec_patterns::Pattern;
-use crate::std::fmt::Debug;
+use crate::core::fmt::Debug;
 use crate::intrin::merge::*;
 
 /// A SIMD vector of some type.
@@ -111,24 +111,24 @@ macro_rules! impl_packed {
 
             #[inline(always)]
             fn load(data: &[$el], offset: usize) -> $vec {
-                $vec::load_unaligned(&data[offset..])
+                $vec::from_slice_unaligned(&data[offset..])
             }
 
             #[inline(always)]
             unsafe fn load_unchecked(data: &[$el], offset: usize) -> $vec {
                 debug_assert!(data[offset..].len() >= Self::WIDTH);
-                $vec::load_unaligned_unchecked(&data[offset..])
+                $vec::from_slice_unaligned_unchecked(&data[offset..])
             }
 
             #[inline(always)]
             fn store(self, data: &mut [$el], offset: usize) {
-                $vec::store_unaligned(self, &mut data[offset..]);
+                $vec::write_to_slice_unaligned(self, &mut data[offset..]);
             }
 
             #[inline(always)]
             unsafe fn store_unchecked(self, data: &mut [$el], offset: usize) {
                 debug_assert!(data[offset..].len() >= Self::WIDTH);
-                $vec::store_unaligned_unchecked(self, &mut data[offset..]);
+                $vec::write_to_slice_unaligned_unchecked(self, &mut data[offset..]);
             }
 
             #[inline(always)]

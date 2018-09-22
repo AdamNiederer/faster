@@ -8,7 +8,7 @@
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::intrin::round::Round;
-use crate::std::arch::x86_64::{_MM_FROUND_TO_NEAREST_INT, _MM_FROUND_TRUNC};
+use crate::core::arch::x86_64::{_MM_FROUND_TO_NEAREST_INT, _MM_FROUND_TRUNC};
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 

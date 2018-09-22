@@ -12,7 +12,7 @@
 #![allow(unused_imports)]
 
 use crate::arch::current::vecs::*;
-use crate::std::mem::transmute;
+use crate::core::mem::transmute;
 use crate::vecs::*;
 
 use vektor::x86::*;

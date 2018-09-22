@@ -9,7 +9,7 @@ use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
 use crate::intrin::transmute::*;
 use crate::intrin::hadd::*;
-use crate::std::ops::Add;
+use crate::core::ops::Add;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;
 

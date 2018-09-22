@@ -5,7 +5,7 @@ use crate::vektor::x86::*;
 use crate::intrin::merge::*;
 use crate::intrin::transmute::*;
 use crate::intrin::destride::*;
-use crate::std::mem::transmute;
+use crate::core::mem::transmute;
 
 impl Destride for u8x16 {
     #[inline(always)]

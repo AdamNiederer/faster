@@ -7,7 +7,7 @@
 
 use crate::vektor::x86_64::*;
 use crate::vektor::x86::*;
-use crate::std::ops::BitXor;
+use crate::core::ops::BitXor;
 use crate::intrin::eq::*;
 use crate::arch::current::vecs::*;
 use crate::vecs::*;

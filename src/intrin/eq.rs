@@ -5,7 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::std::ops::BitXor;
+use crate::core::ops::BitXor;
 use crate::vecs::*;
 
 pub trait Eq : Packed {
@@ -53,7 +53,7 @@ macro_rules! rust_fallback_eq {
                 #[inline(always)]
                 #[cfg(target_feature = $feat)]
                 fn $newfn(&self, other: Self) -> $mask {
-                    use crate::std::mem::transmute;
+                    use crate::core::mem::transmute;
                     unsafe { transmute($mmfn(transmute(*self), transmute(other), $($mmfnargs),*)) }
                 }
 
@@ -61,7 +61,7 @@ macro_rules! rust_fallback_eq {
                 #[cfg(not(target_feature = $feat))]
                 fn $newfn(&self, other: Self) -> Self::Out {
                     fallback!();
-                    use crate::std::mem::transmute;
+                    use crate::core::mem::transmute;
                     unsafe {
                         Self::Out::new($(transmute(if self.extract($n).$rustfn(&other.extract($n)) {
                             $maskel::max_value()

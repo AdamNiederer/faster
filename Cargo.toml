@@ -16,6 +16,7 @@ readme = "README.org"
 
 [dependencies]
 vektor = "0.2.0"
+packed_simd = "0.3"
 
 [features]
 default = ["std"]

@@ -196,13 +196,19 @@
 //! that these problems will crop up even if you only support x86; the width
 //! difference between AVX and SSE is the primary source of these issues!
 
-#![cfg_attr(feature = "no-std", no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(test, feature(test))]
 #![feature(rust_2018_preview, stdsimd)]
 // , mmx_target_feature, sse4a_target_feautre, tbm_target_feature
-#[cfg(not(feature = "std"))]
-pub use ::core as std;
 
+mod core {
+    #[cfg(not(feature = "std"))]
+    pub use core::*;
+    #[cfg(feature = "std")]
+    pub use std::*;
+}
+
+extern crate packed_simd;
 extern crate vektor;
 
 #[macro_use] pub(crate) mod debug;
