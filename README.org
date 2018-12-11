@@ -17,6 +17,8 @@ iteration, vectorized loading/storing, and support for uneven collections.
 
 It looks something like this:
 #+BEGIN_SRC rust
+  use faster::*;
+  
   let lots_of_3s = (&[-123.456f32; 128][..]).simd_iter()
       .simd_map(f32s(0.0), |v| {
           f32s(9.0) * v.abs().sqrt().rsqrt().ceil().sqrt() - f32s(4.0) - f32s(2.0)
