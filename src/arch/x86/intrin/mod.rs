@@ -20,13 +20,13 @@ mod merge;
 mod popcnt;
 mod recip;
 mod round;
-mod sum;
 mod rsqrt;
 mod saturating_add;
 mod saturating_hadd;
-mod saturating_sub;
 mod saturating_hsub;
+mod saturating_sub;
 mod sqrt;
+mod sum;
 mod transmute;
 mod upcast;
 
@@ -47,11 +47,11 @@ pub mod prelude {
     pub use super::recip::*;
     pub use super::round::*;
     pub use super::rsqrt::*;
-    pub use super::sum::*;
     pub use super::saturating_add::*;
     pub use super::saturating_hadd::*;
     pub use super::saturating_hsub::*;
     pub use super::saturating_sub::*;
+    pub use super::sum::*;
     pub use super::transmute::*;
     pub use super::upcast::*;
 }

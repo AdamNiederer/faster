@@ -1,7 +1,7 @@
 #![allow(unused_macros, dead_code)]
 
-use std::collections::HashSet;
 use std::cell::RefCell;
+use std::collections::HashSet;
 
 thread_local! {
     // Not perfect as it might print multiple times (once per thread),
@@ -9,7 +9,6 @@ thread_local! {
     // same warning.
     pub(crate) static OUTPUT_GUARD: RefCell<HashSet<String>> = RefCell::new(HashSet::new());
 }
-
 
 macro_rules! debug_append_log {
     ($str:expr) => {
@@ -23,12 +22,11 @@ macro_rules! debug_append_log {
             .write(true)
             .create(true)
             .append(true)
-            .open(file_name).and_then(|mut file| {
-                writeln!(file, "{}", $str)
-        }).ok(); // `ok` suppresses warning about unused results, about which we don't care.
-    }
+            .open(file_name)
+            .and_then(|mut file| writeln!(file, "{}", $str))
+            .ok(); // `ok` suppresses warning about unused results, about which we don't care.
+    };
 }
-
 
 /// Prints the given string once (for the current thread).
 /// Useful for not spamming the console.
@@ -49,33 +47,39 @@ macro_rules! debug_output_once {
 
             output_guard.insert(output);
         });
-    }
+    };
 }
 
-
 /// Signal a software fallback is executed.
-#[cfg(feature="trace")]
+#[cfg(feature = "trace")]
 macro_rules! fallback {
     () => {
-        debug_output_once!(format!("⛔ faster is using SOFTWARE emulation here ({}:{}).", file!(), line!()));
-    }
+        debug_output_once!(format!(
+            "⛔ faster is using SOFTWARE emulation here ({}:{}).",
+            file!(),
+            line!()
+        ));
+    };
 }
 
 /// Signal an optimized SIMD intrinsic is executed.
-#[cfg(feature="trace")]
+#[cfg(feature = "trace")]
 macro_rules! optimized {
     () => {
-        debug_output_once!(format!("🚄 faster is using HARDWARE acceleration here ({}:{}).", file!(), line!()));
-    }
+        debug_output_once!(format!(
+            "🚄 faster is using HARDWARE acceleration here ({}:{}).",
+            file!(),
+            line!()
+        ));
+    };
 }
 
-#[cfg(not(feature="trace"))]
+#[cfg(not(feature = "trace"))]
 macro_rules! fallback {
-    () => { }
+    () => {};
 }
 
-#[cfg(not(feature="trace"))]
+#[cfg(not(feature = "trace"))]
 macro_rules! optimized {
-    () => { }
+    () => {};
 }
-

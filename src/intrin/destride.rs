@@ -5,7 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-pub trait Destride : Sized {
+pub trait Destride: Sized {
     fn destride_two(self, other: Self) -> (Self, Self);
     fn destride_four(self, b: Self, c: Self, d: Self) -> (Self, Self, Self, Self);
 }

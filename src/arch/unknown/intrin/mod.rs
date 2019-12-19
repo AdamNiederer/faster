@@ -19,10 +19,10 @@ mod round;
 mod rsqrt;
 mod saturating_add;
 mod saturating_hadd;
-mod saturating_sub;
 mod saturating_hsub;
-mod sum;
+mod saturating_sub;
 mod sqrt;
+mod sum;
 mod transmute;
 mod upcast;
 
@@ -43,8 +43,8 @@ pub mod prelude {
     pub use super::saturating_hadd::*;
     pub use super::saturating_hsub::*;
     pub use super::saturating_sub::*;
-    pub use super::sum::*;
     pub use super::sqrt::*;
+    pub use super::sum::*;
     pub use super::transmute::*;
     pub use super::upcast::*;
 }

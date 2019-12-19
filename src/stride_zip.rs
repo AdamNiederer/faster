@@ -1,32 +1,46 @@
-use crate::iters::{SIMDIterator};
-use crate::vecs::{Packed, Packable};
 use crate::intrin::destride::*;
+use crate::iters::SIMDIterator;
+use crate::vecs::{Packable, Packed};
 use crate::zip::{SIMDZippedIterable, SIMDZippedIterator, SIMDZippedObject};
 
-pub struct StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
+pub struct StrideZip<T>
+where
+    T: SIMDIterator,
+    T::Vector: Destride,
+{
     base: usize,
     peek: Option<T::Vector>,
-    iter: T
+    iter: T,
 }
 
 /// A trait which can transform a collection of iterators into a `Zip`
-pub trait IntoStrideZip : Sized {
+pub trait IntoStrideZip: Sized {
     /// Return an iterator which may iterate over `self` in lockstep.
     fn stride_zip(self) -> StrideZip<Self>
-        where Self : SIMDIterator, Self::Vector : Destride;
+    where
+        Self: SIMDIterator,
+        Self::Vector: Destride;
 }
 
-impl<T> IntoStrideZip for T where T : SIMDIterator, T::Vector : Destride {
+impl<T> IntoStrideZip for T
+where
+    T: SIMDIterator,
+    T::Vector: Destride,
+{
     fn stride_zip(self) -> StrideZip<Self> {
         StrideZip {
             base: self.scalar_pos(),
             peek: None,
-            iter: self
+            iter: self,
         }
     }
 }
 
-impl<T> SIMDZippedObject for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
+impl<T> SIMDZippedObject for StrideZip<T>
+where
+    T: SIMDIterator,
+    T::Vector: Destride,
+{
     type Scalars = (T::Scalar, T::Scalar);
     type Vectors = (T::Vector, T::Vector);
 
@@ -43,14 +57,22 @@ impl<T> SIMDZippedObject for StrideZip<T> where T : SIMDIterator, T::Vector : De
     }
 }
 
-impl<T> ExactSizeIterator for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
+impl<T> ExactSizeIterator for StrideZip<T>
+where
+    T: SIMDIterator,
+    T::Vector: Destride,
+{
     #[inline(always)]
     fn len(&self) -> usize {
         self.iter.len() / 2
     }
 }
 
-impl<T> SIMDZippedIterable for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
+impl<T> SIMDZippedIterable for StrideZip<T>
+where
+    T: SIMDIterator,
+    T::Vector: Destride,
+{
     #[inline(always)]
     fn scalar_pos(&self) -> usize {
         (self.iter.scalar_pos() - self.base) / 2
@@ -77,9 +99,13 @@ impl<T> SIMDZippedIterable for StrideZip<T> where T : SIMDIterator, T::Vector : 
     }
 }
 
-impl<T> Iterator for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
+impl<T> Iterator for StrideZip<T>
+where
+    T: SIMDIterator,
+    T::Vector: Destride,
+{
     type Item = <Self as SIMDZippedObject>::Vectors;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         let first = self.iter.next()?;
         let second = self.iter.next();
@@ -92,7 +118,11 @@ impl<T> Iterator for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
     }
 }
 
-impl<T> SIMDZippedIterator for StrideZip<T> where T : SIMDIterator, T::Vector : Destride {
+impl<T> SIMDZippedIterator for StrideZip<T>
+where
+    T: SIMDIterator,
+    T::Vector: Destride,
+{
     fn end(&mut self) -> Option<(Self::Vectors, usize)> {
         let first = self.iter.next();
         let (end, n) = self.iter.end().unwrap_or((self.iter.default(), 0));

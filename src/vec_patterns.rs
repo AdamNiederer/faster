@@ -7,10 +7,10 @@
 
 // This file is machine-generated. See vec_patterns_gen.py for more info.
 
-use crate::vecs::*; 
- 
+use crate::vecs::*;
+
 /// Constructors which may be used to instantiate vectors with patterned data.
-pub trait Pattern : Packed {
+pub trait Pattern: Packed {
     /// Return a vector whose first `Self::WIDTH / 2` elements are `hi`, and
     /// whose last `Self::WIDTH / 2` elements are `lo`.
     fn halfs(hi: Self::Scalar, lo: Self::Scalar) -> Self;

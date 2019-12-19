@@ -14,8 +14,7 @@ mod tests {
             vec.simd_iter_mut(f32s(0.0))
                 .simd_for_each(|x| *x /= f32s(2f32));
 
-            scl.iter_mut()
-                .for_each(|x| *x /= 2f32);
+            scl.iter_mut().for_each(|x| *x /= 2f32);
 
             assert_eq!(vec, scl);
         };
@@ -33,7 +32,10 @@ mod tests {
     #[test]
     fn simd_reduce() {
         let vec = [2u32; 129];
-        let sum = vec.simd_iter(u32s(0u32)).simd_reduce(u32s(0u32), |acc, x| acc + x).sum();
+        let sum = vec
+            .simd_iter(u32s(0u32))
+            .simd_reduce(u32s(0u32), |acc, x| acc + x)
+            .sum();
         assert_eq!(sum, 2 * 129);
     }
 }

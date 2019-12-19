@@ -7,7 +7,7 @@
 
 use crate::vecs::*;
 
-pub trait Popcnt : Packed {
+pub trait Popcnt: Packed {
     fn count_ones(&self) -> usize;
 
     #[inline(always)]

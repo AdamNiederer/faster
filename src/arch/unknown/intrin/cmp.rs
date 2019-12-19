@@ -6,8 +6,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::arch::current::vecs::*;
-use crate::vecs::*;
 use crate::intrin::cmp::*;
+use crate::vecs::*;
 
 rust_fallback_impl_binary! {
     impl Cmp for u8x16 where "__undefined" {

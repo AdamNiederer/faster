@@ -5,8 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::intrin::eq::*;
 use crate::arch::current::vecs::*;
+use crate::intrin::eq::*;
 use crate::vecs::*;
 
 rust_fallback_eq! {
@@ -71,8 +71,8 @@ rust_fallback_eq! {
 
 mod tests {
     #![allow(unused_imports)]
-    use crate::prelude::*;
     use crate::arch::current::vecs::*;
+    use crate::prelude::*;
 
     // test_packed_eq!(u8x64, u8, u8x64, u8, test_eq_u8x64);
     // test_packed_eq!(u8x32, u8, u8x32, u8, test_eq_u8x32);

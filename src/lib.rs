@@ -211,16 +211,21 @@ mod core {
 extern crate packed_simd;
 extern crate vektor;
 
-#[macro_use] pub(crate) mod debug;
-#[macro_use] pub mod zip;
-#[macro_use] pub mod vecs;
-pub mod vec_patterns;
-pub mod iters;
+#[macro_use]
+pub(crate) mod debug;
+#[macro_use]
+pub mod zip;
+#[macro_use]
+pub mod vecs;
 pub mod into_iters;
-#[macro_use] pub mod intrin;
-#[macro_use] pub mod arch;
+pub mod iters;
+pub mod vec_patterns;
+#[macro_use]
+pub mod intrin;
+#[macro_use]
+pub mod arch;
 pub mod prelude;
-pub mod stride_zip;
 pub mod stride;
+pub mod stride_zip;
 
 pub use crate::prelude::*;

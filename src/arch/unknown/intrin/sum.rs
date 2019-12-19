@@ -6,8 +6,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::arch::current::vecs::*;
+use crate::intrin::sum::{Sum, UpcastSum};
 use crate::vecs::*;
-use crate::intrin::sum::{Sum,UpcastSum};
 
 impl_packed_sum!(u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, u64x2, i64x2, f32x4, f64x2);
 impl_packed_upcast_sum!(u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, u64x2, i64x2, f32x4, f64x2);
@@ -15,8 +15,8 @@ impl_packed_upcast_sum!(u8x16, i8x16, u16x8, i16x8, u32x4, i32x4, u64x2, i64x2, 
 mod tests {
     #![allow(unused_imports)]
 
-    use crate::prelude::*;
     use crate::arch::current::vecs::*;
+    use crate::prelude::*;
 
     test_packed_sum_int!(u8x16, u8, test_packed_sum_u8x16);
     test_packed_sum_int!(i8x16, i8, test_packed_sum_i8x16);

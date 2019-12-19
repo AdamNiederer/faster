@@ -8,8 +8,8 @@
 use crate::core::ops::BitXor;
 use crate::vecs::*;
 
-pub trait Eq : Packed {
-    type Out : Pattern + BitXor<Self::Out, Output = Self::Out>;
+pub trait Eq: Packed {
+    type Out: Pattern + BitXor<Self::Out, Output = Self::Out>;
 
     /// Return a vector where each element at an index i is filled with 1s if
     /// the elements of `self` and `other` at index i are equal, and filled with
@@ -40,7 +40,9 @@ pub trait Eq : Packed {
     /// # }
     /// ```
     #[inline(always)]
-    fn ne_mask(&self, other: Self) -> Self::Out { self.eq_mask(other) ^ Self::Out::ones() }
+    fn ne_mask(&self, other: Self) -> Self::Out {
+        self.eq_mask(other) ^ Self::Out::ones()
+    }
 }
 
 macro_rules! rust_fallback_eq {
@@ -76,20 +78,28 @@ macro_rules! rust_fallback_eq {
 }
 
 macro_rules! test_packed_eq {
-        ($vec:tt, $el:tt, $mask:tt, $maskel:tt, $name:tt) => {
-            #[test]
-            fn $name() {
-                assert_eq!($vec::halfs(1 as $el, 0 as $el).eq_mask($vec::splat(0 as $el)),
-                           $mask::halfs(0, $maskel::max_value()));
+    ($vec:tt, $el:tt, $mask:tt, $maskel:tt, $name:tt) => {
+        #[test]
+        fn $name() {
+            assert_eq!(
+                $vec::halfs(1 as $el, 0 as $el).eq_mask($vec::splat(0 as $el)),
+                $mask::halfs(0, $maskel::max_value())
+            );
 
-                assert_eq!($vec::interleave(1 as $el, 0 as $el).eq_mask($vec::splat(1 as $el)),
-                           $mask::interleave($maskel::max_value(), 0));
+            assert_eq!(
+                $vec::interleave(1 as $el, 0 as $el).eq_mask($vec::splat(1 as $el)),
+                $mask::interleave($maskel::max_value(), 0)
+            );
 
-                assert_eq!($vec::halfs(1 as $el, 0 as $el).ne_mask($vec::splat(0 as $el)),
-                           $mask::halfs($maskel::max_value(), 0));
+            assert_eq!(
+                $vec::halfs(1 as $el, 0 as $el).ne_mask($vec::splat(0 as $el)),
+                $mask::halfs($maskel::max_value(), 0)
+            );
 
-                assert_eq!($vec::interleave(1 as $el, 0 as $el).ne_mask($vec::splat(1 as $el)),
-                           $mask::interleave(0, $maskel::max_value()));
-            }
+            assert_eq!(
+                $vec::interleave(1 as $el, 0 as $el).ne_mask($vec::splat(1 as $el)),
+                $mask::interleave(0, $maskel::max_value())
+            );
         }
-    }
+    };
+}
