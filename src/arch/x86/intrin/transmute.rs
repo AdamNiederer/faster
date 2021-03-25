@@ -5,12 +5,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
-use crate::intrin::transmute::*;
 use crate::arch::current::vecs::*;
-use crate::vecs::*;
 use crate::core::mem::transmute;
+use crate::intrin::transmute::*;
+use crate::vecs::*;
+use crate::vektor::x86::*;
+use crate::vektor::x86_64::*;
 
 impl_packed_transmute!(u8x32, i8x32, u16x16, i16x16, u32x8, i32x8, f32x8,
                        u64x4, i64x4, f64x4, ...

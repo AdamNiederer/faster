@@ -5,11 +5,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
-use crate::intrin::rsqrt::*;
 use crate::arch::current::vecs::*;
+use crate::intrin::rsqrt::*;
 use crate::vecs::*;
+use crate::vektor::x86::*;
+use crate::vektor::x86_64::*;
 
 // TODO: Guards and non-simd
 

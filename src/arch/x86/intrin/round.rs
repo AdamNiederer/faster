@@ -5,12 +5,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
-use crate::intrin::round::Round;
-use crate::core::arch::x86_64::{_MM_FROUND_TO_NEAREST_INT, _MM_FROUND_TRUNC};
 use crate::arch::current::vecs::*;
+use crate::core::arch::x86_64::{_MM_FROUND_TO_NEAREST_INT, _MM_FROUND_TRUNC};
+use crate::intrin::round::Round;
 use crate::vecs::*;
+use crate::vektor::x86::*;
+use crate::vektor::x86_64::*;
 
 rust_fallback_impl! {
     impl Round for f32x4 where "sse4.1" {

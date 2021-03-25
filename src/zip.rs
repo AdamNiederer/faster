@@ -5,8 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::iters::{SIMDIterator, SIMDIterable, SIMDObject, UnsafeIterator, SIMDSized};
-use crate::vecs::{Packed, Packable};
+use crate::iters::{SIMDIterable, SIMDIterator, SIMDObject, SIMDSized, UnsafeIterator};
+use crate::vecs::{Packable, Packed};
 
 /// A macro which takes a number n and an expression, and returns a tuple
 /// containing n copies of the expression. Only works for numbers less than or
@@ -22,41 +22,69 @@ use crate::vecs::{Packed, Packable};
 /// assert_eq!(tuplify!(3, i8s::splat(0)), (i8s::splat(0), i8s::splat(0), i8s::splat(0)));
 /// # }
 /// ```
-#[macro_export] macro_rules! tuplify {
-    (1, $i:expr) => { ($i) };
-    (2, $i:expr) => { ($i, $i) };
-    (3, $i:expr) => { ($i, $i, $i) };
-    (4, $i:expr) => { ($i, $i, $i, $i) };
-    (5, $i:expr) => { ($i, $i, $i, $i, $i) };
-    (6, $i:expr) => { ($i, $i, $i, $i, $i, $i) };
-    (7, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i) };
-    (8, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i) };
-    (9, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i) };
-    (10, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i) };
-    (11, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i) };
-    (12, $i:expr) => { ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i) };
+#[macro_export]
+macro_rules! tuplify {
+    (1, $i:expr) => {
+        ($i)
+    };
+    (2, $i:expr) => {
+        ($i, $i)
+    };
+    (3, $i:expr) => {
+        ($i, $i, $i)
+    };
+    (4, $i:expr) => {
+        ($i, $i, $i, $i)
+    };
+    (5, $i:expr) => {
+        ($i, $i, $i, $i, $i)
+    };
+    (6, $i:expr) => {
+        ($i, $i, $i, $i, $i, $i)
+    };
+    (7, $i:expr) => {
+        ($i, $i, $i, $i, $i, $i, $i)
+    };
+    (8, $i:expr) => {
+        ($i, $i, $i, $i, $i, $i, $i, $i)
+    };
+    (9, $i:expr) => {
+        ($i, $i, $i, $i, $i, $i, $i, $i, $i)
+    };
+    (10, $i:expr) => {
+        ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i)
+    };
+    (11, $i:expr) => {
+        ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i)
+    };
+    (12, $i:expr) => {
+        ($i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i, $i)
+    };
 }
 
 /// A lazy iterator which returns tuples of the elements of its contained
 /// iterators.
 pub struct Zip<T> {
-    iters: T
+    iters: T,
 }
 
 /// A lazy mapping iterator which applies its function to a stream of tuples of
 /// vectors.
-pub struct SIMDZipMap<I, F> where I : SIMDZippedIterator {
+pub struct SIMDZipMap<I, F>
+where
+    I: SIMDZippedIterator,
+{
     iter: I,
     func: F,
 }
 
 /// A trait which can transform a collection of iterators into a `Zip`
-pub trait IntoSIMDZip : Sized {
+pub trait IntoSIMDZip: Sized {
     /// Return an iterator which may iterate over `self` in lockstep.
     fn zip(self) -> Zip<Self>;
 }
 
-pub trait SIMDZippedObject : Sized {
+pub trait SIMDZippedObject: Sized {
     type Scalars;
     type Vectors;
 
@@ -69,7 +97,9 @@ pub trait SIMDZippedObject : Sized {
 
 /// An iterator which automatically packs the values it iterates over into SIMD
 /// vectors.
-pub trait SIMDZippedIterable : SIMDZippedObject + ExactSizeIterator<Item = <Self as SIMDZippedObject>::Vectors> {
+pub trait SIMDZippedIterable:
+    SIMDZippedObject + ExactSizeIterator<Item = <Self as SIMDZippedObject>::Vectors>
+{
     /// Return the current position of this iterator, measured in scalars
     fn scalar_pos(&self) -> usize;
 
@@ -127,7 +157,7 @@ pub trait SIMDZippedIterable : SIMDZippedObject + ExactSizeIterator<Item = <Self
 /// An iterator which automatically packs the values it iterates over into SIMD
 /// vectors, and can handle collections which do not fit into the system's
 /// vectors natively.
-pub trait SIMDZippedIterator : SIMDZippedIterable {
+pub trait SIMDZippedIterator: SIMDZippedIterable {
     /// Pack and return a partially full vector containing up to the next
     /// `self.width()` of the iterator, or None if no elements are left.
     /// Elements which are not filled are instead initialized to default.
@@ -136,7 +166,11 @@ pub trait SIMDZippedIterator : SIMDZippedIterable {
     /// Return an iterator which calls `func` on vectors of elements.
     #[inline(always)]
     fn simd_map<A, B, F>(self, func: F) -> SIMDZipMap<Self, F>
-        where F : FnMut(Self::Vectors) -> A, A : Packed<Scalar = B>, B : Packable {
+    where
+        F: FnMut(Self::Vectors) -> A,
+        A: Packed<Scalar = B>,
+        B: Packable,
+    {
         SIMDZipMap {
             iter: self,
             func: func,
@@ -147,7 +181,9 @@ pub trait SIMDZippedIterator : SIMDZippedIterable {
     /// modifying the iterator.
     #[inline(always)]
     fn simd_do_each<F>(&mut self, mut func: F)
-        where F : FnMut(Self::Vectors) -> () {
+    where
+        F: FnMut(Self::Vectors) -> (),
+    {
         while let Some(v) = self.next() {
             func(v);
         }
@@ -208,8 +244,9 @@ pub trait SIMDZippedIterator : SIMDZippedIterable {
     /// [`Packed::product`]: vecs/trait.Packed.html#tymethod.product
     #[inline(always)]
     fn simd_reduce<A, F>(&mut self, mut start: A, mut func: F) -> A
-        where F : FnMut(A, Self::Vectors) -> A {
-
+    where
+        F: FnMut(A, Self::Vectors) -> A,
+    {
         while let Some(v) = self.next() {
             start = func(start, v);
         }
@@ -303,7 +340,11 @@ macro_rules! impl_iter_zip {
 }
 
 impl<I, F, A> Iterator for SIMDZipMap<I, F>
-    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+where
+    I: SIMDZippedIterator,
+    F: FnMut(I::Vectors) -> A,
+    A: Packed,
+{
     type Item = A;
 
     #[inline(always)]
@@ -313,7 +354,11 @@ impl<I, F, A> Iterator for SIMDZipMap<I, F>
 }
 
 impl<I, F, A> ExactSizeIterator for SIMDZipMap<I, F>
-    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+where
+    I: SIMDZippedIterator,
+    F: FnMut(I::Vectors) -> A,
+    A: Packed,
+{
     #[inline(always)]
     fn len(&self) -> usize {
         self.iter.len()
@@ -321,13 +366,21 @@ impl<I, F, A> ExactSizeIterator for SIMDZipMap<I, F>
 }
 
 impl<I, F, A> SIMDObject for SIMDZipMap<I, F>
-    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+where
+    I: SIMDZippedIterator,
+    F: FnMut(I::Vectors) -> A,
+    A: Packed,
+{
     type Vector = A;
     type Scalar = A::Scalar;
 }
 
 impl<I, F, A> SIMDSized for SIMDZipMap<I, F>
-    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+where
+    I: SIMDZippedIterator,
+    F: FnMut(I::Vectors) -> A,
+    A: Packed,
+{
     /// Return the length of this iterator, measured in scalars.
     #[inline(always)]
     fn scalar_len(&self) -> usize {
@@ -342,7 +395,11 @@ impl<I, F, A> SIMDSized for SIMDZipMap<I, F>
 }
 
 impl<I, F, A> SIMDIterable for SIMDZipMap<I, F>
-    where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+where
+    I: SIMDZippedIterator,
+    F: FnMut(I::Vectors) -> A,
+    A: Packed,
+{
     #[inline(always)]
     fn scalar_pos(&self) -> usize {
         self.iter.scalar_pos()
@@ -361,7 +418,11 @@ impl<I, F, A> SIMDIterable for SIMDZipMap<I, F>
 }
 
 impl<I, F, A> SIMDIterator for SIMDZipMap<I, F>
-where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
+where
+    I: SIMDZippedIterator,
+    F: FnMut(I::Vectors) -> A,
+    A: Packed,
+{
     #[inline(always)]
     fn end(&mut self) -> Option<(Self::Vector, usize)> {
         let (v, n) = self.iter.end()?;
@@ -370,39 +431,47 @@ where I : SIMDZippedIterator, F : FnMut(I::Vectors) -> A, A : Packed {
     }
 }
 
-impl_iter_zip!((A, B),
-               (AA, BB),
-               (1));
-impl_iter_zip!((A, B, C),
-               (AA, BB, CC),
-               (1, 2));
-impl_iter_zip!((A, B, C, D),
-               (AA, BB, CC, DD),
-               (1, 2, 3));
-impl_iter_zip!((A, B, C, D, E),
-               (AA, BB, CC, DD, EE),
-               (1, 2, 3, 4));
-impl_iter_zip!((A, B, C, D, E, F),
-               (AA, BB, CC, DD, EE, FF),
-               (1, 2, 3, 4, 5));
-impl_iter_zip!((A, B, C, D, E, F, G),
-               (AA, BB, CC, DD, EE, FF, GG),
-               (1, 2, 3, 4, 5, 6));
-impl_iter_zip!((A, B, C, D, E, F, G, H),
-               (AA, BB, CC, DD, EE, FF, GG, HH),
-               (1, 2, 3, 4, 5, 6, 7));
-impl_iter_zip!((A, B, C, D, E, F, G, H, I),
-               (AA, BB, CC, DD, EE, FF, GG, HH, II),
-               (1, 2, 3, 4, 5, 6, 7, 8));
-impl_iter_zip!((A, B, C, D, E, F, G, H, I, J),
-               (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ),
-               (1, 2, 3, 4, 5, 6, 7, 8, 9));
-impl_iter_zip!((A, B, C, D, E, F, G, H, I, J, K),
-               (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK),
-               (1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
-impl_iter_zip!((A, B, C, D, E, F, G, H, I, J, K, L),
-               (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK, LL),
-               (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11));
-impl_iter_zip!((A, B, C, D, E, F, G, H, I, J, K, L, M),
-               (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK, LL, MM),
-               (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12));
+impl_iter_zip!((A, B), (AA, BB), (1));
+impl_iter_zip!((A, B, C), (AA, BB, CC), (1, 2));
+impl_iter_zip!((A, B, C, D), (AA, BB, CC, DD), (1, 2, 3));
+impl_iter_zip!((A, B, C, D, E), (AA, BB, CC, DD, EE), (1, 2, 3, 4));
+impl_iter_zip!(
+    (A, B, C, D, E, F),
+    (AA, BB, CC, DD, EE, FF),
+    (1, 2, 3, 4, 5)
+);
+impl_iter_zip!(
+    (A, B, C, D, E, F, G),
+    (AA, BB, CC, DD, EE, FF, GG),
+    (1, 2, 3, 4, 5, 6)
+);
+impl_iter_zip!(
+    (A, B, C, D, E, F, G, H),
+    (AA, BB, CC, DD, EE, FF, GG, HH),
+    (1, 2, 3, 4, 5, 6, 7)
+);
+impl_iter_zip!(
+    (A, B, C, D, E, F, G, H, I),
+    (AA, BB, CC, DD, EE, FF, GG, HH, II),
+    (1, 2, 3, 4, 5, 6, 7, 8)
+);
+impl_iter_zip!(
+    (A, B, C, D, E, F, G, H, I, J),
+    (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ),
+    (1, 2, 3, 4, 5, 6, 7, 8, 9)
+);
+impl_iter_zip!(
+    (A, B, C, D, E, F, G, H, I, J, K),
+    (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK),
+    (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+);
+impl_iter_zip!(
+    (A, B, C, D, E, F, G, H, I, J, K, L),
+    (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK, LL),
+    (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+);
+impl_iter_zip!(
+    (A, B, C, D, E, F, G, H, I, J, K, L, M),
+    (AA, BB, CC, DD, EE, FF, GG, HH, II, JJ, KK, LL, MM),
+    (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+);

@@ -6,14 +6,14 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #![allow(dead_code)]
 
-pub use crate::vec_patterns::Pattern;
 use crate::core::fmt::Debug;
 use crate::intrin::merge::*;
+pub use crate::vec_patterns::Pattern;
 
 /// A SIMD vector of some type.
-pub trait Packed : Sized + Copy + Debug + Merge {
+pub trait Packed: Sized + Copy + Debug + Merge {
     /// The type which fits into this SIMD vector
-    type Scalar : Packable;
+    type Scalar: Packable;
 
     /// The number of elements in this vector
     const WIDTH: usize;
@@ -70,12 +70,16 @@ pub trait Packed : Sized + Copy + Debug + Merge {
 
     /// Return the result of a scalar reduction over this vector
     fn scalar_reduce<T, F>(&self, acc: T, func: F) -> T
-    where F: FnMut(T, Self::Scalar) -> T;
+    where
+        F: FnMut(T, Self::Scalar) -> T;
 }
 
 /// A type that may be packed into a SIMD vector.
-pub trait Packable where Self : Sized + Copy + Debug {
-    type Vector : Packed<Scalar = Self> + Clone;
+pub trait Packable
+where
+    Self: Sized + Copy + Debug,
+{
+    type Vector: Packed<Scalar = Self> + Clone;
     const SIZE: usize;
 }
 
@@ -191,4 +195,3 @@ macro_rules! impl_packed {
         }
     );
 }
-

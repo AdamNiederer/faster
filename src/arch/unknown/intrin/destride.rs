@@ -23,7 +23,9 @@ impl Destride for u8x16 {
 impl Destride for u8x32 {
     #[inline(always)]
     fn destride_two(self, other: Self) -> (Self, Self) {
-        destride_two_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
+        destride_two_polyfill!(
+            self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30
+        )
     }
 
     #[inline(always)]
@@ -47,7 +49,9 @@ impl Destride for i8x16 {
 impl Destride for i8x32 {
     #[inline(always)]
     fn destride_two(self, other: Self) -> (Self, Self) {
-        destride_two_polyfill!(self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30)
+        destride_two_polyfill!(
+            self, other, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30
+        )
     }
 
     #[inline(always)]

@@ -7,12 +7,12 @@
 
 use crate::vecs::*;
 
-pub trait Sum : Packed {
+pub trait Sum: Packed {
     /// Return a scalar equivalent to the sum of all elements of this vector.
     fn sum(&self) -> Self::Scalar;
 }
 
-pub trait UpcastSum :  {
+pub trait UpcastSum {
     /// Return a scalar equivalent to the sum of all elements of this vector,
     /// but collect the result in an i64 rather than the vector's type.
     fn sum_upcast(&self) -> i64;
@@ -55,10 +55,11 @@ macro_rules! test_packed_sum_int {
 
             while i < $el::max_value() / 64 - 1 {
                 let v = $vec::splat(i);
-                assert_eq!(v.sum(),
-                           v.scalar_reduce(0 as $el, |acc, v| acc + v));
-                assert_eq!(v.sum_upcast(),
-                           v.scalar_reduce(0 as i64, |acc, v| acc + (v as i64)));
+                assert_eq!(v.sum(), v.scalar_reduce(0 as $el, |acc, v| acc + v));
+                assert_eq!(
+                    v.sum_upcast(),
+                    v.scalar_reduce(0 as i64, |acc, v| acc + (v as i64))
+                );
                 i += $el::max_value() / 20;
             }
         }
@@ -71,10 +72,11 @@ macro_rules! test_packed_sum {
         fn $name() {
             for i in -100..100 {
                 let v = $vec::splat(i as $el);
-                assert_eq!(v.sum(),
-                           v.scalar_reduce(0 as $el, |acc, v| acc + v));
-                assert_eq!(v.sum_upcast(),
-                           v.scalar_reduce(0 as i64, |acc, v| acc + (v as i64)));
+                assert_eq!(v.sum(), v.scalar_reduce(0 as $el, |acc, v| acc + v));
+                assert_eq!(
+                    v.sum_upcast(),
+                    v.scalar_reduce(0 as i64, |acc, v| acc + (v as i64))
+                );
             }
         }
     };

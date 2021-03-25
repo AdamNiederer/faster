@@ -1,12 +1,14 @@
 #![feature(stdsimd, test)]
 
-#[cfg(test)] extern crate test;
-#[macro_use] extern crate faster;
+#[cfg(test)]
+extern crate test;
+#[macro_use]
+extern crate faster;
 
 #[cfg(test)]
 mod destride {
     use faster::prelude::*;
-    use test::{Bencher, black_box};
+    use test::{black_box, Bencher};
 
     #[bench]
     #[cfg(feature = "std")]
@@ -79,8 +81,12 @@ mod destride {
     fn destride_four_naiive(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
-            (&a[..]).stride_four(tuplify!(4, u8s(0))).zip()
-                .simd_do_each(|x| { black_box(x); });
+            (&a[..])
+                .stride_four(tuplify!(4, u8s(0)))
+                .zip()
+                .simd_do_each(|x| {
+                    black_box(x);
+                });
         })
     }
 
@@ -89,8 +95,12 @@ mod destride {
     fn destride_two_naiive(b: &mut Bencher) {
         let a = [0u8; 4096];
         b.iter(|| {
-            (&a[..]).stride_two(tuplify!(2, u8s(0))).zip()
-                .simd_do_each(|x| { black_box(x); });
+            (&a[..])
+                .stride_two(tuplify!(2, u8s(0)))
+                .zip()
+                .simd_do_each(|x| {
+                    black_box(x);
+                });
         })
     }
 
@@ -99,8 +109,12 @@ mod destride {
     fn destride_four_naiive_16(b: &mut Bencher) {
         let a = [0u16; 4096];
         b.iter(|| {
-            (&a[..]).stride_four(tuplify!(4, u16s(0))).zip()
-                .simd_do_each(|x| { black_box(x); });
+            (&a[..])
+                .stride_four(tuplify!(4, u16s(0)))
+                .zip()
+                .simd_do_each(|x| {
+                    black_box(x);
+                });
         })
     }
 
@@ -109,8 +123,12 @@ mod destride {
     fn destride_two_naiive_16(b: &mut Bencher) {
         let a = [0u16; 4096];
         b.iter(|| {
-            (&a[..]).stride_two(tuplify!(2, u16s(0))).zip()
-                .simd_do_each(|x| { black_box(x); });
+            (&a[..])
+                .stride_two(tuplify!(2, u16s(0)))
+                .zip()
+                .simd_do_each(|x| {
+                    black_box(x);
+                });
         })
     }
 
@@ -119,8 +137,12 @@ mod destride {
     fn destride_four_naiive_32(b: &mut Bencher) {
         let a = [0u32; 4096];
         b.iter(|| {
-            (&a[..]).stride_four(tuplify!(4, u32s(0))).zip()
-                .simd_do_each(|x| { black_box(x); });
+            (&a[..])
+                .stride_four(tuplify!(4, u32s(0)))
+                .zip()
+                .simd_do_each(|x| {
+                    black_box(x);
+                });
         })
     }
 
@@ -129,8 +151,12 @@ mod destride {
     fn destride_two_naiive_32(b: &mut Bencher) {
         let a = [0u32; 4096];
         b.iter(|| {
-            (&a[..]).stride_two(tuplify!(2, u32s(0))).zip()
-                .simd_do_each(|x| { black_box(x); });
+            (&a[..])
+                .stride_two(tuplify!(2, u32s(0)))
+                .zip()
+                .simd_do_each(|x| {
+                    black_box(x);
+                });
         })
     }
 }

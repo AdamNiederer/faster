@@ -7,11 +7,11 @@
 
 use crate::intrin::abs::Abs;
 
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
-use crate::vektor::x86::*;
 use crate::arch::current::vecs::*;
 use crate::core::mem::transmute;
+use crate::vektor::x86::*;
+use crate::vektor::x86::*;
+use crate::vektor::x86_64::*;
 
 impl Abs for f32x4 {
     type Out = f32x4;
@@ -27,10 +27,12 @@ impl Abs for f32x4 {
     #[cfg(not(target_feature = "sse"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(self.extract(0).abs(),
-                       self.extract(1).abs(),
-                       self.extract(2).abs(),
-                       self.extract(3).abs())
+        Self::Out::new(
+            self.extract(0).abs(),
+            self.extract(1).abs(),
+            self.extract(2).abs(),
+            self.extract(3).abs(),
+        )
     }
 }
 
@@ -41,15 +43,19 @@ impl Abs for f64x2 {
     #[cfg(target_feature = "sse2")]
     fn abs(&self) -> Self::Out {
         optimized!();
-        unsafe { _mm_and_pd(*self, Self::splat(transmute::<u64, f64>(0x7FFFFFFFFFFFFFFF))) }
+        unsafe {
+            _mm_and_pd(
+                *self,
+                Self::splat(transmute::<u64, f64>(0x7FFFFFFFFFFFFFFF)),
+            )
+        }
     }
 
     #[inline(always)]
     #[cfg(not(target_feature = "sse2"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(self.extract(0).abs(),
-                       self.extract(1).abs())
+        Self::Out::new(self.extract(0).abs(), self.extract(1).abs())
     }
 }
 
@@ -67,14 +73,16 @@ impl Abs for f32x8 {
     #[cfg(not(target_feature = "avx"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(self.extract(0).abs(),
-                       self.extract(1).abs(),
-                       self.extract(2).abs(),
-                       self.extract(3).abs(),
-                       self.extract(4).abs(),
-                       self.extract(5).abs(),
-                       self.extract(6).abs(),
-                       self.extract(7).abs())
+        Self::Out::new(
+            self.extract(0).abs(),
+            self.extract(1).abs(),
+            self.extract(2).abs(),
+            self.extract(3).abs(),
+            self.extract(4).abs(),
+            self.extract(5).abs(),
+            self.extract(6).abs(),
+            self.extract(7).abs(),
+        )
     }
 }
 
@@ -85,17 +93,24 @@ impl Abs for f64x4 {
     #[cfg(target_feature = "avx")]
     fn abs(&self) -> Self::Out {
         optimized!();
-        unsafe { _mm256_and_pd(*self, Self::splat(transmute::<u64, f64>(0x7FFFFFFFFFFFFFFF))) }
+        unsafe {
+            _mm256_and_pd(
+                *self,
+                Self::splat(transmute::<u64, f64>(0x7FFFFFFFFFFFFFFF)),
+            )
+        }
     }
 
     #[inline(always)]
     #[cfg(not(target_feature = "avx"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(self.extract(0).abs(),
-                       self.extract(1).abs(),
-                       self.extract(2).abs(),
-                       self.extract(3).abs())
+        Self::Out::new(
+            self.extract(0).abs(),
+            self.extract(1).abs(),
+            self.extract(2).abs(),
+            self.extract(3).abs(),
+        )
     }
 }
 
@@ -113,22 +128,24 @@ impl Abs for i8x16 {
     #[cfg(not(target_feature = "ssse3"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i8, u8>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(3).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(4).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(5).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(6).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(7).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(8).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(9).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(10).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(11).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(12).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(13).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(14).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(15).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i8, u8>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(3).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(4).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(5).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(6).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(7).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(8).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(9).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(10).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(11).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(12).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(13).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(14).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(15).overflowing_abs().0) },
+        )
     }
 }
 
@@ -146,14 +163,16 @@ impl Abs for i16x8 {
     #[cfg(not(target_feature = "ssse3"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i16, u16>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(3).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(4).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(5).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(6).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(7).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i16, u16>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(3).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(4).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(5).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(6).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(7).overflowing_abs().0) },
+        )
     }
 }
 
@@ -171,10 +190,12 @@ impl Abs for i32x4 {
     #[cfg(not(target_feature = "ssse3"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i32, u32>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(3).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i32, u32>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(3).overflowing_abs().0) },
+        )
     }
 }
 
@@ -192,38 +213,40 @@ impl Abs for i8x32 {
     #[cfg(not(target_feature = "avx2"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i8, u8>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(3).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(4).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(5).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(6).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(7).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(8).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(9).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(10).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(11).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(12).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(13).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(14).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(15).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(16).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(17).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(18).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(19).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(20).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(21).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(22).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(23).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(24).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(25).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(26).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(27).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(28).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(29).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(30).overflowing_abs().0) },
-                       unsafe { transmute::<i8, u8>(self.extract(31).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i8, u8>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(3).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(4).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(5).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(6).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(7).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(8).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(9).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(10).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(11).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(12).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(13).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(14).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(15).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(16).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(17).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(18).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(19).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(20).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(21).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(22).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(23).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(24).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(25).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(26).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(27).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(28).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(29).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(30).overflowing_abs().0) },
+            unsafe { transmute::<i8, u8>(self.extract(31).overflowing_abs().0) },
+        )
     }
 }
 
@@ -240,22 +263,24 @@ impl Abs for i16x16 {
     #[cfg(not(target_feature = "avx2"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i16, u16>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(3).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(4).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(5).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(6).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(7).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(8).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(9).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(10).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(11).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(12).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(13).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(14).overflowing_abs().0) },
-                       unsafe { transmute::<i16, u16>(self.extract(15).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i16, u16>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(3).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(4).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(5).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(6).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(7).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(8).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(9).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(10).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(11).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(12).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(13).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(14).overflowing_abs().0) },
+            unsafe { transmute::<i16, u16>(self.extract(15).overflowing_abs().0) },
+        )
     }
 }
 
@@ -272,14 +297,16 @@ impl Abs for i32x8 {
     #[cfg(not(target_feature = "avx2"))]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i32, u32>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(3).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(4).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(5).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(6).overflowing_abs().0) },
-                       unsafe { transmute::<i32, u32>(self.extract(7).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i32, u32>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(3).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(4).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(5).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(6).overflowing_abs().0) },
+            unsafe { transmute::<i32, u32>(self.extract(7).overflowing_abs().0) },
+        )
     }
 }
 
@@ -289,8 +316,10 @@ impl Abs for i64x2 {
     #[inline(always)]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
+        )
     }
 }
 
@@ -300,10 +329,12 @@ impl Abs for i64x4 {
     #[inline(always)]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(3).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(3).overflowing_abs().0) },
+        )
     }
 }
 
@@ -313,14 +344,15 @@ impl Abs for i64x8 {
     #[inline(always)]
     fn abs(&self) -> Self::Out {
         fallback!();
-        Self::Out::new(unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(3).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(4).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(5).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(6).overflowing_abs().0) },
-                       unsafe { transmute::<i64, u64>(self.extract(7).overflowing_abs().0) })
+        Self::Out::new(
+            unsafe { transmute::<i64, u64>(self.extract(0).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(1).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(2).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(3).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(4).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(5).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(6).overflowing_abs().0) },
+            unsafe { transmute::<i64, u64>(self.extract(7).overflowing_abs().0) },
+        )
     }
 }
-

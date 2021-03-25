@@ -5,12 +5,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
+use crate::arch::current::vecs::*;
 use crate::core::ops::BitXor;
 use crate::intrin::eq::*;
-use crate::arch::current::vecs::*;
 use crate::vecs::*;
+use crate::vektor::x86::*;
+use crate::vektor::x86_64::*;
 
 rust_fallback_eq! {
     impl Eq for u8x16 where "sse2" {
@@ -135,8 +135,8 @@ rust_fallback_eq! {
 }
 
 mod tests {
-    use crate::prelude::*;
     use crate::arch::current::vecs::*;
+    use crate::prelude::*;
 
     // test_packed_eq!(u8x64, u8, u8x64, u8, test_eq_u8x64);
     test_packed_eq!(u8x32, u8, u8x32, u8, test_eq_u8x32);

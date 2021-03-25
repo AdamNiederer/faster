@@ -57,15 +57,27 @@ mod tests {
     #[test]
     fn upcast_i32s_i64s() {
         // TODO: Fix ugliness
-        assert_eq!(Upcast::<i64s>::upcast(i32s::interleave(1, 2)).0, i64s::interleave(1, 2));
-        assert_eq!(Upcast::<i64s>::upcast(i32s::interleave(1, 2)).1, i64s::interleave(1, 2));
+        assert_eq!(
+            Upcast::<i64s>::upcast(i32s::interleave(1, 2)).0,
+            i64s::interleave(1, 2)
+        );
+        assert_eq!(
+            Upcast::<i64s>::upcast(i32s::interleave(1, 2)).1,
+            i64s::interleave(1, 2)
+        );
     }
 
     #[test]
     fn upcast_i32s_f64s() {
         // TODO: Fix ugliness
-        assert_eq!(Upcast::<f64s>::upcast(i32s::interleave(1, 2)).0, f64s::interleave(1.0, 2.0));
-        assert_eq!(Upcast::<f64s>::upcast(i32s::interleave(1, 2)).1, f64s::interleave(1.0, 2.0));
+        assert_eq!(
+            Upcast::<f64s>::upcast(i32s::interleave(1, 2)).0,
+            f64s::interleave(1.0, 2.0)
+        );
+        assert_eq!(
+            Upcast::<f64s>::upcast(i32s::interleave(1, 2)).1,
+            f64s::interleave(1.0, 2.0)
+        );
     }
 
     #[test]
@@ -76,8 +88,17 @@ mod tests {
 
     #[test]
     fn upcast_f32s() {
-        assert_eq!(f32s::interleave(1.0, 2.0).upcast(), (f64s::interleave(1.0, 2.0), f64s::interleave(1.0, 2.0)));
-        assert_eq!(f32s::interleave(1.0, 2.0).upcast().0, f64s::interleave(1.0, 2.0));
-        assert_eq!(f32s::interleave(1.0, 2.0).upcast().1, f64s::interleave(1.0, 2.0));
+        assert_eq!(
+            f32s::interleave(1.0, 2.0).upcast(),
+            (f64s::interleave(1.0, 2.0), f64s::interleave(1.0, 2.0))
+        );
+        assert_eq!(
+            f32s::interleave(1.0, 2.0).upcast().0,
+            f64s::interleave(1.0, 2.0)
+        );
+        assert_eq!(
+            f32s::interleave(1.0, 2.0).upcast().1,
+            f64s::interleave(1.0, 2.0)
+        );
     }
 }

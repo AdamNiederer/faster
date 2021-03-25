@@ -106,7 +106,7 @@ mod tests {
     use crate::prelude::*;
 
     macro_rules! test_transmute {
-        ($name:ident, $val:expr, $xmute:ident) => (
+        ($name:ident, $val:expr, $xmute:ident) => {
             #[test]
             fn $name() {
                 #![allow(unused_unsafe)]
@@ -119,7 +119,7 @@ mod tests {
                 assert_eq!(unsafe { $val.be_i64s().$xmute() }, $val);
                 assert_eq!(unsafe { $val.be_u64s().$xmute() }, $val);
             }
-        )
+        };
     }
 
     test_transmute!(transmute_u8s, u8s(1), be_u8s);

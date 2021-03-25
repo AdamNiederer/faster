@@ -5,15 +5,15 @@
 // License, v. 2.0. If a copy owf the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::iters::{SIMDIter, SIMDIterator, SIMDObject};
+use crate::arch::current::vecs::*;
 #[allow(unused_imports)] // Remove for specialization
 use crate::iters::SIMDAdapter;
-use crate::arch::current::vecs::*;
+use crate::iters::{SIMDIter, SIMDIterator, SIMDObject};
 
 /// A trait which transforms a contiguous collection into an owned stream of
 /// vectors.
 pub trait IntoSIMDIterator {
-    type Iter : SIMDIterator;
+    type Iter: SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
     /// values into SIMD vectors. See `SIMDIterator::simd_map` and
@@ -24,7 +24,7 @@ pub trait IntoSIMDIterator {
 /// A trait which transforms a contiguous collection into a slice-backed stream
 /// of vectors.
 pub trait IntoSIMDRefIterator<'a> {
-    type Iter : SIMDIterator;
+    type Iter: SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
     /// values into SIMD vectors. See `SIMDIterator::simd_map` and
@@ -35,7 +35,7 @@ pub trait IntoSIMDRefIterator<'a> {
 /// A trait which transforms a contiguous collection into a mutable slice-backed
 /// stream of vectors.
 pub trait IntoSIMDRefMutIterator<'a> {
-    type Iter : SIMDIterator;
+    type Iter: SIMDIterator;
 
     /// Return an iterator over this data which will automatically pack
     /// values into SIMD vectors. See `SIMDIterator::simd_map` and
@@ -115,16 +115,10 @@ macro_rules! impl_array_intos {
     }
 }
 
-impl_array_intos!(u8, u8s,
-                  i8, i8s,
-                  u16, u16s,
-                  i16, i16s,
-                  u32, u32s,
-                  i32, i32s,
-                  f32, f32s,
-                  u64, u64s,
-                  i64, i64s,
-                  f64, f64s);
+impl_array_intos!(
+    u8, u8s, i8, i8s, u16, u16s, i16, i16s, u32, u32s, i32, i32s, f32, f32s, u64, u64s, i64, i64s,
+    f64, f64s
+);
 
 // TODO: Specialization
 // impl<I, S> IntoSIMDIterator for I where I : ExactSizeIterator + Iterator<Item = S>, S : Packable {

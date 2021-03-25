@@ -5,11 +5,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::vektor::x86_64::*;
-use crate::vektor::x86::*;
 use crate::arch::current::vecs::*;
-use crate::vecs::*;
 use crate::intrin::recip::Recip;
+use crate::vecs::*;
+use crate::vektor::x86::*;
+use crate::vektor::x86_64::*;
 
 rust_fallback_impl! {
     impl Recip for f32x8 where "avx" {
@@ -22,4 +22,3 @@ rust_fallback_impl! {
         recip => _mm_rcp_ps(), [0, 1, 2, 3];
     }
 }
-
